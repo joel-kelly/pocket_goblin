@@ -1,5 +1,6 @@
 // The Workshop: a Minecraft-style block editor for making goblin gear & snacks.
-// Left-click places a block, right-click removes, drag spins the view, scroll zooms.
+// Click or drag on blocks to build/erase/paint (strokes stay on one flat layer),
+// right-click/drag erases, drag on empty space (or Shift+drag) spins, scroll zooms.
 import * as THREE from '../../vendor/three.module.min.js';
 import { VoxelModel, buildMesh } from '../voxel.js';
 import { SLOTS, WEAR_SLOTS, buildGoblinParts, isGhostCell } from '../goblinModel.js';
@@ -24,8 +25,13 @@ const TOOLS = [
   { id: 'build', label: '🧱 Build', key: 'B' },
   { id: 'erase', label: '💥 Erase', key: 'E' },
   { id: 'paint', label: '🖌️ Paint', key: 'P' },
+  { id: 'fill', label: '🪣 Fill color', key: 'F' },
   { id: 'pick', label: '💧 Copy color', key: 'C' },
 ];
+const BRUSHES = [{ size: 1, label: '1×1' }, { size: 3, label: '3×3' }, { size: 5, label: '5×5' }];
+const AXES = ['x', 'y', 'z'];
+
+const axisOf = (n) => (Math.abs(n.x) > 0.5 ? 0 : Math.abs(n.y) > 0.5 ? 1 : 2);
 
 export class WorkshopScreen {
   constructor(game) {
@@ -35,6 +41,7 @@ export class WorkshopScreen {
     this.tool = 'build';
     this.color = '#e2353f';
     this.mirror = true;
+    this.brush = 1;
     this.undoStack = [];
     this.redoStack = [];
     this.yaw = 0.55; this.pitch = 0.32; this.dist = 60;
@@ -66,8 +73,12 @@ export class WorkshopScreen {
     cv.addEventListener('pointerdown', (e) => this.onDown(e));
     window.addEventListener('pointermove', (e) => this.onMove(e));
     window.addEventListener('pointerup', (e) => this.onUp(e));
+    window.addEventListener('pointercancel', (e) => this.onUp(e));
     cv.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
-    cv.addEventListener('contextmenu', (e) => { if (this.active()) e.preventDefault(); });
+    // Right-click erases, so never show the browser's menu in the Workshop.
+    window.addEventListener('contextmenu', (e) => {
+      if (this.game.screen === this && e.target.tagName !== 'INPUT') e.preventDefault();
+    }, true);
   }
 
   get state() { return this.game.state; }
@@ -262,6 +273,14 @@ export class WorkshopScreen {
       this.toolBtns[t.id] = b;
       left.append(b);
     }
+    this.brushBtns = {};
+    const brushRow = h('div', { class: 'ws-brush' });
+    for (const b of BRUSHES) {
+      const el = button(b.label, () => this.setBrush(b.size), 'small');
+      this.brushBtns[b.size] = el;
+      brushRow.append(el);
+    }
+    left.append(h('div', { class: 'ws-label' }, 'Brush size  [ ]'), brushRow);
     this.mirrorBtn = button(h('span', {}, '🪞 Mirror', h('span', { class: 'key' }, 'M')), () => this.toggleMirror(), 'small');
     left.append(h('div', { style: { height: '8px' } }), this.mirrorBtn,
       button(h('span', {}, '↩️ Undo', h('span', { class: 'key' }, 'Z')), () => this.undo(), 'small'),
@@ -287,13 +306,22 @@ export class WorkshopScreen {
     const right = h('div', { class: 'ws-right' }, h('h3', {}, 'Colors'), this.swatches,
       h('div', { class: 'ws-cur' }, this.colorIn, 'Any color!'), this.countEl);
 
-    const help = h('div', { class: 'ws-help' }, 'Left-click: place block  •  Right-click: remove  •  Drag: spin  •  Scroll: zoom  •  Arrow keys: turn');
+    const help = h('div', { class: 'ws-help' },
+      h('div', {}, 'Click or DRAG on blocks: use tool  •  Right-click/drag: erase'),
+      h('div', {}, 'Drag on empty space (or Shift+drag): spin  •  Scroll: zoom  •  Arrow keys: turn'));
 
     this.root.innerHTML = '';
     this.root.append(h('div', { class: 'ws' }, top, left, right, help));
     this.setTool(this.tool);
     this.setColor(this.color);
+    this.setBrush(this.brush);
     this.mirrorBtn.classList.toggle('on', this.mirror);
+  }
+
+  setBrush(size) {
+    this.brush = size;
+    for (const [s, b] of Object.entries(this.brushBtns || {})) b.classList.toggle('on', Number(s) === size);
+    this.updateCursor();
   }
 
   setTool(t) {
@@ -304,6 +332,7 @@ export class WorkshopScreen {
   setColor(c) {
     this.color = c;
     if (this.tool === 'erase' || this.tool === 'pick') this.setTool('build');
+    else this.updateCursor();
     this.swatches?.querySelectorAll('.swatch').forEach((s) => s.classList.toggle('on', s.dataset.c === c));
     if (this.colorIn && /^#[0-9a-f]{6}$/i.test(c)) this.colorIn.value = c;
     this.updateCursor();
@@ -339,108 +368,174 @@ export class WorkshopScreen {
       if (hit.object === this.itemMesh) {
         const n = hit.face.normal;
         const vx = Math.floor(p.x - n.x * 0.5) - o[0], vy = Math.floor(p.y - n.y * 0.5) - o[1], vz = Math.floor(p.z - n.z * 0.5) - o[2];
-        return { voxel: [vx, vy, vz], place: [vx + n.x, vy + n.y, vz + n.z] };
+        return { voxel: [vx, vy, vz], place: [vx + n.x, vy + n.y, vz + n.z], axis: axisOf(n) };
       }
-      let place;
+      let place, axis = 1;
       if (hit.object === this.floor) place = [Math.floor(p.x) - o[0], 0, Math.floor(p.z) - o[2]];
       else {
         const n = hit.face.normal;
+        axis = axisOf(n);
         place = [Math.floor(p.x + n.x * 0.5) - o[0], Math.floor(p.y + n.y * 0.5) - o[1], Math.floor(p.z + n.z * 0.5) - o[2]];
       }
-      if (this.valid(...place)) return { voxel: null, place };
+      if (this.valid(...place)) return { voxel: null, place, axis };
     }
     return null;
   }
 
   updateCursor(clientX = this.lastX, clientY = this.lastY) {
     this.cursorFill.visible = this.cursorEdge.visible = false;
-    this.hover = null;
-    if (!this.active() || clientX == null) return;
+    if (!this.active() || clientX == null || this.stroke || this.down?.rotating) return;
     const hit = this.pickAt(clientX, clientY);
     if (!hit) return;
-    const o = SLOTS[this.slot].origin;
-    let cell = null;
-    if (this.tool === 'build') {
-      if (hit.place && this.valid(...hit.place)) cell = hit.place;
-      this.cursorFill.material.color.set(this.color);
-      this.cursorEdge.material.color.set('#ffffff');
-      this.cursorFill.visible = !!cell;
-    } else {
-      if (hit.voxel) cell = hit.voxel;
-      this.cursorEdge.material.color.set(this.tool === 'erase' ? '#ff3b3b' : this.tool === 'paint' ? this.color : '#4fd1ff');
-      this.cursorFill.visible = false;
-    }
+    const tool = this.tool;
+    const cell = tool === 'build' ? hit.place : hit.voxel;
     if (!cell) return;
-    this.hover = { hit, cell };
+    const single = tool === 'pick' || tool === 'fill';
+    const o = SLOTS[this.slot].origin;
+    const scale = [1, 1, 1];
+    if (!single) for (let a = 0; a < 3; a++) if (a !== hit.axis) scale[a] = this.brush;
     const pos = new THREE.Vector3(cell[0] + o[0] + 0.5, cell[1] + o[1] + 0.5, cell[2] + o[2] + 0.5);
-    this.cursorFill.position.copy(pos);
-    this.cursorEdge.position.copy(pos);
+    for (const m of [this.cursorFill, this.cursorEdge]) { m.position.copy(pos); m.scale.set(...scale); }
+    this.cursorFill.material.color.set(this.color);
+    this.cursorFill.visible = tool === 'build';
+    this.cursorEdge.material.color.set(tool === 'build' ? '#ffffff' : tool === 'erase' ? '#ff3b3b' : tool === 'pick' ? '#4fd1ff' : this.color);
     this.cursorEdge.visible = true;
   }
 
-  applyTool(tool) {
-    const hit = this.lastX != null && this.pickAt(this.lastX, this.lastY);
-    if (!hit) return;
-    const m = this.model;
-    const cells = (c) => {
-      const out = [c];
-      if (this.mirror) { const mx = this.mirrorX(c[0]); if (mx !== c[0]) out.push([mx, c[1], c[2]]); }
-      return out;
-    };
-    if (tool === 'build') {
-      if (!hit.place || !this.valid(...hit.place)) return;
-      this.pushUndo();
-      for (const c of cells(hit.place)) if (this.valid(...c)) m.set(...c, this.color);
-      sfx.place();
-    } else if (tool === 'erase') {
-      if (!hit.voxel) return;
-      this.pushUndo();
-      for (const c of cells(hit.voxel)) m.delete(...c);
-      sfx.remove();
-    } else if (tool === 'paint') {
-      if (!hit.voxel) return;
-      this.pushUndo();
-      for (const c of cells(hit.voxel)) if (m.has(...c)) m.set(...c, this.color);
-      sfx.place();
-    } else if (tool === 'pick') {
-      if (!hit.voxel) return;
-      this.setColor(m.get(...hit.voxel));
-      sfx.click();
-      return;
+  // ---------------- strokes (click or drag) ----------------
+  // A stroke stays on the flat layer where it started, so dragging across the
+  // top of a hat paints a flat layer instead of stacking blocks toward you.
+  startStroke(tool, hit) {
+    const cell = tool === 'build' ? hit.place : hit.voxel;
+    if (!cell) return false;
+    this.pushUndo();
+    this.stroke = { tool, axis: hit.axis, layer: cell[hit.axis], last: cell, changed: 0, sfxAt: 0 };
+    this.paintAt(cell);
+    return true;
+  }
+
+  // Where the mouse ray crosses the stroke's layer.
+  strokeCell(clientX, clientY) {
+    const st = this.stroke;
+    const o = SLOTS[this.slot].origin;
+    const ndc = new THREE.Vector2((clientX / innerWidth) * 2 - 1, -(clientY / innerHeight) * 2 + 1);
+    this.raycaster.setFromCamera(ndc, this.camera);
+    const normal = new THREE.Vector3(); normal[AXES[st.axis]] = 1;
+    const plane = new THREE.Plane(normal, -(st.layer + o[st.axis] + 0.5));
+    const p = this.raycaster.ray.intersectPlane(plane, new THREE.Vector3());
+    if (!p) return null;
+    const c = [Math.floor(p.x) - o[0], Math.floor(p.y) - o[1], Math.floor(p.z) - o[2]];
+    c[st.axis] = st.layer;
+    return c;
+  }
+
+  continueStroke(clientX, clientY) {
+    const st = this.stroke;
+    const c = this.strokeCell(clientX, clientY);
+    if (!c || c.every((v, i) => v === st.last[i])) return;
+    // fill in the gap so fast drags make a solid line
+    const steps = Math.max(...c.map((v, i) => Math.abs(v - st.last[i])));
+    for (let k = 1; k <= steps; k++) {
+      this.paintAt(st.last.map((v, i) => Math.round(v + ((c[i] - v) * k) / steps)));
     }
+    st.last = c;
+  }
+
+  // Apply the stroke's tool with the brush (and mirror) around one cell.
+  paintAt(cell) {
+    const st = this.stroke;
+    const m = this.model;
+    const r = (this.brush - 1) / 2;
+    const [ua, va] = [0, 1, 2].filter((a) => a !== st.axis);
+    let changed = 0;
+    for (let du = -r; du <= r; du++) for (let dv = -r; dv <= r; dv++) {
+      const c = [...cell]; c[ua] += du; c[va] += dv;
+      const targets = [c];
+      if (this.mirror) { const mx = this.mirrorX(c[0]); if (mx !== c[0]) targets.push([mx, c[1], c[2]]); }
+      for (const t of targets) {
+        if (st.tool === 'build') {
+          if (this.valid(...t) && m.get(...t) !== this.color) { m.set(...t, this.color); changed++; }
+        } else if (st.tool === 'erase') {
+          if (m.has(...t)) { m.delete(...t); changed++; }
+        } else if (st.tool === 'paint') {
+          if (m.has(...t) && m.get(...t) !== this.color) { m.set(...t, this.color); changed++; }
+        }
+      }
+    }
+    if (!changed) return;
+    st.changed += changed;
     this.rebuild();
-    this.updateCursor();
+    const now = performance.now();
+    if (now > st.sfxAt) { st.sfxAt = now + 70; st.tool === 'erase' ? sfx.remove() : sfx.place(); }
+  }
+
+  endStroke() {
+    const st = this.stroke;
+    this.stroke = null;
+    if (st && !st.changed) this.undoStack.pop(); // nothing happened; don't leave an empty undo step
+  }
+
+  // Paint bucket: recolor every touching block of the same color.
+  fillAt(voxel) {
+    const m = this.model;
+    const starts = [voxel];
+    if (this.mirror) starts.push([this.mirrorX(voxel[0]), voxel[1], voxel[2]]);
+    this.pushUndo();
+    let changed = 0;
+    for (const start of starts) {
+      const from = m.get(...start);
+      if (!from || from === this.color) continue;
+      const queue = [start];
+      while (queue.length) {
+        const c = queue.pop();
+        if (m.get(...c) !== from) continue;
+        m.set(...c, this.color);
+        changed++;
+        for (const [dx, dy, dz] of [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]) queue.push([c[0] + dx, c[1] + dy, c[2] + dz]);
+      }
+    }
+    if (!changed) { this.undoStack.pop(); return; }
+    this.rebuild();
+    sfx.place();
   }
 
   // ---------------- input ----------------
   onDown(e) {
     if (!this.active()) return;
-    this.down = { x: e.clientX, y: e.clientY, button: e.button, yaw: this.yaw, pitch: this.pitch, dragging: false };
+    this.lastX = e.clientX; this.lastY = e.clientY;
+    const hit = this.pickAt(e.clientX, e.clientY);
+    const tool = e.button === 2 ? 'erase' : this.tool;
+    if (e.button === 2 && !hit?.voxel) return; // right-click only ever erases
+    const wantsSpin = e.button === 1 || e.shiftKey || !hit || (tool !== 'build' && !hit.voxel);
+    try { e.target.setPointerCapture(e.pointerId); } catch {}
+    if (wantsSpin || (e.button !== 0 && e.button !== 2)) {
+      this.down = { x: e.clientX, y: e.clientY, yaw: this.yaw, pitch: this.pitch, rotating: true };
+      this.cursorFill.visible = this.cursorEdge.visible = false;
+      return;
+    }
+    if (tool === 'pick') { this.setColor(this.model.get(...hit.voxel)); sfx.click(); return; }
+    if (tool === 'fill') { this.fillAt(hit.voxel); this.updateCursor(); return; }
+    this.down = { stroke: true };
+    this.startStroke(tool, hit);
+    this.cursorFill.visible = this.cursorEdge.visible = false;
   }
   onMove(e) {
     if (!this.active()) return;
     this.lastX = e.clientX; this.lastY = e.clientY;
-    if (this.down) {
+    if (this.down?.rotating) {
       const dx = e.clientX - this.down.x, dy = e.clientY - this.down.y;
-      if (!this.down.dragging && Math.hypot(dx, dy) > 6) this.down.dragging = true;
-      if (this.down.dragging) {
-        this.yaw = this.down.yaw - dx * 0.008;
-        this.pitch = Math.max(-1.2, Math.min(1.45, this.down.pitch + dy * 0.008));
-        this.cursorFill.visible = this.cursorEdge.visible = false;
-        return;
-      }
+      this.yaw = this.down.yaw - dx * 0.008;
+      this.pitch = Math.max(-1.2, Math.min(1.45, this.down.pitch + dy * 0.008));
+      return;
     }
+    if (this.stroke) { this.continueStroke(e.clientX, e.clientY); return; }
     this.updateCursor();
   }
-  onUp(e) {
-    if (!this.active() || !this.down) return;
-    const d = this.down;
+  onUp() {
+    if (!this.down && !this.stroke) return;
     this.down = null;
-    if (e.target.id !== 'game') return;
-    if (!d.dragging) {
-      if (d.button === 2) this.applyTool('erase');
-      else if (d.button === 0) this.applyTool(this.tool);
-    }
+    if (this.stroke) this.endStroke();
+    this.updateCursor();
   }
   onWheel(e) {
     if (!this.active()) return;
@@ -459,6 +554,9 @@ export class WorkshopScreen {
     if (k === 'e') return this.setTool('erase');
     if (k === 'p') return this.setTool('paint');
     if (k === 'c') return this.setTool('pick');
+    if (k === 'f') return this.setTool('fill');
+    if (k === '[') return this.setBrush(Math.max(1, this.brush - 2));
+    if (k === ']') return this.setBrush(Math.min(5, this.brush + 2));
     if (k === 'm') return this.toggleMirror();
     if (/^[0-9]$/.test(k)) return this.setColor(PALETTE[(Number(k) + 9) % 10]);
     if (k === 'arrowleft' || k === 'a') this.yaw -= 0.2;
