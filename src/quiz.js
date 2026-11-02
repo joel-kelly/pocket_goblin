@@ -1,7 +1,7 @@
 // Shared "type the answer" card used by all the math games.
 // - Digits type the answer; it checks automatically once enough digits are typed.
 // - A wrong answer shows the right one, and you type it to keep going.
-import { h } from './ui.js';
+import { h, nums } from './ui.js';
 import { sfx } from './audio.js';
 
 // Turn a FactPicker problem into something the card can show.
@@ -53,7 +53,7 @@ export class QuizCard {
     const kids = [];
     if (this.fixing) kids.push(h('div', { class: 'g-prob g-fixline' }, p.full));
     kids.push(p.prompt(ans));
-    kids.push(h('div', { class: 'g-hint' + (this.fixing ? ' fix' : '') }, this.fixing ? `Type ${p.answer} to keep going!` : (p.hint || '')));
+    kids.push(h('div', { class: 'g-hint' + (this.fixing ? ' fix' : '') }, nums(this.fixing ? `Type ${p.answer} to keep going!` : (p.hint || ''))));
     this.speedEl = h('div', { class: 'g-speed' }, this.fixing ? '' : this.speedText || '');
     kids.push(this.speedEl);
     this.card.replaceChildren(...kids);

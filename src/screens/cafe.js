@@ -2,7 +2,7 @@
 // single orders (times tables) → two-item orders → splitting the bill (division)
 // → making change. Faster service = bigger tips.
 import * as THREE from '../../vendor/three.module.min.js';
-import { h, button, floater, modalOpen } from '../ui.js';
+import { h, button, floater, modalOpen, nums } from '../ui.js';
 import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh } from '../voxel.js';
 import { FX } from '../fx.js';
@@ -317,8 +317,8 @@ export class CafeScreen {
       const paid = total < 50 ? 50 : 100;
       return {
         answer: paid - total, item, hint: 'First find the total, then the change!',
-        full: `${qty} × ${item.price}¢ = ${total}¢, and ${paid}¢ − ${total}¢ = ${paid - total}¢`,
-        prompt: (ans) => this.ticket(c, [this.itemRow(item, qty), h('div', { class: 'ticket-note' }, `💰 They pay with a ${paid}¢ coin.`)], 'CHANGE = ', ans),
+        full: `${qty} × ${item.price}¢ = ${total}¢\n${paid}¢ - ${total}¢ = ${paid - total}¢`,
+        prompt: (ans) => this.ticket(c, [this.itemRow(item, qty), h('div', { class: 'ticket-note' }, nums(`💰 They pay with a ${paid}¢ coin.`))], 'CHANGE = ', ans),
       };
     }
     if (type === 'double') {
@@ -341,8 +341,8 @@ export class CafeScreen {
       answer: each, fact: [n, each], item, kind: 'div',
       full: `${bill}¢ ÷ ${n} = ${each}¢`,
       prompt: (ans) => this.ticket(c, [
-        h('div', { class: 'ticket-note big' }, `👥 A table of ${n} goblins.`),
-        h('div', { class: 'ticket-note big' }, `🧾 The bill is ${bill}¢.`),
+        h('div', { class: 'ticket-note big' }, nums(`👥 A table of ${n} goblins.`)),
+        h('div', { class: 'ticket-note big' }, nums(`🧾 The bill is ${bill}¢.`)),
         h('div', { class: 'ticket-note' }, 'They split it evenly.'),
       ], 'EACH PAYS ', ans),
     };
@@ -500,7 +500,7 @@ export class CafeScreen {
         h('div', {}, 'Served right', h('b', {}, `${this.correct}/${this.total}`)),
         h('div', {}, 'Avg speed', h('b', {}, avg ? avg.toFixed(1) + 's' : '-')),
         h('div', { style: { gridColumn: '1 / -1', background: 'var(--gold)' } }, 'Tips earned', h('b', {}, `${this.tips + bonus}¢`))),
-      this.tricky.length ? h('div', {}, h('div', { style: { fontWeight: 700, marginTop: '8px' } }, 'Tricky orders:'), h('div', { class: 'tricky' }, ...this.tricky.slice(0, 6).map((t) => h('span', {}, t)))) : null,
+      this.tricky.length ? h('div', {}, h('div', { style: { fontWeight: 700, marginTop: '8px' } }, 'Tricky orders:'), h('div', { class: 'tricky' }, ...this.tricky.slice(0, 6).map((t) => h('span', {}, t.replace('\n', ', '))))) : null,
       h('div', { class: 'row', style: { display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '14px' } },
         button('New shift! (Enter)', () => this.startShift(), 'gold'),
         button('Home (Esc)', () => this.game.go('home'), ''))));
