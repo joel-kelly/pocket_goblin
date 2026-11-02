@@ -38,9 +38,10 @@ export function openParent(game) {
     }
   }
 
-  const hist = h('table', { class: 'hist' }, h('tr', {}, h('th', {}, 'When'), h('th', {}, 'Right'), h('th', {}, 'Accuracy'), h('th', {}, 'Avg time'), h('th', {}, 'Best streak')));
+  const hist = h('table', { class: 'hist' }, h('tr', {}, h('th', {}, 'When'), h('th', {}, 'Game'), h('th', {}, 'Right'), h('th', {}, 'Accuracy'), h('th', {}, 'Avg time'), h('th', {}, 'Best streak')));
   for (const r of s.history.slice(-10).reverse()) {
     hist.append(h('tr', {}, h('td', {}, new Date(r.t).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })),
+      h('td', {}, { rocket: '🚀 Rocket', cafe: '🍔 Café' }[r.game] || '🧮 Dash'),
       h('td', {}, r.correct), h('td', {}, Math.round((r.correct / Math.max(1, r.total)) * 100) + '%'), h('td', {}, r.avg.toFixed(1) + 's'), h('td', {}, r.streak)));
   }
 
@@ -64,7 +65,7 @@ export function openParent(game) {
     h('div', { class: 'legend' },
       ...[['#3aa83a', 'Mastered'], ['#8fdc3a', 'Good'], ['#ffe14d', 'Getting there'], ['#ffab4a', 'Just started'], ['#ff6b6b', 'Needs practice'], ['#e6e0d0', 'Not seen']]
         .map(([c, l]) => h('span', {}, h('i', { style: { background: c } }), l))),
-    h('label', {}, 'Recent Math Dash rounds'),
+    h('label', {}, 'Recent math game rounds'),
     s.history.length ? hist : h('p', {}, 'No rounds played yet.'),
     h('label', {}, '"Fast" target time (facts answered faster level up)'), fastSel,
     h('label', {}, 'Pixel size'), pixSel,

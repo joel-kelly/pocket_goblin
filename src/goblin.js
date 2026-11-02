@@ -299,6 +299,7 @@ export class Goblin {
     o.armL += 0.05 * Math.sin(t * 1.7);
     o.armR -= 0.05 * Math.sin(t * 1.7 + 1);
     if (perky) o.y += 0.6 * Math.abs(Math.sin(t * 4));
+    if (this.overlay) this.overlay(o, t); // extra pose from a minigame (e.g. flying)
 
     // Actions
     for (const a of [...this.actions]) {

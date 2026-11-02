@@ -24,12 +24,15 @@ Progress is saved in the browser on that computer. **Grown-ups → Download back
 
 | | |
 |---|---|
-| 🧮 **Math Dash** | 60 seconds of ×/÷ facts up to 10×10, typed on the keyboard. Faster answers earn more coins, and every 5 in a row earns a combo bonus. A wrong answer pauses the clock and you type the right answer to keep going. |
+| 🧮 **Math Games** | Three games. All use the keyboard, and in all of them a wrong answer means typing the right one to keep going. |
+| ↳ **Math Dash** | 60 seconds of ×/÷ facts up to 10×10. Faster answers earn more coins, and every 5 in a row earns a combo bonus. |
+| ↳ **Fart Rocket** | Fart fuel drains all the time. Right answers refuel it, and faster answers add more. Fly past clouds, birds and airplanes to the Moon and beyond. The score is the best height. |
+| ↳ **Goblin Café** | Ring up 10 customers per shift. Orders get harder: single items (times tables), then two-item orders, splitting the bill (division) and making change. Faster service earns bigger tips, and her Workshop snacks show up on the menu. |
 | 🍔 **Feed** | Toss snacks into the goblin's mouth. Some snacks cause burps. Most cause farts. |
 | 🛒 **Shop** | Snacks plus about 26 wearables across 7 slots: hats, face stuff, bling, shirts, back stuff, hand stuff and shoes. Click any item to try it on before buying. |
 | 👕 **Wardrobe** | Put on and take off owned items and anything built in the Workshop. |
 | 🛁 **Bath** | The goblin HATES this. |
-| ✈️ **Vacation** | Send the goblin away for 5–20 real minutes. It comes back with a postcard. |
+| ✈️ **Vacation** | Send the goblin away for 5–20 real minutes. A "Current status" line updates while it's gone, and it comes back with a postcard. |
 | 🔨 **Workshop** | Build or remix items block by block. |
 | Grown-ups | Press and hold the button. Shows a heatmap of which facts are fast or shaky, recent rounds, settings and save backups. |
 
@@ -79,11 +82,13 @@ src/
   items.js                built-in items and snacks (built in code from blocks)
   lines.js                everything the goblin says + postcards  ← add jokes here!
   math.js                 times-table practice engine
+  quiz.js                 the shared "type the answer" card used by all math games
   state.js                save data + stat decay
   audio.js                all sound effects, generated in code (farts included)
   fx.js                   particles: fart clouds, hearts, confetti, bubbles
   world.js                3D scene, the goblin's den, pixelated renderer
-  screens/                home, shop, wardrobe, gauntlet (Math Dash), workshop, vacation, parent
+  screens/                home, shop, wardrobe, games (picker), gauntlet (Math Dash), rocket (Fart Rocket),
+                          cafe (Goblin Café), workshop, vacation, parent
 ```
 
 Open the browser console and type `pocketGoblin` to poke at the game while it's running.
@@ -92,6 +97,6 @@ Open the browser console and type `pocketGoblin` to poke at the game while it's 
 
 - **Face painter**: let her draw the goblin's expressions on a pixel grid.
 - **Record your own sounds**: burps, farts and "NOOOO" from the microphone.
-- More minigames: *Gobble Rush* (feed the goblin the food with the right answer) and a division "split the loot" boss.
+- More minigames: a Homework Troll boss battle, Swamp Hop (step on multiples), and a kid-vs-parent duel.
 - Unlock the Workshop (or rare colors) by mastering facts.
 - Daily streaks and a sticker book.

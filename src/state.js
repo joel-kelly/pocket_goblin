@@ -29,6 +29,8 @@ export function newState() {
     custom: [],
     facts: {},
     best: { score: 0, streak: 0 },
+    rocketBest: 0,
+    cafeBest: 0,
     history: [],
     vacation: null,
     postcards: [],

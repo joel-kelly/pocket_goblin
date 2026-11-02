@@ -235,3 +235,46 @@ table.hist { width: 100%; border-collapse: collapse; font-size: 15px; }
 table.hist td, table.hist th { border: 2px solid var(--ink); padding: 4px 6px; text-align: center; }
 .holdbtn { position: relative; overflow: hidden; }
 .holdbtn .prog { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--red); width: 0; }
+.g-fixline { font-size: 24px !important; color: #b8203a; margin-bottom: 12px; }
+
+/* math game picker */
+.game-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.game-card { display: flex !important; flex-direction: column; align-items: center; gap: 8px; padding: 16px 10px !important; white-space: normal !important; text-align: center; }
+.game-card .emo { font-size: 40px; font-family: initial; }
+.game-card .gname { font-size: 13px; }
+.game-card .gdesc { font-family: var(--body); font-size: 16px; line-height: 1.2; }
+.game-card .gbest { font-size: 9px; color: #7a3fb5; }
+.game-card:nth-child(1) { background: var(--gold); }
+.game-card:nth-child(2) { background: var(--slime); }
+.game-card:nth-child(3) { background: var(--pink); }
+
+/* fart rocket */
+.g-timer.fuel .fill { background: linear-gradient(90deg, #7fbf3f, #c9e27a); }
+.g-timer.fuel .fill.hurry { background: var(--red); animation: blink .5s infinite; }
+.alt-pill { font-size: 14px !important; min-width: 110px; text-align: center; background: #c4a0ff !important; }
+
+/* goblin café */
+.ticket-card { background: #fffdf3; padding: 22px 20px 20px; }
+.ticket { text-align: left; }
+.ticket-head { font-family: var(--title); font-size: 11px; color: #7a3fb5; border-bottom: 3px dashed #b8a070; padding-bottom: 8px; margin-bottom: 8px; }
+.ticket-row { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; margin: 6px 0; }
+.ticket-row img { width: 48px; height: 48px; image-rendering: pixelated; background: #fff; border: 3px solid var(--ink); }
+.ticket-row .q { font-family: var(--title); font-size: 16px; }
+.ticket-row .n { flex: 1; }
+.ticket-row .p { font-family: var(--title); font-size: 12px; color: #8a5a00; }
+.ticket-note { font-size: 19px; font-weight: 600; margin: 6px 0; }
+.ticket-note.big { font-size: 22px; font-weight: 700; }
+.ticket-q { font-size: clamp(20px, 2.6vw, 34px) !important; margin-top: 12px; border-top: 3px dashed #b8a070; padding-top: 12px; text-align: center; }
+.menu-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; text-align: left; }
+.menu-list div { display: flex; align-items: center; gap: 6px; background: #fff; border: 3px solid var(--ink); padding: 4px 6px; font-size: 15px; font-weight: 700; }
+.menu-list img { width: 32px; height: 32px; image-rendering: pixelated; }
+.menu-list span { flex: 1; }
+.menu-list b { font-family: var(--title); font-size: 10px; color: #8a5a00; }
+.cust-bubble { background: #fff6d6; }
+
+/* vacation status */
+.away-banner .status { background: #fff; border: 3px solid var(--ink); padding: 10px 12px; margin: 6px 0 4px; }
+.away-banner .status-label { font-family: var(--title); font-size: 9px; color: #7a3fb5; margin-bottom: 6px; }
+.away-banner .status-text { font-size: 20px; font-weight: 700; line-height: 1.25; min-height: 2.5em; display: grid; place-items: center; }
+.away-banner .status-text.pop { animation: statusPop .5s; }
+@keyframes statusPop { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: none; } }

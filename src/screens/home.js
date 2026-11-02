@@ -10,6 +10,8 @@ import { openShop } from './shop.js';
 import { openWardrobe } from './wardrobe.js';
 import { openVacation, openPostcards } from './vacation.js';
 import { openParent } from './parent.js';
+import { openGames } from './games.js';
+import { VACATION_STATUS, VACATION_STATUS_ANY } from '../lines.js';
 
 export class HomeScreen {
   constructor(game) {
@@ -80,7 +82,7 @@ export class HomeScreen {
       return b;
     };
     const actions = h('div', { class: 'actions' },
-      act('🧮', 'Math Dash!', () => this.game.go('gauntlet'), 'math', away),
+      act('🧮', 'Math Games!', () => openGames(this.game), 'math', away),
       act('🍔', 'Feed', () => this.openFeed(), '', away),
       act('🛒', 'Shop', () => openShop(this.game)),
       act('👕', 'Wardrobe', () => openWardrobe(this.game), '', away),
@@ -96,10 +98,14 @@ export class HomeScreen {
     if (away) {
       this.awayTimer = h('div', { class: 'timer' }, '');
       const dest = s.vacation;
+      this.statusEl = h('div', { class: 'status-text' }, '');
       this.hud.append(h('div', { class: 'away-banner' },
         h('h2', {}, `${s.gobName} is on vacation at ${dest.name}!`),
+        h('div', { class: 'status' }, h('div', { class: 'status-label' }, 'Current status:'), this.statusEl),
         h('p', {}, 'Back in:'), this.awayTimer,
         h('p', {}, 'While you wait: build something cool in the Workshop!')));
+      this.statusAt = 0;
+      this.nextStatus();
     }
     this.refresh();
   }
@@ -120,6 +126,17 @@ export class HomeScreen {
     return b;
   }
 
+  // Silly "what is the goblin doing right now" line while it's away.
+  nextStatus() {
+    const s = this.state;
+    if (!s.vacation || !this.statusEl) return;
+    const pool = [...(VACATION_STATUS[s.vacation.id] || []), ...VACATION_STATUS_ANY].filter((x) => x !== this.lastStatus);
+    this.lastStatus = pool[Math.floor(Math.random() * pool.length)];
+    this.statusEl.textContent = this.lastStatus;
+    this.statusEl.classList.remove('pop'); void this.statusEl.offsetWidth; this.statusEl.classList.add('pop');
+    this.statusAt = Date.now() + 12000;
+  }
+
   refresh() {
     if (!this.coinsEl) return;
     const s = this.state;
@@ -138,6 +155,7 @@ export class HomeScreen {
 
   second() {
     this.refresh();
+    if (this.state.vacation && this.statusEl && Date.now() > this.statusAt) this.nextStatus();
     if (!this.busy) this.game.applyMood();
   }
 

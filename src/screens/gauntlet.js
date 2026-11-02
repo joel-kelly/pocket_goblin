@@ -5,6 +5,7 @@ import { h, button, floater, modalOpen } from '../ui.js';
 import { sfx } from '../audio.js';
 import { FactPicker, coinsFor, masterySummary } from '../math.js';
 import { LINES, pick } from '../lines.js';
+import { QuizCard, factProblem } from '../quiz.js';
 
 const ROUND_SECONDS = 60;
 
@@ -41,6 +42,10 @@ export class GauntletScreen {
     this.rightPill = h('div', { class: 'pill' }, '✓ 0');
     this.bestPill = h('div', { class: 'pill' }, `Best: ${this.state.best.score}`);
     this.meta = h('div', { class: 'g-meta' }, this.comboPill, this.rightPill, this.bestPill);
+    this.quiz = new QuizCard(this.card, {
+      onAnswer: (ok, secs, p) => this.onAnswer(ok, secs, p),
+      onFixed: () => this.next(),
+    });
     this.root.innerHTML = '';
     this.root.append(h('div', { class: 'gauntlet' },
       h('div', { class: 'g-top' },
@@ -51,10 +56,7 @@ export class GauntletScreen {
       h('div', { class: 'g-box' }, this.card, this.meta)));
   }
 
-  setCard(...kids) {
-    this.card.innerHTML = '';
-    this.card.append(...kids);
-  }
+  setCard(...kids) { this.card.replaceChildren(...kids); }
 
   showReady() {
     this.meta.classList.add('hidden');
@@ -95,28 +97,8 @@ export class GauntletScreen {
   }
 
   next() {
-    this.problem = this.picker.next();
-    this.input = '';
-    this.fixing = false;
-    this.t0 = performance.now();
-    this.renderProblem();
-  }
-
-  renderProblem(hint = '', hintClass = '') {
-    const p = this.problem;
-    const ans = h('span', { class: 'g-ans' + (this.input ? '' : ' blink') }, this.input || '');
-    let line;
-    if (p.kind === 'missing') {
-      const [l, r] = p.text.split('?');
-      line = h('div', { class: 'g-prob' }, l, ans, r);
-    } else {
-      line = h('div', { class: 'g-prob' }, `${p.text} = `, ans);
-    }
-    const prob = this.fixing
-      ? h('div', {}, h('div', { class: 'g-prob', style: { fontSize: '26px', color: '#b8203a', marginBottom: '12px' } }, p.full), line)
-      : line;
-    this.speedEl = h('div', { class: 'g-speed' }, '');
-    this.setCard(prob, h('div', { class: 'g-hint ' + hintClass }, hint), this.speedEl);
+    if (this.phase !== 'play') return;
+    this.quiz.show(factProblem(this.picker.next()));
   }
 
   updateMeta() {
@@ -135,50 +117,29 @@ export class GauntletScreen {
     }
     if (this.phase !== 'play') return;
     if (e.key === 'Escape') { this.end(); return; }
-    if (/^[0-9]$/.test(e.key)) {
-      if (this.input.length >= 3) return;
-      this.input += e.key;
-      sfx.tick();
-      const target = String(this.problem.answer);
-      if (this.input.length >= target.length) this.submit();
-      else this.renderProblem(this.fixing ? `Type ${target} to keep going!` : '', this.fixing ? 'fix' : '');
-    } else if (e.key === 'Backspace') {
-      this.input = this.input.slice(0, -1);
-      this.renderProblem(this.fixing ? `Type ${this.problem.answer} to keep going!` : '', this.fixing ? 'fix' : '');
-    } else if (e.key === 'Enter' && this.input) {
-      this.submit();
-    }
+    this.quiz.key(e);
   }
 
-  submit() {
-    const p = this.problem;
-    const ok = Number(this.input) === p.answer;
-    if (this.fixing) {
-      if (ok) { sfx.correct(0); this.next(); }
-      else { sfx.wrong(); this.input = ''; this.card.classList.remove('wrong'); void this.card.offsetWidth; this.card.classList.add('wrong'); this.renderProblem(`Type ${p.answer} to keep going!`, 'fix'); }
-      return;
-    }
-    const secs = (performance.now() - this.t0) / 1000;
+  onAnswer(ok, secs, p) {
     this.total++;
     this.picker.record(p, ok, secs);
-    if (ok) this.onRight(secs);
-    else this.onWrong(secs);
+    if (ok) this.onRight(secs, p);
+    else this.onWrong(p);
   }
 
-  onRight(secs) {
+  onRight(secs, p) {
     const { goblin, world, S } = this.game;
     this.correct++;
     this.combo++;
     this.bestCombo = Math.max(this.bestCombo, this.combo);
     this.times.push(secs);
-    if (secs > this.fast * 1.6) this.tricky.set(this.problem.full, 'slow');
+    if (secs > this.fast * 1.6) this.tricky.set(p.full, 'slow');
     const c = coinsFor(secs, this.combo, this.fast);
     this.coins += c;
     S.addCoins(c);
     sfx.correct(this.combo);
     const rect = this.card.getBoundingClientRect();
     floater(rect.left + rect.width / 2, rect.top + 10, `+${c}¢`);
-    this.card.classList.remove('right'); void this.card.offsetWidth; this.card.classList.add('right');
     this.updateMeta();
 
     // Goblin cheers
@@ -196,13 +157,11 @@ export class GauntletScreen {
     if (this.combo >= 5) world.fx.flames(goblin.object.position.clone());
 
     this.next();
-    const label = secs <= this.fast / 2 ? '⚡ LIGHTNING!' : secs <= this.fast ? 'Quick!' : '';
-    this.speedEl.textContent = label;
+    this.quiz.setSpeed(secs <= this.fast / 2 ? '⚡ LIGHTNING!' : secs <= this.fast ? 'Quick!' : '');
   }
 
-  onWrong(secs) {
+  onWrong(p) {
     const { goblin } = this.game;
-    const p = this.problem;
     this.tricky.set(p.full, 'wrong');
     this.combo = 0;
     this.updateMeta();
@@ -212,19 +171,16 @@ export class GauntletScreen {
     else if (r < 0.7) { goblin.act('tantrum'); goblin.emote('crying', 1.8); }
     else { goblin.act('slump'); goblin.emote('crying', 1.8); }
     this.game.line('wrong', 1.8);
-    this.card.classList.remove('wrong'); void this.card.offsetWidth; this.card.classList.add('wrong');
-    this.fixing = true;
-    this.input = '';
-    this.renderProblem(`Type ${p.answer} to keep going!`, 'fix');
   }
 
   update(dt) {
     if (this.phase !== 'play') return;
-    if (!this.fixing) this.timeLeft -= dt;
+    const fixing = this.quiz.fixing;
+    if (!fixing) this.timeLeft -= dt;
     const t = Math.max(0, this.timeLeft);
     this.fill.style.width = (t / ROUND_SECONDS) * 100 + '%';
     this.fill.classList.toggle('hurry', t <= 10);
-    this.tLabel.textContent = this.fixing ? `${Math.ceil(t)} (paused)` : Math.ceil(t);
+    this.tLabel.textContent = fixing ? `${Math.ceil(t)} (paused)` : Math.ceil(t);
     if (t <= 10 && Math.ceil(t) < this.lastTick) { this.lastTick = Math.ceil(t); sfx.tick(); }
     if (t <= 0) this.end();
   }
@@ -238,12 +194,13 @@ export class GauntletScreen {
     const { goblin, world, S } = this.game;
     const s = this.state;
     this.phase = 'results';
+    this.quiz.problem = null;
     const avg = this.times.length ? this.times.reduce((a, b) => a + b, 0) / this.times.length : 0;
     const newBest = this.correct > s.best.score && this.correct > 0;
     let bonus = 0;
     if (newBest) { bonus = 10; S.addCoins(bonus); s.best.score = this.correct; }
     s.best.streak = Math.max(s.best.streak, this.bestCombo);
-    s.history.push({ t: Date.now(), correct: this.correct, total: this.total, avg, streak: this.bestCombo });
+    s.history.push({ t: Date.now(), game: 'dash', correct: this.correct, total: this.total, avg, streak: this.bestCombo });
     if (s.history.length > 200) s.history.shift();
     if (this.total > 0) S.addStat('fun', 12);
     S.save();
