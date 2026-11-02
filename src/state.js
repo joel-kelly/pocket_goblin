@@ -30,11 +30,12 @@ export function newState() {
     facts: {},
     best: { score: 0, streak: 0 },
     rocketBest: 0,
+    mathLevel: 10, // biggest times table unlocked so far
     cafeBest: 0,
     history: [],
     vacation: null,
     postcards: [],
-    settings: { sound: true, fastSeconds: 3, pixelScale: 3 },
+    settings: { sound: true, fastSeconds: 3, pixelScale: 3, maxFactor: 'auto' },
   };
 }
 

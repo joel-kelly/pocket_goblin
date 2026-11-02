@@ -5,8 +5,9 @@ import { h, button, floater, toast, modalOpen } from '../ui.js';
 import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh, voxelMaterial } from '../voxel.js';
 import { FX } from '../fx.js';
-import { FactPicker } from '../math.js';
+import { currentMax, FactPicker } from '../math.js';
 import { ROCKET_ZONES } from '../lines.js';
+import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
 
 const SKY = [
@@ -217,7 +218,7 @@ export class RocketScreen {
   }
 
   startRound() {
-    this.picker = new FactPicker(this.state.facts, this.state.settings);
+    this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
     this.fuel = 100; this.alt = 0; this.maxAlt = 0; this.boost = 18;
     this.correct = 0; this.total = 0; this.combo = 0; this.bestCombo = 0; this.times = [];
@@ -393,6 +394,7 @@ export class RocketScreen {
     if (s.history.length > 200) s.history.shift();
     if (this.total > 0) S.addStat('fun', 12);
     S.save();
+    afterRound(this.game);
     const acc = this.total ? Math.round((this.correct / this.total) * 100) : 0;
     this.bestPill.textContent = `Best: ${s.rocketBest || 0} m`;
     this.meta.classList.add('hidden');

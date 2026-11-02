@@ -27,7 +27,7 @@ Progress is saved in the browser on that computer. **Grown-ups → Download back
 | | |
 |---|---|
 | 🧮 **Math Games** | Three games. All use the keyboard, and in all of them a wrong answer means typing the right one to keep going. |
-| ↳ **Math Dash** | 60 seconds of ×/÷ facts up to 10×10. Faster answers earn more coins, and every 5 in a row earns a combo bonus. |
+| ↳ **Math Dash** | 60 seconds of ×/÷ facts (up to 10×10 at first, growing to 15×15). Faster answers earn more coins, and every 5 in a row earns a combo bonus. |
 | ↳ **Fart Rocket** | Fart fuel drains all the time. Right answers refuel it, and faster answers add more. Fly past clouds, birds and airplanes to the Moon and beyond. The score is the best height. |
 | ↳ **Goblin Café** | Ring up 10 customers per shift. Orders get harder: single items (times tables), then two-item orders, splitting the bill (division) and making change. Faster service earns bigger tips, and her Workshop snacks show up on the menu. |
 | 🍔 **Feed** | Toss snacks into the goblin's mouth. Some snacks cause burps. Most cause farts. |
@@ -48,7 +48,9 @@ Each *fact family* (like 7×8, which also covers 8×7, 56÷7 and 56÷8) has a le
 - **Right but slow**: the level stays the same. There's no punishment for being slow.
 - **Wrong**: the level drops 2.
 
-Low-level and slow facts come up much more often; mastered ones still appear occasionally. Problems are mixed between `a × b`, `c ÷ a` and `a × ? = c`. The engine is in `src/math.js`.
+Low-level and slow facts come up much more often; mastered ones still appear occasionally.
+
+**Numbers grow with her.** Problems start with facts up to 10×10. When 70% of the facts in play are *solid* (level 3+) **and** 70% of the newest times table is solid, the next table unlocks with a celebration: 11s, then 12s, and so on up to 15×15. The Math Games menu shows progress toward the next unlock. In **Grown-ups → Biggest number in problems** you can leave this on Auto or pin it anywhere from 10 to 15. Problems are mixed between `a × b`, `c ÷ a` and `a × ? = c`. The engine is in `src/math.js`.
 
 ## Workshop controls
 

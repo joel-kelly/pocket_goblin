@@ -3,8 +3,9 @@
 // and you type the right answer to keep going (that's how it sticks!).
 import { h, button, floater, modalOpen } from '../ui.js';
 import { sfx } from '../audio.js';
-import { FactPicker, coinsFor, masterySummary } from '../math.js';
+import { currentMax, FactPicker, coinsFor, masterySummary } from '../math.js';
 import { LINES, pick } from '../lines.js';
+import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
 
 const ROUND_SECONDS = 60;
@@ -83,7 +84,7 @@ export class GauntletScreen {
   }
 
   startRound() {
-    this.picker = new FactPicker(this.state.facts, this.state.settings);
+    this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
     this.timeLeft = ROUND_SECONDS;
     this.correct = 0; this.total = 0; this.combo = 0; this.bestCombo = 0; this.coins = 0;
@@ -204,12 +205,13 @@ export class GauntletScreen {
     if (s.history.length > 200) s.history.shift();
     if (this.total > 0) S.addStat('fun', 12);
     S.save();
+    afterRound(this.game);
 
     this.meta.classList.add('hidden');
     this.fill.style.width = '0%';
     this.tLabel.textContent = 'TIME!';
     const acc = this.total ? Math.round((this.correct / this.total) * 100) : 0;
-    const sum = masterySummary(s.facts, this.fast);
+    const sum = masterySummary(s.facts, this.fast, currentMax(s));
     const tricky = [...this.tricky.keys()].slice(0, 8);
 
     this.setCard(h('div', { class: 'results' },
