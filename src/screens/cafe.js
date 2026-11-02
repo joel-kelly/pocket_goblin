@@ -8,10 +8,11 @@ import { VoxelModel, buildMesh } from '../voxel.js';
 import { FX } from '../fx.js';
 import { Goblin } from '../goblin.js';
 import { SKINS, WEAR_SLOTS } from '../goblinModel.js';
-import { FactPicker } from '../math.js';
+import { currentMax, FactPicker } from '../math.js';
 import { allItems, getModel } from '../items.js';
 import { thumbnail } from '../world.js';
 import { CUSTOMER_NAMES, CUSTOMER_HELLO, CUSTOMER_HAPPY, CUSTOMER_MAD } from '../lines.js';
+import { afterRound } from './games.js';
 import { QuizCard } from '../quiz.js';
 
 const SHIFT = ['single', 'single', 'single', 'split', 'double', 'single', 'double', 'split', 'change', 'change'];
@@ -194,7 +195,7 @@ export class CafeScreen {
   startShift() {
     if (this.phase !== 'ready' && this.phase !== 'results') return;
     if (this.phase === 'results') { this.rollMenu(); }
-    this.picker = new FactPicker(this.state.facts, this.state.settings);
+    this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
     this.idx = -1;
     this.tips = 0; this.correct = 0; this.total = 0; this.times = [];
@@ -491,6 +492,7 @@ export class CafeScreen {
       S.addStat('fun', 12);
     }
     S.save();
+    afterRound(this.game);
     this.meta.classList.add('hidden');
     this.bestPill.textContent = `Best shift: ${s.cafeBest || 0}¢`;
     this.card.replaceChildren(h('div', { class: 'results' },

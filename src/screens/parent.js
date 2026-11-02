@@ -1,7 +1,7 @@
 // Grown-ups corner: fact mastery heatmap, history, settings, save backup.
 import { h, button, modal, toast } from '../ui.js';
 import { setSoundEnabled } from '../audio.js';
-import { MIN, MAX, factRecord, masterySummary } from '../math.js';
+import { MIN, TOP_MAX, START_MAX, factRecord, masterySummary, currentMax, unlockProgress } from '../math.js';
 
 // Color = how solid the fact is (its level goes up with fast right answers).
 function heatColor(r, fast) {
@@ -25,18 +25,30 @@ export function openParent(game) {
   const { S } = game;
   const s = game.state;
   const fast = s.settings.fastSeconds;
-  const sum = masterySummary(s.facts, fast);
+  const max = currentMax(s);
+  const sum = masterySummary(s.facts, fast, max);
+  const prog = unlockProgress(s);
 
-  const heat = h('div', { class: 'heat' }, h('div', { class: 'hd' }, '×'));
-  for (let b = MIN; b <= MAX; b++) heat.append(h('div', { class: 'hd' }, b));
-  for (let a = MIN; a <= MAX; a++) {
+  // Full 2-15 grid; tables that aren't unlocked yet are grayed out.
+  const heat = h('div', { class: 'heat', style: { gridTemplateColumns: `26px repeat(${TOP_MAX - MIN + 1}, 1fr)` } }, h('div', { class: 'hd' }, '×'));
+  for (let b = MIN; b <= TOP_MAX; b++) heat.append(h('div', { class: 'hd' }, b));
+  for (let a = MIN; a <= TOP_MAX; a++) {
     heat.append(h('div', { class: 'hd' }, a));
-    for (let b = MIN; b <= MAX; b++) {
+    for (let b = MIN; b <= TOP_MAX; b++) {
       const r = factRecord(s.facts, a, b);
+      if (a > max || b > max) {
+        heat.append(h('div', { class: 'locked', title: `${a}×${b}: not unlocked yet` }, r.avg ? r.avg.toFixed(1) : ''));
+        continue;
+      }
       const tip = r.seen ? `${a}×${b}: ${r.right}/${r.seen} right, avg ${r.avg?.toFixed(1)}s, level ${r.box}/5` : `${a}×${b}: not seen yet`;
       heat.append(h('div', { title: tip, style: { background: heatColor(r, fast) } }, r.avg ? r.avg.toFixed(1) : '·'));
     }
   }
+
+  const maxSel = h('select', {},
+    h('option', { value: 'auto', selected: !s.settings.maxFactor || s.settings.maxFactor === 'auto' }, `Auto: grow as she masters facts (now up to ${s.mathLevel || START_MAX})`),
+    ...[10, 11, 12, 13, 14, 15].map((v) => h('option', { value: v, selected: String(s.settings.maxFactor) === String(v) }, `Always up to ${v}`)));
+  maxSel.onchange = () => { s.settings.maxFactor = maxSel.value === 'auto' ? 'auto' : Number(maxSel.value); S.save(); toast('Saved!'); m.close(); openParent(game); };
 
   const hist = h('table', { class: 'hist' }, h('tr', {}, h('th', {}, 'When'), h('th', {}, 'Game'), h('th', {}, 'Right'), h('th', {}, 'Accuracy'), h('th', {}, 'Avg time'), h('th', {}, 'Best streak')));
   for (const r of s.history.slice(-10).reverse()) {
@@ -59,7 +71,10 @@ export function openParent(game) {
 
   const m = modal(h('div', {},
     h('h2', {}, 'Grown-ups Corner'),
-    h('p', {}, `Fact families 2×2 through 10×10 (each covers both orders and both divisions). Numbers = average answer time in seconds. A fact levels up each time it's answered right in under ${fast}s and drops on mistakes. "Mastered" = level 4+ and fast on average.`),
+    h('p', {}, `Each square is a fact family (covering both orders and both divisions). Numbers = average answer time in seconds. A fact levels up each time it's answered right in under ${fast}s and drops on mistakes. "Mastered" = level 4+ and fast on average. Gray = not unlocked yet.`),
+    h('p', { style: { fontWeight: 700 } }, prog.next
+      ? `Numbers go up to ${max}. The ${prog.next}s unlock when ${prog.needed} of ${prog.total} facts are solid (level 3+; ${prog.solid} so far) and ${prog.newestNeeded} of the ${prog.newestTotal} newest ${max}s facts are solid (${prog.newestSolid} so far).`
+      : `Numbers go up to ${max}.`),
     h('p', { style: { fontWeight: 700 } }, `Mastered: ${sum.mastered}/${sum.total} • Shaky: ${sum.shaky} • Not seen yet: ${sum.unseen}`),
     heat,
     h('div', { class: 'legend' },
@@ -68,6 +83,7 @@ export function openParent(game) {
     h('label', {}, 'Recent math game rounds'),
     s.history.length ? hist : h('p', {}, 'No rounds played yet.'),
     h('label', {}, '"Fast" target time (facts answered faster level up)'), fastSel,
+    h('label', {}, 'Biggest number in problems'), maxSel,
     h('label', {}, 'Pixel size'), pixSel,
     h('label', {}, 'Save file'),
     h('div', { class: 'row', style: { justifyContent: 'flex-start', marginTop: 0 } },
