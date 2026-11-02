@@ -1,0 +1,97 @@
+# Pocket Goblin 🟩
+
+A silly, slightly gross virtual pet. You solve times-table problems to earn coins, then spend them on snacks, fancy outfits and vacations for your goblin. It burps, farts, faints when you get a problem wrong, and cheers when you're on a roll.
+
+Everything is made of blocks (voxels), so you can build new hats, shirts and snacks in the **Workshop**, a Minecraft-style block editor.
+
+## Running it
+
+It's a plain web page with no build step. Browsers won't run it from a double-clicked file, so start a tiny local server from this folder:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open http://localhost:8000.
+
+### Putting it online (free)
+
+On GitHub, go to **Settings → Pages**, set **Source** to "Deploy from a branch", and pick the branch and `/ (root)`. The game will be live at `https://<user>.github.io/pocket_goblin/`.
+
+Progress is saved in the browser on that computer. **Grown-ups → Download backup** saves a copy you can load somewhere else.
+
+## What's in the game
+
+| | |
+|---|---|
+| 🧮 **Math Dash** | 60 seconds of ×/÷ facts up to 10×10, typed on the keyboard. Faster answers earn more coins, and every 5 in a row earns a combo bonus. A wrong answer pauses the clock and you type the right answer to keep going. |
+| 🍔 **Feed** | Toss snacks into the goblin's mouth. Some snacks cause burps. Most cause farts. |
+| 🛒 **Shop** | Snacks plus about 26 wearables across 7 slots: hats, face stuff, bling, shirts, back stuff, hand stuff and shoes. Click any item to try it on before buying. |
+| 👕 **Wardrobe** | Put on and take off owned items and anything built in the Workshop. |
+| 🛁 **Bath** | The goblin HATES this. |
+| ✈️ **Vacation** | Send the goblin away for 5–20 real minutes. It comes back with a postcard. |
+| 🔨 **Workshop** | Build or remix items block by block. |
+| Grown-ups | Press and hold the button. Shows a heatmap of which facts are fast or shaky, recent rounds, settings and save backups. |
+
+Hunger, thirst, clean and fun slowly drop over real time, tuned so about 10–15 minutes a day keeps the goblin happy. The goblin never dies. It just gets dramatic.
+
+### How the math practice works
+
+Each *fact family* (like 7×8, which also covers 8×7, 56÷7 and 56÷8) has a level from 0 to 5:
+
+- **Right and faster than the target time** (3 seconds by default; change it in Grown-ups): the level goes up.
+- **Right but slow**: the level stays the same. There's no punishment for being slow.
+- **Wrong**: the level drops 2.
+
+Low-level and slow facts come up much more often; mastered ones still appear occasionally. Problems are mixed between `a × b`, `c ÷ a` and `a × ? = c`. The engine is in `src/math.js`.
+
+## Workshop controls
+
+- **Left-click**: place a block. **Right-click**: remove one.
+- **Drag**: spin the view. **Scroll**: zoom.
+- **Keys**: `B` build, `E` erase, `P` paint, `C` copy a color, `M` mirror (both sides match), `Z`/`Y` undo/redo, `1`–`0` quick colors.
+- The see-through goblin shows where the item will sit. Blocks can't go inside the goblin.
+- **Try it on!** saves the item and puts it on the goblin. Homemade snacks can be fed straight to it.
+
+### Making a kid-designed item part of the game
+
+Items made in the Workshop live only in that browser. To make one permanent, so it ships with the game and appears in the Shop for everyone:
+
+1. In the Workshop, open the item and click **Export**. A `.json` file downloads.
+2. Copy it into the `items/` folder. You can add `"price": 40`, `"desc": "..."` and `"by": "Her Name"` to the file.
+3. Add the filename to `items/index.json`.
+
+`items/party-hat.json` is an example.
+
+## Project layout
+
+```
+index.html, style.css     page + pixel-style UI
+vendor/three.module.min.js   three.js r170 (3D engine, MIT)
+fonts/                    Press Start 2P + Pixelify Sans (OFL)
+items/                    extra items exported from the Workshop
+src/
+  main.js                 startup, game loop, first-time setup
+  voxel.js                block models + mesh builder (with Minecraft-style shading)
+  goblinModel.js          the goblin's body and the item slots
+  goblin.js               animations (hop, faint, fart, dance...) and emotes
+  face.js                 pixel-art face expressions
+  items.js                built-in items and snacks (built in code from blocks)
+  lines.js                everything the goblin says + postcards  ← add jokes here!
+  math.js                 times-table practice engine
+  state.js                save data + stat decay
+  audio.js                all sound effects, generated in code (farts included)
+  fx.js                   particles: fart clouds, hearts, confetti, bubbles
+  world.js                3D scene, the goblin's den, pixelated renderer
+  screens/                home, shop, wardrobe, gauntlet (Math Dash), workshop, vacation, parent
+```
+
+Open the browser console and type `pocketGoblin` to poke at the game while it's running.
+
+## Ideas for next time
+
+- **Face painter**: let her draw the goblin's expressions on a pixel grid.
+- **Record your own sounds**: burps, farts and "NOOOO" from the microphone.
+- More minigames: *Gobble Rush* (feed the goblin the food with the right answer) and a division "split the loot" boss.
+- Unlock the Workshop (or rare colors) by mastering facts.
+- Daily streaks and a sticker book.
