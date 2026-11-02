@@ -282,3 +282,5 @@ table.hist td, table.hist th { border: 2px solid var(--ink); padding: 4px 6px; t
 .ws-brush { display: flex; gap: 4px; }
 .ws-brush .btn { flex: 1; padding: 6px 2px; font-size: 9px; text-align: center; }
 .ws-help div + div { font-size: 14px; opacity: .85; margin-top: 2px; }
+.num { font-family: var(--title); font-size: .78em; letter-spacing: 0; }
+.g-fixline { white-space: pre-line; line-height: 1.5; }

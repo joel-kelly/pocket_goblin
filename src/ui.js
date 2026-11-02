@@ -18,6 +18,12 @@ export function h(tag, attrs = {}, ...kids) {
   return el;
 }
 
+// The body font's digits are hard to tell apart (5/S, 2/8), so numbers inside
+// sentences are shown in the blocky title font instead.
+export function nums(text) {
+  return String(text).split(/(\d+)/).filter(Boolean).map((part) => (/^\d+$/.test(part) ? h('span', { class: 'num' }, part) : part));
+}
+
 export function button(label, onClick, cls = '') {
   return h('button', { class: `btn ${cls}`, onclick: (e) => { sfx.click(); onClick(e); } }, label);
 }
