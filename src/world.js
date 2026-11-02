@@ -225,7 +225,7 @@ export class World {
   }
 
   // CSS pixel position of a world point (for speech bubbles, popups).
-  toScreen(v3, camera = this.camera) {
+  toScreen(v3, camera = this.active?.camera || this.camera) {
     const p = v3.clone().project(camera);
     return { x: (p.x * 0.5 + 0.5) * window.innerWidth, y: (-p.y * 0.5 + 0.5) * window.innerHeight, behind: p.z > 1 };
   }

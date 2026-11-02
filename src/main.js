@@ -9,6 +9,8 @@ import { h, button, say, updateBubble, modal, closePanel } from './ui.js';
 import { HomeScreen } from './screens/home.js';
 import { GauntletScreen } from './screens/gauntlet.js';
 import { WorkshopScreen } from './screens/workshop.js';
+import { RocketScreen } from './screens/rocket.js';
+import { CafeScreen } from './screens/cafe.js';
 import { checkVacation } from './screens/vacation.js';
 
 const state = S.load();
@@ -72,6 +74,8 @@ goblin.on('thud', () => sfx.thud());
 game.screens.home = new HomeScreen(game);
 game.screens.gauntlet = new GauntletScreen(game);
 game.screens.workshop = new WorkshopScreen(game);
+game.screens.rocket = new RocketScreen(game);
+game.screens.cafe = new CafeScreen(game);
 
 game.applyOutfit();
 game.applyMood();

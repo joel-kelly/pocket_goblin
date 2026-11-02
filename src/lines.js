@@ -144,3 +144,94 @@ export function writePostcard(dest, vars) {
     closer: fill(r(POSTCARD_CLOSERS)),
   };
 }
+
+// ---------------- Vacation "Current status" updates ----------------
+export const VACATION_STATUS = {
+  sock: [
+    '🧦 Building a sandcastle out of 400 socks',
+    '🦀 Arguing with a crab about who owns a sock',
+    '🌊 Surfing on a giant gym sock',
+    '😴 Napping in a hammock made of tube socks',
+    '👃 Sniffing every sock to find "the one"',
+    '🥥 Trying to open a coconut with its forehead',
+    '🧦 Wearing 9 socks on one foot. For fashion.',
+  ],
+  sewer: [
+    '🐀 Teaching Steve the rat how to burp',
+    '🚢 Steering the boat with its feet',
+    '🍽️ Back for a fourth plate at the sewer buffet',
+    '🎤 Doing karaoke in an echoey pipe',
+    '🦆 Racing rubber ducks. Losing.',
+    '🧻 Waving at things floating by',
+    '🛶 Taking a selfie with a very old sandwich',
+  ],
+  volcano: [
+    '🌋 Doing a cannonball into the lava tub',
+    '🍡 Roasting marshmallows (and eyebrows)',
+    '🐉 Playing cards with a dragon. The dragon cheats.',
+    '🔥 Getting a "hot stone massage". The stones are VERY hot.',
+    '🧴 Putting on SPF 9000',
+    '♨️ Steaming its armpits. Ahhhh.',
+    '😎 Wearing lava-proof sunglasses (they are melting)',
+  ],
+  cheese: [
+    '🧀 Eating a tunnel through a giant cheese',
+    '🐭 Losing a cheese-eating contest to a mouse',
+    '🕳️ Stuck in a cheese hole. Again.',
+    '🤢 Found the stinkiest cheese. Licked it. Twice.',
+    '🎿 Skiing down Mount Cheddar',
+    '😴 Napping in a cozy blue-cheese cave',
+    '📸 Taking pictures of mold. So beautiful.',
+  ],
+  moon: [
+    '🚀 Doing low-gravity backflips',
+    '🌕 Writing its name in moon dust with its butt',
+    '🛸 Asking aliens if they have snacks',
+    '💨 Using farts to fly around the craters',
+    '🗑️ Digging through space trash for treasure',
+    '🧑‍🚀 Wearing a fishbowl as a space helmet',
+    '⭐ Trying to lick a star. Too hot.',
+  ],
+};
+export const VACATION_STATUS_ANY = [
+  '📮 Writing you a postcard (with its tongue out)',
+  '💸 Spending all its money on gum',
+  '🗺️ Totally lost, but having fun',
+  '🧳 Repacking its suitcase. It is full of rocks.',
+  '📷 Taking 200 photos of its own feet',
+  '🤳 Telling strangers about you',
+];
+
+// ---------------- Fart Rocket ----------------
+export const ROCKET_ZONES = [
+  { alt: 0, name: 'The Swamp' },
+  { alt: 60, name: 'Treetops' },
+  { alt: 150, name: 'Cloud Town' },
+  { alt: 300, name: 'Bird Highway' },
+  { alt: 500, name: 'Airplane Lane' },
+  { alt: 800, name: 'Edge of Space' },
+  { alt: 1200, name: 'The Moon' },
+  { alt: 1800, name: 'Planet Pickle' },
+  { alt: 2500, name: 'Deep Space Dump' },
+  { alt: 3500, name: 'The Butt Nebula' },
+];
+LINES.rocketStart = ["Let's get this butt in the sky!", 'Fart fuel loaded! I think I ate enough beans.', 'Houston, we have a smell.'];
+LINES.rocketZone = ['WHEEEEE!', "I'm FLYING!", 'Look at me goooo!', 'This is the best fart of my LIFE!'];
+LINES.rocketLow = ['Running low on fart fuel!', 'More math! My beans are running out!', 'Uh oh... sputter sputter...'];
+LINES.rocketWrong = ['*sputter*', 'Pffft... that one was a dud!', 'Oops! Butt misfire!'];
+LINES.rocketCrash = ['Out of gas! AAAAAH!', 'Mayday! MAYDAY!', 'Not the pants parachute!'];
+
+// ---------------- Goblin Café ----------------
+export const CUSTOMER_NAMES = [
+  'Sir Stinksalot', 'Grubnose', 'Moldilocks', 'Burpina', 'Toenail Tim', 'Lady Gackbreath', 'Snorkel', 'Wartimus',
+  'Princess Puddle', 'Old Man Crumb', 'Bogsworth', 'Fungus Fred', 'Gloria Gutsy', 'Captain Crust', 'Mucus Max', 'Itchy Ida',
+];
+export const CUSTOMER_HELLO = [
+  "I'm SO hungry I could eat a chair.", 'Make it snappy, I smell food!', 'Extra slime, please.', 'My tummy is growling at me.',
+  "I'll have the usual. And also something else.", 'Is the food fresh? I hope not.', 'Hello! I brought exact change. Just kidding.',
+];
+LINES.cafeStart = ['Café is OPEN! Ring them up fast for big tips!', 'Welcome to my café! Don\'t lick the counter. That\'s MY job.'];
+LINES.cafeRight = ['Order up!', 'Enjoy your slop!', 'Ka-ching!', 'Bon appé-goblin!'];
+LINES.cafeWrong = ['Oops! Wrong price!', 'Math emergency!', 'Uh oh, they noticed.'];
+export const CUSTOMER_HAPPY = ['Yum yum!', 'Delicious!', 'Keep the change!', 'Five stars!', 'Best café in the swamp!'];
+export const CUSTOMER_MAD = ['You charged me WHAT?!', "That's not right!", 'Hey! Check your math!', 'I want to see the manager! Oh wait.'];
