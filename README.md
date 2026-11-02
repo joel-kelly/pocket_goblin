@@ -50,9 +50,12 @@ Low-level and slow facts come up much more often; mastered ones still appear occ
 
 ## Workshop controls
 
-- **Left-click**: place a block. **Right-click**: remove one.
-- **Drag**: spin the view. **Scroll**: zoom.
-- **Keys**: `B` build, `E` erase, `P` paint, `C` copy a color, `M` mirror (both sides match), `Z`/`Y` undo/redo, `1`–`0` quick colors.
+- **Click or drag on blocks** to use the current tool. A drag stays on the flat layer where it started, so dragging across the top of a hat lays down a flat layer instead of stacking blocks toward you.
+- **Right-click or right-drag** erases.
+- **Drag on empty space** (or **Shift+drag** anywhere, or middle-drag) spins the view. **Scroll** zooms.
+- **Brush size** 1×1, 3×3 or 5×5: use the buttons or `[` and `]`.
+- **Tools**: `B` build, `E` erase, `P` paint, `F` fill color (recolors a whole connected patch), `C` copy a color.
+- `M` mirror (both sides match), `Z`/`Y` undo/redo (one step per stroke), `1`–`0` quick colors.
 - The see-through goblin shows where the item will sit. Blocks can't go inside the goblin.
 - **Try it on!** saves the item and puts it on the goblin. Homemade snacks can be fed straight to it.
 
