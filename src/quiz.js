@@ -74,8 +74,8 @@ export class QuizCard {
       if (this.input.length >= 3) return true;
       this.input += e.key;
       sfx.tick();
+      this.render(); // show every digit, including the last one
       if (this.input.length >= String(this.problem.answer).length) this.submit();
-      else this.render();
       return true;
     }
     if (e.key === 'Backspace') { this.input = this.input.slice(0, -1); this.render(); return true; }
