@@ -1,9 +1,9 @@
 import * as THREE from '../vendor/three.module.min.js';
-import { World } from './world.js';
+import { World, DECOR_SPOTS } from './world.js';
 import * as S from './state.js';
 import { sfx, setSoundEnabled, unlockAudio } from './audio.js';
 import { LINES, pick } from './lines.js';
-import { getModel, setCustomItems, addShippedItems } from './items.js';
+import { getItem, getModel, setCustomItems, addShippedItems } from './items.js';
 import { SKINS } from './goblinModel.js';
 import { h, button, say, updateBubble, modal, closePanel } from './ui.js';
 import { HomeScreen } from './screens/home.js';
@@ -49,6 +49,42 @@ export const game = {
   },
   applyMood() { goblin.setMood(S.moodFromStats()); },
 
+  // ---- den decor ----
+  // preview = { spot, id } shows an item in a spot without saving (Shop try-on).
+  applyDecor(preview) {
+    const ids = [...(S.get().decor || [])];
+    if (preview) ids[preview.spot] = preview.id;
+    world.setDecor(DECOR_SPOTS.map((_, i) => {
+      const it = ids[i] && getItem(ids[i]);
+      return it ? { id: it.id, model: getModel(it.id), anim: it.anim } : null;
+    }));
+  },
+  decorSpotOf(id) { return (S.get().decor || []).indexOf(id); },
+  freeDecorSpot() {
+    const d = S.get().decor || [];
+    for (let i = 0; i < DECOR_SPOTS.length; i++) if (!d[i] || !getItem(d[i])) return i;
+    return -1;
+  },
+  // Put an item out in the den. Returns its spot, or -1 if the den is full.
+  placeDecor(id) {
+    const s = S.get();
+    const have = this.decorSpotOf(id);
+    if (have >= 0) return have;
+    const i = this.freeDecorSpot();
+    if (i < 0) return -1;
+    s.decor = [...(s.decor || [])];
+    s.decor[i] = id;
+    S.save();
+    this.applyDecor();
+    return i;
+  },
+  removeDecor(id) {
+    const s = S.get();
+    s.decor = (s.decor || []).map((d) => (d === id ? null : d));
+    S.save();
+    this.applyDecor();
+  },
+
   tween(dur, fn, done) { tweens.push({ t: 0, dur, fn, done }); },
   wait(sec) { return new Promise((r) => setTimeout(r, sec * 1000)); },
 
@@ -79,6 +115,7 @@ game.screens.cafe = new CafeScreen(game);
 
 game.applyOutfit();
 game.applyMood();
+game.applyDecor();
 
 // Load items that were exported from the Workshop and committed to items/
 fetch('items/index.json')
@@ -87,6 +124,7 @@ fetch('items/index.json')
     const list = await Promise.all(files.map((f) => fetch('items/' + f).then((r) => r.json()).then((d) => ({ id: 'x_' + f.replace(/\.json$/, ''), ...d }))));
     addShippedItems(list.filter((d) => d.slot && d.model));
     game.applyOutfit();
+    game.applyDecor();
   })
   .catch(() => {});
 

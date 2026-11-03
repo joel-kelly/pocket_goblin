@@ -14,6 +14,8 @@ export const SLOTS = {
   hand:  { label: 'Hand Stuff',  icon: '🪄', origin: [4, 0, -3],    size: [6, 18, 8],   part: 'armR' },
   feet:  { label: 'Shoes',       icon: '👟', origin: [-6, 0, -3],   size: [12, 5, 8],   part: 'root' },
   snack: { label: 'Snacks',      icon: '🍔', origin: [0, 0, 0],     size: [10, 10, 10], part: null },
+  // Decor sits in the den, not on the goblin. Its grid is centered on a spot on the floor.
+  decor: { label: 'Decor',       icon: '🪴', origin: [-7, 0, -7],   size: [14, 18, 14], part: null },
 };
 export const WEAR_SLOTS = ['head', 'face', 'neck', 'body', 'back', 'hand', 'feet'];
 
