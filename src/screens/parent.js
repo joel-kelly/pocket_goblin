@@ -53,7 +53,7 @@ export function openParent(game) {
   const hist = h('table', { class: 'hist' }, h('tr', {}, h('th', {}, 'When'), h('th', {}, 'Game'), h('th', {}, 'Right'), h('th', {}, 'Accuracy'), h('th', {}, 'Avg time'), h('th', {}, 'Best streak')));
   for (const r of s.history.slice(-10).reverse()) {
     hist.append(h('tr', {}, h('td', {}, new Date(r.t).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })),
-      h('td', {}, { rocket: '🚀 Rocket', cafe: '🍔 Café' }[r.game] || '🧮 Dash'),
+      h('td', {}, { rocket: '🚀 Rocket', cafe: '🍔 Café', race: '🏁 Sprint', squid: '🦑 Squid' }[r.game] || '🧮 Dash'),
       h('td', {}, r.correct), h('td', {}, Math.round((r.correct / Math.max(1, r.total)) * 100) + '%'), h('td', {}, r.avg.toFixed(1) + 's'), h('td', {}, r.streak)));
   }
 

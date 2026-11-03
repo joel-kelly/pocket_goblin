@@ -26,9 +26,11 @@ Progress is saved in the browser on that computer. **Grown-ups → Download back
 
 | | |
 |---|---|
-| 🧮 **Math Games** | Three games. All use the keyboard, and in all of them a wrong answer means typing the right one to keep going. |
+| 🧮 **Math Games** | Five games. All use the keyboard, and in all of them a wrong answer means typing the right one to keep going. |
 | ↳ **Math Dash** | 60 seconds of ×/÷ facts (up to 10×10 at first, growing to 15×15). Faster answers earn more coins, and every 5 in a row earns a combo bonus. |
 | ↳ **Fart Rocket** | Fart fuel drains all the time. Right answers refuel it, and faster answers add more. Fly past clouds, birds and airplanes to the Moon and beyond. The score is the best height. |
+| ↳ **Swamp Sprint** | Race 500 m against three rival goblins. Every right answer is a speed boost, and faster answers boost more. A wrong answer makes you stumble, and two in a row makes you trip on a banana peel. Rivals ease off a little when far ahead, so races stay close. |
+| ↳ **Squid Smackdown** | Box Big Inky, a giant squid. Every right answer is a punch (fast answers hit harder). When he winds up a tentacle, answer before the bar runs out to dodge and counterpunch for double damage. A wrong answer gets you slapped. Knock him down 3 times to win; he gets angrier and faster each time he gets up. |
 | ↳ **Goblin Café** | Ring up 10 customers per shift. Orders get harder: single items (times tables), then two-item orders, splitting the bill (division) and making change. Faster service earns bigger tips, and her Workshop snacks show up on the menu. |
 | 🍔 **Feed** | Toss snacks into the goblin's mouth. Some snacks cause burps. Most cause farts. |
 | 🛒 **Shop** | Snacks plus about 26 wearables across 7 slots: hats, face stuff, bling, shirts, back stuff, hand stuff and shoes. Click any item to try it on before buying. |
@@ -95,7 +97,8 @@ src/
   fx.js                   particles: fart clouds, hearts, confetti, bubbles
   world.js                3D scene, the goblin's den, pixelated renderer
   screens/                home, shop, wardrobe, games (picker), gauntlet (Math Dash), rocket (Fart Rocket),
-                          cafe (Goblin Café), workshop, vacation, parent
+                          cafe (Goblin Café), race (Swamp Sprint), squid (Squid Smackdown),
+                          workshop, vacation, parent
 ```
 
 Open the browser console and type `pocketGoblin` to poke at the game while it's running.

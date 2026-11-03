@@ -40,6 +40,8 @@ export function openGames(game) {
     { id: 'gauntlet', emo: '🧮', name: 'Math Dash', desc: '60 seconds. As many as you can!', best: `Best: ${s.best.score} right` },
     { id: 'rocket', emo: '🚀', name: 'Fart Rocket', desc: 'Answer fast to keep the fart fuel flowing. How high can you fly?', best: `Best: ${s.rocketBest || 0} m` },
     { id: 'cafe', emo: '🍔', name: 'Goblin Café', desc: 'Ring up 10 hungry customers. Fast service = big tips!', best: `Best: ${s.cafeBest || 0}¢ tips` },
+    { id: 'race', emo: '🏁', name: 'Swamp Sprint', desc: 'Race 3 goblins! Right answers make you run faster.', best: s.raceBest ? `Best: ${s.raceBest.toFixed(1)} s` : 'Best: -' },
+    { id: 'squid', emo: '🦑', name: 'Squid Smackdown', desc: 'Box a giant squid! Answer fast to punch and dodge.', best: s.squidBest ? `Fastest K.O.: ${s.squidBest} s` : 'Not beaten yet!' },
   ];
   const list = h('div', { class: 'game-pick' });
   const m = modal(h('div', {}, h('h2', {}, 'Pick a math game!'), progressEl(s), list));
