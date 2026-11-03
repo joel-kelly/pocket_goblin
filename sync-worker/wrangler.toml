@@ -9,4 +9,4 @@ ALLOWED_ORIGINS = "https://joel-kelly.github.io,http://localhost:8000"
 [[d1_databases]]
 binding = "DB"
 database_name = "pocket-goblin"
-database_id = "PASTE-DATABASE-ID-HERE"
+database_id = "ab3e4f97-7b35-4733-bd0b-77567840bc57"
