@@ -17,7 +17,20 @@ const VIEWS = {
   gauntlet: { pos: [28, 22, 118], target: [28, 17, 0] },
   closeup:  { pos: [12, 22, 70],  target: [12, 16, 0] },
   away:     { pos: [0, 24, 100], target: [0, 15, 0] },
+  decor:    { pos: [20, 30, 150], target: [20, 18, -6] },   // whole den visible left of the panel
 };
+
+// Where decor can go in the den (center of the item's floor). Left spots come
+// first so new stuff shows up next to the goblin, even with a panel open.
+export const DECOR_SPOTS = [
+  { name: 'Front left', pos: [-23, 0, 8] },
+  { name: 'Back left', pos: [-15, 0, -20] },
+  { name: 'Shelf', pos: [-27, 22, -21] },
+  { name: 'Front right', pos: [23, 0, 8] },
+  { name: 'Back right', pos: [16, 0, -21] },
+];
+// Decor is drawn a bit smaller than the goblin's blocks so it doesn't crowd the den.
+export const DECOR_SCALE = 0.75;
 
 export class World {
   constructor(canvas) {
@@ -39,6 +52,9 @@ export class World {
 
     this.addLights(this.scene);
     this.buildDen();
+    this.decor = [];
+    this.decorGroup = new THREE.Group();
+    this.scene.add(this.decorGroup);
 
     this.goblin = new Goblin();
     this.goblin.shadow.visible = false;
@@ -145,7 +161,7 @@ export class World {
 
     // Mushrooms
     const shrooms = new VoxelModel(null);
-    for (const [mx, mz, s] of [[-42, 10, 1], [-38, 18, 0.7], [44, 8, 1.2], [40, 20, 0.8], [-18, -20, 0.8], [15, -22, 0.6]]) {
+    for (const [mx, mz, s] of [[-42, 10, 1], [-38, 18, 0.7], [44, 8, 1.2], [40, 20, 0.8], [-44, -4, 0.8], [41, -22, 0.6]]) {
       const hgt = Math.round(3 * s) + 1;
       shrooms.box(mx, 0, mz, mx + 1, hgt, mz + 1, '#efe6d0');
       shrooms.sphere(mx + 0.5, hgt, mz + 0.5, 2.6 * s, (x, y, z) => (hash(x, y, z) < 0.2 ? '#ffffff' : '#e23a3a'), 1.6 * s);
@@ -156,6 +172,17 @@ export class World {
     }
     const shroomMesh = buildMesh(shrooms);
     den.add(shroomMesh);
+
+    // Wooden shelf (a decor spot)
+    const shelf = new VoxelModel(null);
+    shelf.box(-35, 20, -28, -19, 22, -14, (x, y, z) => (y === 21 ? (hash(x, 3, z) < 0.3 ? '#7a5230' : '#8a5a30') : '#6b4423'));
+    for (const bx of [-33, -22]) {
+      shelf.box(bx, 16, -28, bx + 1, 20, -26, '#5a3a1a');
+      shelf.box(bx, 19, -26, bx + 1, 20, -22, '#5a3a1a');
+    }
+    const shelfMesh = buildMesh(shelf, { jitter: 0.1 });
+    shelfMesh.receiveShadow = true;
+    den.add(shelfMesh);
 
     // Torch on the wall
     const torch = new VoxelModel(null);
@@ -177,6 +204,62 @@ export class World {
 
     this.den = den;
     this.scene.add(den);
+  }
+
+  // list[i] = { id, model, anim } for decor spot i, or null for an empty spot.
+  setDecor(list) {
+    for (let i = 0; i < DECOR_SPOTS.length; i++) {
+      const want = list[i] || null;
+      const have = this.decor[i];
+      if (have && want && have.id === want.id && have.model === want.model) continue;
+      if (have) { this.decorGroup.remove(have.group); have.mesh.geometry.dispose(); this.decor[i] = null; }
+      if (!want) continue;
+      const g = new THREE.Group();
+      g.position.set(...DECOR_SPOTS[i].pos);
+      const [sx, , sz] = want.model.size;
+      const mesh = buildMesh(want.model, { offset: [-sx / 2, 0, -sz / 2] });
+      mesh.receiveShadow = true;
+      g.add(mesh);
+      this.decorGroup.add(g);
+      const top = mesh.geometry.boundingBox.max.y;
+      this.decor[i] = { ...want, spot: i, group: g, mesh, top, t: Math.random() * 10, poke: 0, puffAt: 2 + Math.random() * 4 };
+    }
+  }
+
+  // Which decor spot (if any) a ray hits: { spot, distance } or null.
+  decorHit(raycaster) {
+    const hit = raycaster.intersectObject(this.decorGroup, true)[0];
+    const spot = hit ? this.decor.findIndex((d) => d && d.mesh === hit.object) : -1;
+    return spot >= 0 ? { spot, distance: hit.distance } : null;
+  }
+  decorTop(i, extra = 0) {
+    const d = this.decor[i];
+    return d.group.position.clone().add(new THREE.Vector3(0, d.top * d.group.scale.y + extra, 0));
+  }
+  pokeDecor(i) { if (this.decor[i]) this.decor[i].poke = 0.8; }
+
+  updateDecor(dt) {
+    for (const d of this.decor) {
+      if (!d) continue;
+      d.t += dt;
+      let sx = 1, sy = 1, rz = 0;
+      if (d.anim === 'squish') { const w = Math.sin(d.t * 3); sy += 0.07 * w; sx -= 0.04 * w; }
+      if (d.anim === 'sway') rz = 0.05 * Math.sin(d.t * 0.9);
+      if (d.anim === 'bob') sy += 0.02 * Math.sin(d.t * 1.6);
+      if (d.anim === 'stink' && d.t > d.puffAt) {
+        d.puffAt = d.t + 2.5 + Math.random() * 4;
+        this.fx.sprite(this.decorTop(d.spot, 1), 'stink', { vel: new THREE.Vector3((Math.random() - 0.5) * 2, 4, 0), life: 1.6, s0: 2, s1: 3.2 });
+        d.poke = Math.max(d.poke, 0.25);
+      }
+      if (d.poke > 0) {
+        d.poke = Math.max(0, d.poke - dt);
+        const k = d.poke / 0.8;
+        sy *= 1 + 0.18 * Math.sin(d.poke * 30) * k;
+        sx *= 1 - 0.1 * Math.sin(d.poke * 30) * k;
+      }
+      d.group.scale.set(sx * DECOR_SCALE, sy * DECOR_SCALE, sx * DECOR_SCALE);
+      d.group.rotation.z = rz;
+    }
   }
 
   setPixelScale(s) { this.pixelScale = s; this.resize(); }
@@ -207,6 +290,7 @@ export class World {
     this.camera.position.copy(this.camPos);
     this.camera.lookAt(this.camTarget);
     this.goblin.update(dt);
+    this.updateDecor(dt);
     this.fx.update(dt);
     const t = performance.now() / 1000;
     this.flame.scale.set(1 + 0.1 * Math.sin(t * 13), 1 + 0.2 * Math.sin(t * 17), 1);

@@ -8,10 +8,11 @@ import { buildMesh } from '../voxel.js';
 import { thumbnail } from '../world.js';
 import { openShop } from './shop.js';
 import { openWardrobe } from './wardrobe.js';
+import { openDecorate } from './decorate.js';
 import { openVacation, openPostcards } from './vacation.js';
 import { openParent } from './parent.js';
 import { openGames } from './games.js';
-import { VACATION_STATUS, VACATION_STATUS_ANY } from '../lines.js';
+import { VACATION_STATUS, VACATION_STATUS_ANY, pick, LINES } from '../lines.js';
 
 export class HomeScreen {
   constructor(game) {
@@ -39,6 +40,7 @@ export class HomeScreen {
     goblin.object.visible = !this.state.vacation && !this.state.returning;
     goblin.lookAt(null);
     this.game.applyOutfit();
+    this.game.applyDecor();
     this.game.applyMood();
     if (args.greet && !this.state.vacation) {
       setTimeout(() => {
@@ -86,6 +88,7 @@ export class HomeScreen {
       act('🍔', 'Feed', () => this.openFeed(), '', away),
       act('🛒', 'Shop', () => openShop(this.game)),
       act('👕', 'Wardrobe', () => openWardrobe(this.game), '', away),
+      act('🪴', 'Decorate', () => openDecorate(this.game)),
       act('🛁', 'Bath', () => this.bath(), '', away),
       act('✈️', 'Vacation', () => openVacation(this.game), '', away),
       act('📬', 'Postcards', () => openPostcards(this.game)),
@@ -188,12 +191,45 @@ export class HomeScreen {
 
   // ---------- poking ----------
   onCanvasClick(e) {
-    if (this.game.screen !== this || modalOpen() || this.state.vacation) return;
+    if (this.game.screen !== this || modalOpen()) return;
     const { world, goblin } = this.game;
     const ndc = new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
     this.raycaster.setFromCamera(ndc, world.camera);
-    if (!this.raycaster.intersectObject(goblin.object, true).length) return;
-    this.poke();
+    const gob = goblin.object.visible ? this.raycaster.intersectObject(goblin.object, true)[0] : null;
+    const decor = world.decorHit(this.raycaster);
+    if (decor && (!gob || decor.distance < gob.distance)) this.pokeDecor(decor.spot);
+    else if (gob && !this.state.vacation) this.poke();
+  }
+
+  // Clicking decor in the den makes it do its thing.
+  pokeDecor(i) {
+    const { world, goblin } = this.game;
+    const d = world.decor[i];
+    const it = d && getItem(d.id);
+    if (!it) return;
+    world.pokeDecor(i);
+    const top = world.decorTop(i, 1);
+    switch (it.poke) {
+      case 'fart': sfx.fart(0.4); world.fx.fart(top, 0.5, new THREE.Vector3(0.3, 0, 1).normalize()); break;
+      case 'squish': sfx.giggle(); world.fx.hearts(top, 3); break;
+      case 'leaf':
+        sfx.remove();
+        world.fx.cube(top.clone().add(new THREE.Vector3(2, -3, 1)), '#a07a3a', { vel: new THREE.Vector3(3, 1, 2), gravity: -6, drag: 0.96, life: 2.2, s0: 1, s1: 1, spin: 3 });
+        break;
+      case 'bubbles':
+        sfx.gulp();
+        for (let k = 0; k < 5; k++) world.fx.sprite(top.clone().add(new THREE.Vector3((Math.random() - 0.5) * 4, 0, 2)), 'bubble', { vel: new THREE.Vector3(0, 5, 0), life: 1.2, s0: 1, s1: 2.5, delay: k * 0.15 });
+        break;
+      case 'flush': sfx.splash(); setTimeout(() => sfx.whoosh(), 250); world.fx.bubbles(world.decorTop(i, -14), 10); break;
+      case 'none': sfx.click(); break;
+      default: sfx.place(); world.fx.stars(top, 6);
+    }
+    if (!goblin.object.visible || this.busy) return;
+    goblin.emote(it.poke === 'fart' ? 'love' : 'happy', 1.6);
+    if (!goblin.busy) goblin.act(it.poke === 'fart' ? 'wiggle' : 'nod');
+    this.game.say(pick(it.lines || LINES.decorPoke, this.game.vars()), 3);
+    this.idleAt = this.t + 6;
+    this.chatAt = Math.max(this.chatAt, this.t + 10);
   }
 
   poke() {
