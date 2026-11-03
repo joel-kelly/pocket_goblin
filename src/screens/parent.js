@@ -61,6 +61,9 @@ export function openParent(game) {
   const fastSel = h('select', {}, ...[2, 2.5, 3, 4, 5].map((v) => h('option', { value: v, selected: v === fast }, `${v} seconds`)));
   fastSel.onchange = () => { s.settings.fastSeconds = Number(fastSel.value); S.save(); toast('Saved!'); };
   const pixSel = h('select', {}, ...[2, 3, 4, 5].map((v) => h('option', { value: v, selected: v === s.settings.pixelScale }, `${v}x ${v === 3 ? '(default)' : v > 3 ? '(chunkier, faster)' : '(sharper)'}`)));
+  const padSel = h('select', {}, ...[['auto', 'Auto: show on phones and tablets'], ['on', 'Always show'], ['off', 'Never show (use the keyboard)']]
+    .map(([v, l]) => h('option', { value: v, selected: (s.settings.numpad || 'auto') === v }, l)));
+  padSel.onchange = () => { s.settings.numpad = padSel.value; S.save(); toast('Saved!'); };
   pixSel.onchange = () => { s.settings.pixelScale = Number(pixSel.value); game.world.setPixelScale(s.settings.pixelScale); S.save(); };
 
   // Goblin color: the starting swatches plus any color at all.
@@ -105,6 +108,7 @@ export function openParent(game) {
     h('label', {}, '"Fast" target time (facts answered faster level up)'), fastSel,
     h('label', {}, 'Biggest number in problems'), maxSel,
     h('label', {}, 'Pixel size'), pixSel,
+    h('label', {}, 'On-screen number pad in math games'), padSel,
     h('label', {}, 'Goblin color'), skins,
     h('label', {}, 'Save file'),
     h('div', { class: 'row', style: { justifyContent: 'flex-start', marginTop: 0 } },

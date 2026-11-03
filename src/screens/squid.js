@@ -4,7 +4,7 @@
 // - Too slow and the tentacle lands. A wrong answer gets you slapped right away.
 // - Knock Big Inky down 3 times to win. He gets angrier (and faster) each time he gets up.
 import * as THREE from '../../vendor/three.module.min.js';
-import { h, button, floater, modalOpen, nums } from '../ui.js';
+import { h, button, floater, modalOpen, nums, kb } from '../ui.js';
 import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh } from '../voxel.js';
 import { FX } from '../fx.js';
@@ -407,7 +407,7 @@ export class SquidScreen {
         '🥊 Every right answer is a punch. FAST answers punch harder!', h('br'),
         '⚠️ When Big Inky winds up a tentacle, answer quick to DODGE and hit back double!', h('br'),
         nums('⭐ Knock him down 3 times to win.')),
-      h('div', { style: { marginTop: '16px' } }, button('FIGHT! (Enter)', () => this.countdown(), 'gold big')));
+      h('div', { style: { marginTop: '16px' } }, button('FIGHT!' + kb(' (Enter)'), () => this.countdown(), 'gold big')));
   }
 
   countdown() {
@@ -722,8 +722,8 @@ export class SquidScreen {
         h('div', {}, 'Hits taken', h('b', {}, this.hitsTaken)),
         h('div', { style: { gridColumn: '1 / -1', background: 'var(--gold)' } }, 'Coins earned', h('b', {}, `${coins}¢`))),
       h('div', { class: 'row', style: { display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '14px' } },
-        button('Rematch! (Enter)', () => this.countdown(), 'gold'),
-        button('Home (Esc)', () => this.game.go('home'), ''))));
+        button('Rematch!' + kb(' (Enter)'), () => this.countdown(), 'gold'),
+        button('Home' + kb(' (Esc)'), () => this.game.go('home'), ''))));
     if (newBest) this.game.line('newBest', 3);
   }
 
