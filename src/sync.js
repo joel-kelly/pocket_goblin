@@ -7,7 +7,7 @@ import { h, button, modal, toast } from './ui.js';
 
 // Address of the deployed Worker, like 'https://pocket-goblin-sync.NAME.workers.dev'.
 // Leave empty to turn sync off.
-export const SYNC_URL = '';
+export const SYNC_URL = 'https://pocket-goblin-sync.joel-alexander-kelly.workers.dev';
 
 const META_KEY = 'pocketGoblin.sync.v1';
 const PUSH_DELAY = 15000; // batch edits: upload at most every 15 seconds
