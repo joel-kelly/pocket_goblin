@@ -38,7 +38,7 @@ canvas#game { position: fixed; inset: 0; image-rendering: pixelated; image-rende
   box-shadow: inset -4px -4px 0 rgba(0,0,0,.18), inset 4px 4px 0 rgba(255,255,255,.5), var(--shadow);
   position: relative; transition: transform .05s; white-space: nowrap;
 }
-.btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+@media (hover: hover) { .btn:hover { transform: translateY(-2px); filter: brightness(1.06); } }
 .btn:active { transform: translateY(3px); box-shadow: inset -4px -4px 0 rgba(0,0,0,.18), 0 1px 0 var(--ink); }
 .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 .btn.slime { background: var(--slime); }
@@ -110,7 +110,7 @@ canvas#game { position: fixed; inset: 0; image-rendering: pixelated; image-rende
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
 .card { background: #fff; border: 4px solid var(--ink); padding: 8px 6px; text-align: center; cursor: pointer; position: relative; box-shadow: 0 3px 0 var(--ink); }
-.card:hover { transform: translateY(-2px); }
+@media (hover: hover) { .card:hover { transform: translateY(-2px); } }
 .card.sel { background: #fff9c4; outline: 4px solid var(--gold); }
 .card.equipped::before { content: 'WEARING'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-family: var(--title); font-size: 7px; background: var(--slime); border: 2px solid var(--ink); padding: 2px 4px; }
 .card img { width: 72px; height: 72px; image-rendering: pixelated; display: block; margin: 0 auto 4px; }
@@ -141,7 +141,7 @@ canvas#game { position: fixed; inset: 0; image-rendering: pixelated; image-rende
 
 /* destinations */
 .dest { display: flex; gap: 12px; align-items: center; background: #fff; border: 4px solid var(--ink); padding: 10px; margin-bottom: 10px; cursor: pointer; }
-.dest:hover { background: #fff9c4; }
+@media (hover: hover) { .dest:hover { background: #fff9c4; } }
 .dest canvas { width: 120px; height: 75px; image-rendering: pixelated; border: 3px solid var(--ink); }
 .dest .info { flex: 1; }
 .dest h3 { margin: 0; font-size: 20px; }
@@ -220,6 +220,7 @@ canvas#game { position: fixed; inset: 0; image-rendering: pixelated; image-rende
 .ws-count { font-family: var(--title); font-size: 9px; margin-top: 10px; opacity: .7; }
 .ws-pick { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(20,8,30,.55); }
 .ws-pick .modal { width: min(860px, 94vw); }
+.ws-warn { background: #ffe0a0; border: 4px solid var(--ink); padding: 8px 12px; font-size: 17px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; }
 .slotpick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .slotpick .btn { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 6px; font-size: 10px; }
 .slotpick .btn .emo { font-size: 32px; font-family: initial; }
@@ -328,3 +329,173 @@ table.hist td, table.hist th { border: 2px solid var(--ink); padding: 4px 6px; t
 .card .pose-emo { font-size: 46px; line-height: 72px; height: 72px; margin-bottom: 4px; font-family: initial; }
 .skin-any { font-size: 16px; margin-left: 6px; }
 .skin-custom { width: 52px; height: 44px; padding: 0; border: 4px solid var(--ink); background: #fff; cursor: pointer; }
+
+/* ======================================================================
+   Phones and tablets. Everything below only applies to touch screens
+   (html.touch), so the computer layout stays exactly the same.
+   ====================================================================== */
+
+/* "Turn sideways" screen when a touch device is held upright */
+#rotate { display: none; }
+@media (orientation: portrait) {
+  html.touch #rotate {
+    position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    background: #2b1d33; color: var(--slime); font-family: var(--title); font-size: 16px; line-height: 1.6; text-align: center; padding: 24px;
+  }
+  html.touch #rotate p { font-family: var(--body); font-size: 20px; color: var(--paper); margin: 0; }
+  html.touch #rotate .rot-phone { font-size: 72px; font-family: initial; animation: rotPhone 2s ease-in-out infinite; }
+}
+@keyframes rotPhone { 0%, 25% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
+
+html.touch, html.touch body { touch-action: manipulation; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; }
+html.touch .key { display: none; }
+html.touch .holdbtn { touch-action: none; }
+html.touch .modal { max-height: 92dvh; }
+
+/* ---------- number pad ---------- */
+:root {
+  --np-key: min(80px, calc((100vh - 120px) / 4 - 8px));
+  --np-key: min(80px, calc((100dvh - 120px) / 4 - 8px));
+  --np-w: calc(var(--np-key) * 3 + 44px);
+}
+.numpad {
+  position: fixed; right: 12px; bottom: 12px; z-index: 6; display: grid; gap: 8px; padding: 10px;
+  grid-template-columns: repeat(3, var(--np-key)); grid-auto-rows: var(--np-key);
+  background: var(--paper-2); border: 4px solid var(--ink); box-shadow: var(--shadow); touch-action: none;
+}
+.np-key { padding: 0; font-size: calc(var(--np-key) * .4); display: grid; place-items: center; }
+.np-key.press { animation: npPress .12s; }
+.np-backspace { background: #ffb3b3; font-size: calc(var(--np-key) * .26); }
+.np-enter { background: var(--slime); font-size: calc(var(--np-key) * .28); }
+@keyframes npPress { 50% { transform: translateY(3px); filter: brightness(.9); } }
+/* make room for the pad: the question card sits between the goblin and the pad */
+html.numpad-on body .g-box { right: calc(var(--np-w) + 24px); width: min(560px, calc(100vw - var(--np-w) - 36vw)); }
+
+/* ---------- short screens (phones held sideways) ---------- */
+@media (max-height: 520px) {
+  html.touch body { font-size: 15px; }
+  html.touch .btn { font-size: 10px; padding: 8px 10px; }
+  html.touch .btn.small { font-size: 9px; padding: 6px 8px; }
+  html.touch .btn.big { font-size: 13px; padding: 12px 16px; }
+
+  /* home */
+  html.touch .topbar { top: 8px; left: 10px; right: 10px; gap: 8px; }
+  html.touch .nameplate, html.touch .coins { font-size: 11px; padding: 6px 10px; border-width: 3px; }
+  html.touch .stats { top: 52px; left: 10px; width: 150px; gap: 4px; }
+  html.touch .stat { padding: 3px 6px; border-width: 3px; box-shadow: 0 3px 0 var(--ink); }
+  html.touch .stat .ico { font-size: 14px; width: 18px; }
+  html.touch .stat .lbl { display: none; }
+  html.touch .stat .bar { height: 10px; }
+  html.touch .actions { bottom: 8px; gap: 6px; padding: 0 8px; }
+  html.touch .actions .btn { min-width: 0; padding: 6px 8px; font-size: 8px; gap: 3px; border-width: 3px; }
+  html.touch .actions .btn .emo { font-size: 20px; }
+  html.touch .actions .btn.math { min-width: 0; font-size: 9px; }
+  html.touch .actions .btn.math .emo { font-size: 22px; }
+  html.touch .away-banner { top: 45%; padding: 12px 16px; max-width: 70vw; }
+  html.touch .away-banner h2 { font-size: 11px; }
+  html.touch .away-banner .timer { font-size: 20px; margin: 6px 0; }
+  html.touch .away-banner p { margin: 4px 0; }
+  html.touch .bubble { font-size: 15px; padding: 6px 10px; max-width: 260px; border-width: 3px; }
+  html.touch #toasts { top: 50px; }
+
+  /* side panels (shop, wardrobe, feed, decorate) */
+  html.touch .panel { top: 8px; bottom: 8px; right: 8px; width: min(460px, 52vw); }
+  html.touch .panel-head { padding: 6px 10px; border-bottom-width: 3px; }
+  html.touch .panel-head h2 { font-size: 11px; }
+  html.touch .panel-body { padding: 10px; }
+  html.touch .panel-foot { padding: 8px 10px; border-top-width: 3px; }
+  html.touch .tabs { margin-bottom: 8px; }
+  html.touch .grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+  html.touch .card img { width: 56px; height: 56px; }
+  html.touch .card .pose-emo { font-size: 36px; line-height: 56px; height: 56px; }
+  html.touch .card .nm { font-size: 13px; }
+  html.touch .detail img { width: 56px; height: 56px; }
+  html.touch .detail h3 { font-size: 16px; }
+  html.touch .detail p { font-size: 14px; }
+  html.touch .detail .btns { gap: 6px; }
+
+  /* pop-up windows */
+  html.touch .modal { padding: 14px 16px; width: min(720px, 94vw); }
+  html.touch .modal h2 { font-size: 12px; margin-bottom: 8px; padding-right: 36px; }
+  html.touch .modal p { font-size: 15px; margin: 6px 0; }
+  html.touch .modal label { margin: 10px 0 4px; }
+  html.touch .modal input[type=text], html.touch .modal select { font-size: 17px; padding: 5px 8px; border-width: 3px; }
+  html.touch .modal .row { margin-top: 10px; }
+  html.touch .modal.onboard { width: min(560px, 62vw); margin-left: 34vw; }
+  html.touch .skin { width: 36px; height: 36px; }
+  html.touch .game-pick { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  html.touch .game-card { padding: 10px 4px !important; gap: 6px; }
+  html.touch .game-card .emo { font-size: 30px; }
+  html.touch .game-card .gname { font-size: 9px; line-height: 1.4; }
+  html.touch .game-card .gdesc { display: none; }
+  html.touch .game-card .gbest { font-size: 7px; line-height: 1.5; }
+  html.touch .unlock { padding: 6px 10px; margin-bottom: 10px; }
+  html.touch .unlock-top { font-size: 14px; }
+  html.touch .unlock-tip { display: none; }
+  html.touch .dest { padding: 6px; margin-bottom: 6px; }
+  html.touch .dest canvas { width: 96px; height: 60px; }
+  html.touch .dest h3 { font-size: 16px; }
+  html.touch .dest p { font-size: 13px; }
+
+  /* math games */
+  html.touch .g-top { top: 8px; left: 10px; right: 10px; gap: 8px; }
+  html.touch .g-timer { height: 26px; border-width: 3px; }
+  html.touch .g-timer .t { font-size: 9px; }
+  html.touch .pill { font-size: 9px; padding: 5px 7px; border-width: 3px; white-space: nowrap; }
+  html.touch .g-top > .pill:first-child { display: none; } /* game name: no room */
+  html.touch .g-box { top: calc(50% + 22px); max-height: calc(100dvh - 60px); overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+  html.touch .g-card { padding: 16px 12px 12px; border-width: 4px; box-shadow: 5px 5px 0 rgba(0,0,0,.35); }
+  html.touch .g-prob { font-size: clamp(18px, 3.4vw, 34px); }
+  html.touch .g-ans { border-bottom-width: 4px; }
+  html.touch .g-hint { font-size: 15px; margin-top: 8px; }
+  html.touch .g-speed { font-size: 11px; height: 14px; margin-top: 4px; }
+  html.touch .g-meta { margin-top: 8px; gap: 6px; }
+  html.touch .g-fixline { font-size: 17px !important; margin-bottom: 6px; }
+  html.touch .g-card p { font-size: 15px !important; margin: 6px 0; }
+  html.touch .countdown { font-size: 60px; }
+  html.touch .results h2 { margin-bottom: 4px !important; }
+  html.touch .res-grid { gap: 6px; margin: 6px 0; }
+  html.touch .res-grid div { padding: 5px; font-size: 13px; }
+  html.touch .res-grid b { font-size: 14px; margin-top: 3px; }
+  html.touch .res-best { font-size: 11px; padding: 6px; margin: 6px 0; }
+  html.touch .tricky span { font-size: 9px; padding: 4px 6px; }
+  html.touch .g-box { width: min(640px, 60vw); }
+  html.touch .g-card .g-prob[style] { font-size: 20px !important; } /* titles like MATH DASH! */
+  html.touch .res-grid { grid-template-columns: repeat(4, 1fr); }
+  html.touch .results h2 { font-size: 14px !important; }
+  html.touch .results .row { margin-top: 8px !important; }
+  html.touch .menu-list { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  html.touch .modal.onboard p { font-size: 14px; margin: 2px 0; }
+  html.touch .modal.onboard label { margin: 6px 0 3px; }
+  html.touch .race-box { top: auto; bottom: 8px; }
+  html.touch .race-bar { height: 34px; border-width: 3px; }
+  html.touch .race-dot.you { top: 18px !important; }
+  html.touch .race-flag { font-size: 20px; top: 2px; }
+  html.touch .ticket-card { padding: 12px 12px 10px; }
+  html.touch .ticket-head { font-size: 9px; padding-bottom: 4px; margin-bottom: 4px; }
+  html.touch .ticket-row { font-size: 15px; margin: 3px 0; gap: 8px; }
+  html.touch .ticket-row img { width: 32px; height: 32px; border-width: 2px; }
+  html.touch .ticket-row .q { font-size: 12px; }
+  html.touch .ticket-row .p { font-size: 9px; }
+  html.touch .ticket-note { font-size: 15px; margin: 3px 0; }
+  html.touch .ticket-note.big { font-size: 17px; }
+  html.touch .ticket-q { font-size: clamp(16px, 2.8vw, 26px) !important; margin-top: 6px; padding-top: 6px; }
+  html.touch .menu-list div { font-size: 13px; padding: 2px 4px; }
+  html.touch .menu-list img { width: 24px; height: 24px; }
+  html.touch .squid-warn { padding: 5px 8px; margin-bottom: 6px; }
+  html.touch .squid-warn .w-text { font-size: 9px; margin-bottom: 4px; }
+  html.touch .vs { font-size: 10px; }
+  html.touch .ko-pill { font-size: 12px !important; }
+  html.touch .place-pill { font-size: 12px !important; min-width: 0; }
+  html.touch .alt-pill { font-size: 11px !important; min-width: 80px; }
+}
+
+@media (max-height: 400px) {
+  html.touch .results > p { display: none; } /* "Super-fast facts" line: Grown-ups has it */
+  html.touch .results > h2 { display: none; } /* the timer bar already says TIME! */
+  html.touch .results .tricky { margin-top: 2px; }
+}
+@media (max-height: 320px) {
+  html.touch .g-card .menu-list, html.touch .g-card div:has(+ .menu-list) { display: none; } /* Café menu: prices are on each ticket anyway */
+  html.touch .results > div:has(.tricky) { display: none; }
+}

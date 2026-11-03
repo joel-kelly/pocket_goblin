@@ -2,7 +2,7 @@
 // single orders (times tables) → two-item orders → splitting the bill (division)
 // → making change. Faster service = bigger tips.
 import * as THREE from '../../vendor/three.module.min.js';
-import { h, button, floater, modalOpen, nums } from '../ui.js';
+import { h, button, floater, modalOpen, nums, kb } from '../ui.js';
 import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh } from '../voxel.js';
 import { FX } from '../fx.js';
@@ -189,7 +189,7 @@ export class CafeScreen {
         '10 hungry customers are coming! Type the right price to serve them. Faster service = bigger tips!'),
       h('div', { style: { fontWeight: 700, marginBottom: '4px' } }, "Today's menu:"),
       menuList,
-      h('div', { style: { marginTop: '14px' } }, button('OPEN THE CAFÉ (Enter)', () => this.startShift(), 'gold big')));
+      h('div', { style: { marginTop: '14px' } }, button('OPEN THE CAFÉ' + kb(' (Enter)'), () => this.startShift(), 'gold big')));
   }
 
   startShift() {
@@ -504,8 +504,8 @@ export class CafeScreen {
         h('div', { style: { gridColumn: '1 / -1', background: 'var(--gold)' } }, 'Tips earned', h('b', {}, `${this.tips + bonus}¢`))),
       this.tricky.length ? h('div', {}, h('div', { style: { fontWeight: 700, marginTop: '8px' } }, 'Tricky orders:'), h('div', { class: 'tricky' }, ...this.tricky.slice(0, 6).map((t) => h('span', {}, t.replace('\n', ', '))))) : null,
       h('div', { class: 'row', style: { display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '14px' } },
-        button('New shift! (Enter)', () => this.startShift(), 'gold'),
-        button('Home (Esc)', () => this.game.go('home'), ''))));
+        button('New shift!' + kb(' (Enter)'), () => this.startShift(), 'gold'),
+        button('Home' + kb(' (Esc)'), () => this.game.go('home'), ''))));
     goblin.act(newBest ? 'dance' : 'cheer');
     goblin.emote(newBest ? 'ecstatic' : 'happy', 3);
     if (newBest) { sfx.fanfare(); this.game.line('newBest', 3); }

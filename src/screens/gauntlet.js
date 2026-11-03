@@ -1,7 +1,7 @@
 // Math Dash: 60 seconds of times tables. Type answers with the keyboard.
 // Right answers = coins (faster = more). Wrong answers: the goblin is devastated,
 // and you type the right answer to keep going (that's how it sticks!).
-import { h, button, floater, modalOpen } from '../ui.js';
+import { h, button, floater, modalOpen, kb } from '../ui.js';
 import { sfx } from '../audio.js';
 import { currentMax, FactPicker, coinsFor, masterySummary } from '../math.js';
 import { LINES, pick } from '../lines.js';
@@ -65,7 +65,7 @@ export class GauntletScreen {
       h('div', { class: 'g-prob', style: { fontSize: '30px' } }, 'MATH DASH!'),
       h('p', { style: { fontSize: '20px', lineHeight: 1.4 } }, `${ROUND_SECONDS} seconds. Type the answers as fast as you can.`, h('br'), 'Faster answers = more coins!'),
       h('p', { style: { fontSize: '18px' } }, `Your best: ${this.state.best.score} right`),
-      h('div', { style: { marginTop: '18px' } }, button('START (Enter)', () => this.countdown(), 'gold big')));
+      h('div', { style: { marginTop: '18px' } }, button('START' + kb(' (Enter)'), () => this.countdown(), 'gold big')));
   }
 
   countdown() {
@@ -226,8 +226,8 @@ export class GauntletScreen {
       tricky.length ? h('div', {}, h('div', { style: { fontWeight: 700, marginTop: '8px' } }, 'Tricky ones to remember:'), h('div', { class: 'tricky' }, ...tricky.map((t) => h('span', {}, t)))) : h('p', { style: { fontWeight: 700 } }, 'No tricky ones! Perfect round!'),
       h('p', { style: { fontSize: '15px', margin: '10px 0 0' } }, `Super-fast facts: ${sum.mastered} of ${sum.total}`),
       h('div', { class: 'row', style: { display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '14px' } },
-        button('Again! (Enter)', () => this.countdown(), 'gold'),
-        button('Home (Esc)', () => this.game.go('home'), ''))));
+        button('Again!' + kb(' (Enter)'), () => this.countdown(), 'gold'),
+        button('Home' + kb(' (Esc)'), () => this.game.go('home'), ''))));
 
     if (newBest) {
       sfx.fanfare();

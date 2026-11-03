@@ -126,6 +126,8 @@ export class HomeScreen {
     });
     b.addEventListener('pointerup', stop);
     b.addEventListener('pointerleave', stop);
+    b.addEventListener('pointercancel', stop);
+    b.addEventListener('contextmenu', (e) => e.preventDefault()); // long-press menu on phones
     return b;
   }
 

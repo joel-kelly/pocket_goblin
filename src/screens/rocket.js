@@ -1,7 +1,7 @@
 // Fart Rocket: the goblin flies on fart power. Fuel drains all the time;
 // right answers refuel it (faster answers = more fuel). How high can you go?
 import * as THREE from '../../vendor/three.module.min.js';
-import { h, button, floater, toast, modalOpen } from '../ui.js';
+import { h, button, floater, toast, modalOpen, kb } from '../ui.js';
 import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh, voxelMaterial } from '../voxel.js';
 import { FX } from '../fx.js';
@@ -196,7 +196,7 @@ export class RocketScreen {
         'Fart fuel runs out all the time. Every right answer refuels it, and FAST answers add extra.', h('br'),
         "Run out and it's the underpants parachute!"),
       h('p', { style: { fontSize: '18px' } }, `Highest flight: ${this.state.rocketBest || 0} m`),
-      h('div', { style: { marginTop: '16px' } }, button('BLAST OFF (Enter)', () => this.countdown(), 'gold big')));
+      h('div', { style: { marginTop: '16px' } }, button('BLAST OFF' + kb(' (Enter)'), () => this.countdown(), 'gold big')));
   }
 
   countdown() {
@@ -410,8 +410,8 @@ export class RocketScreen {
         h('div', {}, 'Best combo', h('b', {}, this.bestCombo)),
         h('div', { style: { gridColumn: '1 / -1', background: 'var(--gold)' } }, 'Coins earned', h('b', {}, `${coins}¢`))),
       h('div', { class: 'row', style: { display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '14px' } },
-        button('Fly again! (Enter)', () => this.countdown(), 'gold'),
-        button('Home (Esc)', () => this.game.go('home'), ''))));
+        button('Fly again!' + kb(' (Enter)'), () => this.countdown(), 'gold'),
+        button('Home' + kb(' (Esc)'), () => this.game.go('home'), ''))));
     goblin.emote(newBest ? 'ecstatic' : 'dizzy', 3);
     if (newBest) { sfx.fanfare(); this.game.line('newBest', 3); }
   }
