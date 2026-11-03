@@ -7,7 +7,7 @@ import { SLOTS, WEAR_SLOTS, buildGoblinParts, isGhostCell } from '../goblinModel
 import { allItems, getItem, getModel, setCustomItems } from '../items.js';
 import { drawFace, FACE_W, FACE_H } from '../face.js';
 import { thumbnail, clearThumb } from '../world.js';
-import { h, button, toast } from '../ui.js';
+import { h, button, toast, IS_TOUCH } from '../ui.js';
 import { sfx } from '../audio.js';
 
 export const PALETTE = [
@@ -130,6 +130,8 @@ export class WorkshopScreen {
     this.root.innerHTML = '';
     this.root.append(h('div', { class: 'ws' }, h('div', { class: 'ws-pick' }, h('div', { class: 'modal' },
       h('h2', {}, '🔨 The Workshop'),
+      // Building needs right-click and the scroll wheel, so it only really works on a computer.
+      IS_TOUCH ? h('div', { class: 'ws-warn' }, '🖱️ The Workshop only works on a computer with a mouse. On a phone or tablet, building blocks is really tricky!') : null,
       h('p', {}, 'Build stuff out of blocks, just like Minecraft! What do you want to make?'),
       slots,
       h('h2', { style: { marginTop: '22px', fontSize: '12px' } }, 'Or remix something (⭐ = made by you):'),

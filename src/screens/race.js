@@ -2,7 +2,7 @@
 // Right answers give a speed boost (faster answers = bigger boost).
 // A wrong answer makes you stumble. Two wrong in a row and you TRIP.
 import * as THREE from '../../vendor/three.module.min.js';
-import { h, button, floater, modalOpen, nums } from '../ui.js';
+import { h, button, floater, modalOpen, nums, kb } from '../ui.js';
 import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh, voxelMaterial } from '../voxel.js';
 import { FX } from '../fx.js';
@@ -325,7 +325,7 @@ export class RaceScreen {
         nums(`Race ${TRACK} meters against 3 goblins. Every right answer gives you a speed boost, and FAST answers boost more.`), h('br'),
         'A wrong answer makes you stumble. Two in a row and you TRIP!'),
       h('p', { style: { fontSize: '18px' } }, nums(this.state.raceBest ? `Fastest race: ${this.state.raceBest.toFixed(1)} seconds` : 'Can you beat Zippy Zorg?')),
-      h('div', { style: { marginTop: '16px' } }, button('START RACE (Enter)', () => this.countdown(), 'gold big')));
+      h('div', { style: { marginTop: '16px' } }, button('START RACE' + kb(' (Enter)'), () => this.countdown(), 'gold big')));
   }
 
   countdown() {
@@ -623,8 +623,8 @@ export class RaceScreen {
         h('div', {}, 'Trips', h('b', {}, this.trips)),
         h('div', { style: { gridColumn: '1 / -1', background: 'var(--gold)' } }, 'Coins earned', h('b', {}, `${coins}¢`))),
       h('div', { class: 'row', style: { display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '14px' } },
-        button('Race again! (Enter)', () => this.countdown(), 'gold'),
-        button('Home (Esc)', () => this.game.go('home'), ''))));
+        button('Race again!' + kb(' (Enter)'), () => this.countdown(), 'gold'),
+        button('Home' + kb(' (Esc)'), () => this.game.go('home'), ''))));
     if (newBest) { this.game.line('newBest', 3); }
     if (this.place === 1) goblin.act('dance');
   }

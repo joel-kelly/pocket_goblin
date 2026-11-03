@@ -24,6 +24,14 @@ export function nums(text) {
   return String(text).split(/(\d+)/).filter(Boolean).map((part) => (/^\d+$/.test(part) ? h('span', { class: 'num' }, part) : part));
 }
 
+// Phones and tablets (a finger is the main pointer). Touch screens get an
+// on-screen number pad and a layout tuned for small landscape screens.
+export const IS_TOUCH = matchMedia('(pointer: coarse)').matches;
+if (IS_TOUCH) document.documentElement.classList.add('touch');
+
+// Keyboard hints like " (Enter)" only make sense with a keyboard.
+export const kb = (hint) => (IS_TOUCH ? '' : hint);
+
 export function button(label, onClick, cls = '') {
   return h('button', { class: `btn ${cls}`, onclick: (e) => { sfx.click(); onClick(e); } }, label);
 }

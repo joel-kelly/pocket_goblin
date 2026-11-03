@@ -40,7 +40,7 @@ export function newState() {
     history: [],
     vacation: null,
     postcards: [],
-    settings: { sound: true, fastSeconds: 3, pixelScale: 3, maxFactor: 'auto' },
+    settings: { sound: true, fastSeconds: 3, pixelScale: 3, maxFactor: 'auto', numpad: 'auto' },
   };
 }
 

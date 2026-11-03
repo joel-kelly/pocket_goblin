@@ -5,7 +5,8 @@ import { sfx, setSoundEnabled, unlockAudio } from './audio.js';
 import { LINES, pick } from './lines.js';
 import { getItem, getModel, setCustomItems, addShippedItems } from './items.js';
 import { SKINS } from './goblinModel.js';
-import { h, button, say, updateBubble, modal, closePanel } from './ui.js';
+import { h, button, say, updateBubble, modal, modalOpen, closePanel, IS_TOUCH } from './ui.js';
+import { showNumpad, numpadWanted } from './numpad.js';
 import { HomeScreen } from './screens/home.js';
 import { GauntletScreen } from './screens/gauntlet.js';
 import { WorkshopScreen } from './screens/workshop.js';
@@ -173,7 +174,8 @@ function onboarding() {
     }, 'slime big'))
   ), { dismissable: false });
   setTimeout(() => kid.focus(), 50);
-  m.box.style.marginLeft = '34vw';
+  m.box.classList.add('onboard');
+  if (!IS_TOUCH) m.box.style.marginLeft = '34vw';
   world.setView('side');
 }
 
@@ -183,6 +185,9 @@ window.addEventListener('keydown', (e) => {
   unlockAudio();
   game.screen?.onKey?.(e);
 });
+
+// Math game phases where answers can be typed (or are about to be).
+const NUMPAD_PHASES = new Set(['countdown', 'play', 'order', 'between', 'serving', 'down']);
 
 // ---------- main loop ----------
 let last = performance.now();
@@ -202,6 +207,8 @@ function step(now) {
     if (p >= 1) { tweens.splice(i, 1); tw.done?.(); }
   }
   game.screen?.update?.(dt);
+  const sc = game.screen;
+  showNumpad(!!sc?.quiz && NUMPAD_PHASES.has(sc.phase) && !modalOpen() && numpadWanted(S.get().settings));
   world.update(dt);
   const top = goblin.object.visible ? world.toScreen(goblin.headTop()) : null;
   updateBubble(top && game.screen?.bubbleOK !== false ? top : null, (t) => sfx.babble(t, 1));
