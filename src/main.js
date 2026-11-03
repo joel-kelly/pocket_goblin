@@ -11,6 +11,8 @@ import { GauntletScreen } from './screens/gauntlet.js';
 import { WorkshopScreen } from './screens/workshop.js';
 import { RocketScreen } from './screens/rocket.js';
 import { CafeScreen } from './screens/cafe.js';
+import { RaceScreen } from './screens/race.js';
+import { SquidScreen } from './screens/squid.js';
 import { checkVacation } from './screens/vacation.js';
 
 const state = S.load();
@@ -112,6 +114,8 @@ game.screens.gauntlet = new GauntletScreen(game);
 game.screens.workshop = new WorkshopScreen(game);
 game.screens.rocket = new RocketScreen(game);
 game.screens.cafe = new CafeScreen(game);
+game.screens.race = new RaceScreen(game);
+game.screens.squid = new SquidScreen(game);
 
 game.applyOutfit();
 game.applyMood();

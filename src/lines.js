@@ -239,3 +239,31 @@ LINES.cafeRight = ['Order up!', 'Enjoy your slop!', 'Ka-ching!', 'Bon appé-gobl
 LINES.cafeWrong = ['Oops! Wrong price!', 'Math emergency!', 'Uh oh, they noticed.'];
 export const CUSTOMER_HAPPY = ['Yum yum!', 'Delicious!', 'Keep the change!', 'Five stars!', 'Best café in the swamp!'];
 export const CUSTOMER_MAD = ['You charged me WHAT?!', "That's not right!", 'Hey! Check your math!', 'I want to see the manager! Oh wait.'];
+
+// ---------------- Swamp Sprint ----------------
+LINES.raceStart = ['On your marks! Get set! GOBLIN!', 'My legs are ready. My brain is ready. Mostly my legs.', 'Last one to the finish is a rotten egg! ...I love rotten eggs.'];
+LINES.raceBoost = ['ZOOOOM!', 'Feet, go FASTER!', 'Eat my dust!', 'Math power to the legs!'];
+LINES.raceStumble = ['Whoa whoa WHOA!', 'My feet got confused!', 'Oops! Wobbly legs!'];
+LINES.raceTrip = ['Who left a banana peel here?!', 'OOF! Face, meet mud.', 'I meant to do that!'];
+LINES.racePass = ['See ya, {rival}!', 'Beep beep! Coming through!', 'Bye bye, {rival}!', 'Smell ya later, {rival}!'];
+LINES.raceRivalTrip = ['Ha! {rival} tripped!', 'Watch your step, {rival}!', '{rival} went SPLAT!'];
+LINES.raceWin = ['FIRST PLACE! I am the speediest goblin in the swamp!', 'I WON! Did you see my feet?! They were a blur!'];
+LINES.raceFinish = ['Made it! My legs are jelly.', 'Phew! Next time I want gold!'];
+LINES.raceLast = ['Last place... but I had the most fun!', 'I was saving my energy. For snacks.'];
+
+// ---------------- Squid Smackdown ----------------
+LINES.squidStart = ["A giant squid?! I'm gonna need bigger gloves.", 'Float like a butterfly, smell like a goblin!', "Let's do this, noodle-face!"];
+LINES.squidDodge = ['Missed me!', 'Too slow, noodle arms!', 'Nope!', 'Duck and punch!'];
+LINES.squidOuch = ['OW! My nose!', 'I saw stars. And fish.', 'Tentacle to the face!'];
+LINES.squidKnock = ['DOWN GOES INKY!', 'Stay down, noodle!', "Who's the champ? ME!"];
+LINES.squidWin = ["I'M THE CHAMP!", 'Calamari for dinner!', 'K.O.! Ring the bell!'];
+LINES.squidLose = ['*sees stars* ...rematch?', "I'll be back! After a nap.", 'Too many arms... not fair...'];
+// What Big Inky says
+export const SQUID_TAUNTS = {
+  start: ['Prepare to get INKED!', 'Eight arms. Four gloves. Zero mercy!', 'I eat goblins for breakfast. With ketchup.'],
+  hit: ['SLAP! Ha ha!', 'Bloop! Got you!', 'Tentacle surprise!'],
+  wrong: ['Ha! Wrong number!', "You can't count my tentacles either!", 'Math is HARD, huh?'],
+  getUp: ["Now I'm ANGRY!", "That's it! No more Mr. Nice Squid!", 'You made my ink BOIL!'],
+  lose: ['Okay okay! You win! *bloop*', "I'm going back to the deep end...", 'Not the face... not the face...'],
+  win: ['Squid wins! Back to math class, goblin!', 'Too slow! Come back when you are faster!'],
+};

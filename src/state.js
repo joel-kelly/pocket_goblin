@@ -33,6 +33,10 @@ export function newState() {
     rocketBest: 0,
     mathLevel: 10, // biggest times table unlocked so far
     cafeBest: 0,
+    raceBest: 0, // fastest Swamp Sprint, in seconds
+    raceWins: 0,
+    squidBest: 0, // fastest Squid Smackdown K.O., in seconds
+    squidWins: 0,
     history: [],
     vacation: null,
     postcards: [],

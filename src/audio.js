@@ -136,6 +136,22 @@ export const sfx = {
   thud() { tone({ type: 'sine', f0: 120, f1: 40, dur: 0.3, vol: 0.5 }); noise({ dur: 0.15, vol: 0.2, f0: 400 }); },
   splash() { noise({ dur: 0.6, vol: 0.25, filter: 'bandpass', f0: 2500, f1: 600, q: 1 }); },
   whoosh() { noise({ dur: 0.5, vol: 0.2, filter: 'bandpass', f0: 300, f1: 2500, q: 2 }); },
+  // Boxing: a punch landing (power 0..1), a wet tentacle slap, and the ring bell.
+  punch(power = 0.5) {
+    noise({ dur: 0.12 + power * 0.08, vol: 0.3 + power * 0.15, f0: 1400, f1: 200 });
+    tone({ type: 'sine', f0: 150 + power * 40, f1: 45, dur: 0.18, vol: 0.4 });
+  },
+  slap() {
+    noise({ dur: 0.18, vol: 0.35, filter: 'bandpass', f0: 2600, f1: 700, q: 1.5 });
+    tone({ type: 'sine', f0: 320, f1: 90, dur: 0.2, vol: 0.3 });
+    tone({ type: 'sine', f0: 500, f1: 900, dur: 0.12, vol: 0.06, delay: 0.15 }); // squelch
+  },
+  bell() {
+    for (let i = 0; i < 3; i++) {
+      tone({ type: 'sine', f0: 1320, dur: 0.6, vol: 0.18, delay: i * 0.22 });
+      tone({ type: 'sine', f0: 3300, dur: 0.3, vol: 0.05, delay: i * 0.22 });
+    }
+  },
   tick() { tone({ type: 'square', f0: 1200, dur: 0.02, vol: 0.04 }); },
   go() { tone({ type: 'square', f0: 880, dur: 0.3, vol: 0.12 }); },
   giggle() {
