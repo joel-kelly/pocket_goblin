@@ -220,6 +220,7 @@ canvas#game { position: fixed; inset: 0; image-rendering: pixelated; image-rende
 .ws-count { font-family: var(--title); font-size: 9px; margin-top: 10px; opacity: .7; }
 .ws-pick { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(20,8,30,.55); }
 .ws-pick .modal { width: min(860px, 94vw); }
+.ws-warn { background: #ffe0a0; border: 4px solid var(--ink); padding: 8px 12px; font-size: 17px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; }
 .slotpick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .slotpick .btn { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 6px; font-size: 10px; }
 .slotpick .btn .emo { font-size: 32px; font-family: initial; }

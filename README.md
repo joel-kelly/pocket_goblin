@@ -22,7 +22,7 @@ On GitHub, go to **Settings → Pages**, set **Source** to "Deploy from a branch
 
 ### Phones and tablets
 
-It works on phones and tablets turned sideways (holding a phone upright shows a "turn your phone sideways" screen). The math games get a big on-screen number pad, and the layout shrinks to fit small screens. On a computer, nothing changes. **Grown-ups → On-screen number pad** can force the pad on (for a touchscreen laptop) or off. The Workshop still works best with a mouse.
+It works on phones and tablets turned sideways (holding a phone upright shows a "turn your phone sideways" screen). The math games get a big on-screen number pad, and the layout shrinks to fit small screens. On a computer, nothing changes. **Grown-ups → On-screen number pad** can force the pad on (for a touchscreen laptop) or off. The Workshop only works on a computer with a mouse, and says so when opened on a phone or tablet.
 
 Progress is saved in the browser on that computer. **Grown-ups → Download backup** saves a copy you can load somewhere else.
 
