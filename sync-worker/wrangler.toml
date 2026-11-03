@@ -1,0 +1,12 @@
+name = "pocket-goblin-sync"
+main = "worker.js"
+compatibility_date = "2025-10-01"
+
+[vars]
+# Pages allowed to talk to this Worker (comma-separated).
+ALLOWED_ORIGINS = "https://joel-kelly.github.io,http://localhost:8000"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pocket-goblin"
+database_id = "PASTE-DATABASE-ID-HERE"

@@ -14,8 +14,10 @@ import { CafeScreen } from './screens/cafe.js';
 import { RaceScreen } from './screens/race.js';
 import { SquidScreen } from './screens/squid.js';
 import { checkVacation } from './screens/vacation.js';
+import * as Sync from './sync.js';
 
-const state = S.load();
+// Loads the save, first pulling in newer progress from other devices if sync is on.
+const state = await Sync.startup();
 setSoundEnabled(state.settings.sound);
 setCustomItems(state.custom);
 
@@ -156,7 +158,7 @@ function onboarding() {
     h('label', {}, "What's YOUR name?"), kid,
     h('label', {}, 'Name your goblin'), gob,
     h('label', {}, 'Pick a goblin color'), skins,
-    h('div', { class: 'row' }, button("Let's go!", () => {
+    h('div', { class: 'row' }, Sync.enabled() ? button('I already have a goblin', () => Sync.enterCode({ askFirst: false }), 'small') : null, button("Let's go!", () => {
       state.kidName = kid.value.trim() || 'Human';
       state.gobName = gob.value.trim() || 'Gob';
       state.skin = skin;
@@ -215,6 +217,7 @@ function step(now) {
 }
 
 document.getElementById('loading').remove();
+Sync.startSync();
 if (state.onboarded) game.go('home', { greet: true });
 else { game.screen = game.screens.home; onboarding(); }
 requestAnimationFrame(frame);
