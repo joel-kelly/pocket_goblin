@@ -24,8 +24,9 @@ export function newState() {
     totalCoins: 0,
     stats: { hunger: 70, thirst: 70, clean: 80, fun: 70 },
     pantry: { cheese: 1, swamp: 1 },
-    owned: ['cone'],
+    owned: ['cone', 'deadplant'],
     equipped: {},
+    decor: ['deadplant'], // item id in each den decor spot (null = empty)
     custom: [],
     facts: {},
     best: { score: 0, streak: 0 },
@@ -49,7 +50,7 @@ const listeners = new Set();
 export function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    state = raw ? { ...newState(), ...JSON.parse(raw) } : newState();
+    state = raw ? fromSaved(JSON.parse(raw)) : newState();
   } catch (e) {
     console.warn('Could not load save', e);
     state = newState();
@@ -57,6 +58,14 @@ export function load() {
   state.settings = { ...newState().settings, ...(state.settings || {}) };
   tick();
   return state;
+}
+
+// Fill in anything an older save is missing.
+function fromSaved(data) {
+  const s = { ...newState(), ...data };
+  // Saves from before decor existed get the starter Dead Plant, already in the den.
+  if (!data.decor && !s.owned.includes('deadplant')) s.owned.push('deadplant');
+  return s;
 }
 
 export function get() { return state; }
@@ -115,7 +124,7 @@ export function exportSave() { return JSON.stringify(state, null, 1); }
 export function importSave(json) {
   const data = JSON.parse(json);
   if (!data || typeof data !== 'object' || !data.stats) throw new Error('Not a Pocket Goblin save file');
-  state = { ...newState(), ...data };
+  state = fromSaved(data);
   saveNow();
   return state;
 }

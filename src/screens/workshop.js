@@ -20,7 +20,7 @@ export const PALETTE = [
   '#4f2e14', '#7a4a24', '#a8703c', '#d9a35a', '#f2d7a0',
 ];
 
-const NOUN = { head: 'Hat', face: 'Face Thing', neck: 'Necklace', body: 'Shirt', back: 'Back Thing', hand: 'Hand Thing', feet: 'Shoes', snack: 'Snack' };
+const NOUN = { head: 'Hat', face: 'Face Thing', neck: 'Necklace', body: 'Shirt', back: 'Back Thing', hand: 'Hand Thing', feet: 'Shoes', snack: 'Snack', decor: 'Decoration' };
 const TOOLS = [
   { id: 'build', label: '🧱 Build', key: 'B' },
   { id: 'erase', label: '💥 Erase', key: 'E' },
@@ -103,7 +103,7 @@ export class WorkshopScreen {
     this.camera.lookAt(0, 14, 0);
     this.buildGhost('body');
     const slots = h('div', { class: 'slotpick' });
-    for (const slot of [...WEAR_SLOTS, 'snack']) {
+    for (const slot of [...WEAR_SLOTS, 'snack', 'decor']) {
       slots.append(h('button', { class: 'btn', onclick: () => { sfx.click(); this.startEdit({ slot }); } },
         h('span', { class: 'emo' }, SLOTS[slot].icon), `New ${NOUN[slot]}`));
     }
@@ -153,7 +153,7 @@ export class WorkshopScreen {
     this.origin = new THREE.Vector3(...s.origin);
     this.center.set(s.origin[0] + s.size[0] / 2, s.origin[1] + s.size[1] / 2, s.origin[2] + s.size[2] / 2);
     this.dist = Math.max(...s.size) * 2.9 + 12;
-    const view = { head: [0.5, 0.45], face: [0.4, 0.12], neck: [0.5, 0.15], body: [0.5, 0.1], back: [Math.PI - 0.6, 0.25], hand: [0.9, 0.2], feet: [0.5, 0.4], snack: [0.55, 0.5] }[slot];
+    const view = { head: [0.5, 0.45], face: [0.4, 0.12], neck: [0.5, 0.15], body: [0.5, 0.1], back: [Math.PI - 0.6, 0.25], hand: [0.9, 0.2], feet: [0.5, 0.4], snack: [0.55, 0.5], decor: [0.45, 0.35] }[slot];
     [this.yaw, this.pitch] = view;
     this.clearScene();
     this.buildGhost(slot);
@@ -176,6 +176,15 @@ export class WorkshopScreen {
       plate.cyl(5, 5, 7, -1, 0, '#e8e4f0');
       plate.ring(5, 5, 6, 7.4, 0, 1, '#d0c8e0');
       const m = buildMesh(plate);
+      m.userData.ghost = true;
+      this.ghostGroup.add(m);
+      return;
+    }
+    if (slot === 'decor') {
+      // A patch of den floor to build on.
+      const tile = new VoxelModel(null);
+      tile.box(-9, -1, -9, 9, 0, 9, (x, y, z) => ((x + z) % 2 ? '#6e5236' : '#7a5c3c'));
+      const m = buildMesh(tile);
       m.userData.ghost = true;
       this.ghostGroup.add(m);
       return;
@@ -254,7 +263,7 @@ export class WorkshopScreen {
   buildUI() {
     const nameIn = h('input', { type: 'text', value: this.name, maxlength: 24 });
     nameIn.oninput = () => { this.name = nameIn.value; };
-    const tryLabel = this.slot === 'snack' ? '😋 Feed it to the goblin!' : '👕 Try it on!';
+    const tryLabel = { snack: '😋 Feed it to the goblin!', decor: '🪴 Put it in the den!' }[this.slot] || '👕 Try it on!';
     const top = h('div', { class: 'ws-top' },
       h('div', { class: 'ws-title' }, `${SLOTS[this.slot].icon} ${NOUN[this.slot]}`),
       nameIn,
@@ -598,7 +607,8 @@ export class WorkshopScreen {
     this.game.S.save();
     if (!quiet) {
       sfx.buy();
-      toast(`Saved "${rec.name}"!${bonus ? ' +5¢ creativity bonus!' : ''} ${this.slot === 'snack' ? 'Find it in the Shop.' : 'Find it in the Wardrobe.'}`);
+      const where = { snack: 'Find it in the Shop.', decor: 'Find it in Decorate.' }[this.slot] || 'Find it in the Wardrobe.';
+      toast(`Saved "${rec.name}"!${bonus ? ' +5¢ creativity bonus!' : ''} ${where}`);
     }
     if (isNew) this.buildUI();
     return id;
@@ -613,6 +623,19 @@ export class WorkshopScreen {
       this.game.S.save();
       this.game.go('home');
       setTimeout(() => this.game.screens.home.feed(id), 400);
+    } else if (this.slot === 'decor') {
+      let spot = this.game.placeDecor(id);
+      if (spot < 0) { spot = 0; s.decor[0] = id; this.game.S.save(); } // den is full: swap out the first thing
+      this.game.go('home');
+      this.game.applyDecor();
+      setTimeout(() => {
+        const { world, goblin } = this.game;
+        world.pokeDecor(spot);
+        world.fx.stars(world.decorTop(spot, 2), 8);
+        goblin.act('cheer');
+        goblin.emote('love', 2.5);
+        this.game.say(`Ooooh, the ${getItem(id).name}! Did you make this?! It's perfect for my den!`, 4);
+      }, 300);
     } else {
       s.equipped[this.slot] = id;
       this.game.S.save();
@@ -641,6 +664,7 @@ export class WorkshopScreen {
     const s = this.state;
     s.custom = s.custom.filter((c) => c.id !== this.editId);
     for (const [slot, id] of Object.entries(s.equipped)) if (id === this.editId) s.equipped[slot] = null;
+    s.decor = (s.decor || []).map((id) => (id === this.editId ? null : id));
     delete s.pantry[this.editId];
     setCustomItems(s.custom);
     this.game.S.save();

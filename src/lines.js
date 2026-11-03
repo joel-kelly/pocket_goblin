@@ -47,6 +47,10 @@ export const LINES = {
 
   newOutfit: ["Do I look fabulous? I look FABULOUS.", "Check me out! *strikes a pose*", "Oooh, fancy! I'm the fanciest goblin in the swamp!", "I love it! Can I sleep in it? I'm gonna sleep in it."],
   takeOff: ["Okay, but I'm keeping it under my bed.", "Naked goblin time!"],
+  newDecor: ["Ooooh! It really ties the den together.", "Home sweet stinky home!", "So fancy! My den is the fanciest den in the swamp.", "I love it! I'm gonna lick it. Just a little."],
+  removeDecor: ["Back in the closet you go!", "Bye bye! See you later!", "Okay, but I'll miss it."],
+  denFull: ["My den is full! Put something away first.", "No more room! Not even for a sock."],
+  decorPoke: ["I made that! ...Or you did. Either way, it's great.", "My favorite thing in the whole den!", "Don't touch it! ...Okay, you can touch it."],
 
   mathStart: ["Let's GO! Math power, activate!", "You got this, {kid}! I believe in you! (I can't count.)", "Numbers, prepare to be CRUSHED!"],
   correct: ["YES!", "Nailed it!", "Big brain!", "Woo!", "Smart!", "Boom!", "Correct-o!", "Zoom!", "Ka-ching!"],

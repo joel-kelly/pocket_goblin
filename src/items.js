@@ -392,7 +392,130 @@ function slimeSoda() {
   return m;
 }
 
+// ---------------- DECOR ----------------
+// Decor grids are 14 wide, 18 tall, 14 deep. The front faces +z.
+function petSquid() {
+  const m = grid('decor');
+  const body = (x, y, z) => (h(x, y, z) < 0.18 ? '#9a3f8a' : '#c860b0');
+  m.sphere(7, 10, 7, 3.6, body, 5);
+  m.cone(7, 7, 2.2, 0.6, 14, 17, body);
+  // fins
+  for (const [x, y] of [[2, 13], [2, 14], [3, 15], [11, 13], [11, 14], [10, 15]]) m.set(x, y, 7, '#9a3f8a');
+  // tentacles curling out across the floor
+  for (let i = 0; i < 8; i++) {
+    const a = i * Math.PI / 4 + Math.PI / 8;
+    for (let s = 0; s <= 6; s++) {
+      const r = 1.6 + s * 0.75;
+      m.set(7 + Math.cos(a) * r, Math.max(0, 5 - s), 7 + Math.sin(a) * r, s % 2 ? '#ffc2dc' : '#b85aa6');
+    }
+    m.set(7 + Math.cos(a) * 7.2, 1, 7 + Math.sin(a) * 7.2, '#b85aa6'); // curly tip
+  }
+  // big googly eyes
+  for (const ex of [4, 8]) {
+    m.box(ex, 9, 10, ex + 2, 12, 11, C.white);
+    m.set(ex + (ex < 7 ? 1 : 0), 10, 11, C.black);
+  }
+  m.box(6, 7, 10, 8, 8, 11, '#7a2a6a'); // little smile
+  return m;
+}
+function fartJar() {
+  const m = grid('decor');
+  m.cyl(7, 7, 4.2, 0, 1, '#bfe0e0');
+  m.cyl(7, 7, 4.6, 1, 11, (x, y, z) => {
+    if (z >= 10 && x === 4 && y > 2) return '#f2fbff'; // glare
+    if (z >= 10 && y >= 4 && y <= 7 && x >= 5 && x <= 9) return y === 4 || y === 7 ? '#c9b48a' : '#f4f1e6'; // label
+    return h(x, y, z) < 0.3 ? '#b6e86a' : h(z, x, y) < 0.15 ? '#6e9a2a' : '#8fc94a';
+  });
+  // a little brown cloud doodle on the label
+  m.set(6, 5, 11, '#7a4a24'); m.set(7, 6, 11, '#7a4a24'); m.set(8, 5, 11, '#7a4a24'); m.set(7, 5, 11, '#7a4a24');
+  m.cyl(7, 7, 3.4, 11, 12, '#d8eef5');
+  m.cyl(7, 7, 2.8, 12, 15, (x, y) => (y === 13 ? '#8a5a2c' : C.brownL)); // cork
+  m.cyl(7, 7, 4.2, 12, 13, '#e2353f'); // red ribbon
+  m.set(11, 12, 7, '#e2353f'); m.set(11, 11, 8, '#e2353f');
+  return m;
+}
+function deadPlant() {
+  const m = grid('decor');
+  m.cone(7, 7, 3.4, 4.2, 0, 6, (x, y, z) => (y === 3 ? '#a8532c' : h(x, y, z) < 0.2 ? '#b85c34' : '#c4683a'));
+  m.ring(7, 7, 3.4, 4.8, 6, 7, '#a8532c');
+  m.cyl(7, 7, 3.4, 6, 7, '#4f2e14');
+  // crooked stem that flops over
+  const stem = '#7a5a2c';
+  [[7, 7], [7, 8], [7, 9], [6, 10], [6, 11], [6, 12], [7, 13], [8, 14], [9, 14], [10, 13], [11, 12], [11, 11]].forEach(([x, y]) => m.set(x, y, 7, stem));
+  // crispy brown leaves
+  const leaf = (x, y, z) => m.set(x, y, z, h(x, y, z) < 0.5 ? '#a07a3a' : '#8a6a2a');
+  [[5, 9, 7], [4, 8, 7], [8, 11, 7], [9, 10, 7], [5, 12, 8], [4, 11, 8], [7, 12, 6]].forEach(([x, y, z]) => leaf(x, y, z));
+  // droopy dead flower
+  m.box(10, 9, 6, 13, 11, 9, '#8a5a6a');
+  m.set(11, 8, 7, '#8a5a6a');
+  m.set(11, 10, 7, '#c9a03a');
+  // one leaf already gave up
+  m.set(12, 0, 11, '#a07a3a'); m.set(13, 0, 11, '#8a6a2a'); m.set(12, 0, 12, '#a07a3a');
+  return m;
+}
+function petRock() {
+  const m = grid('decor');
+  m.sphere(7, 3, 7, 4.6, (x, y, z) => (h(x, y, z) < 0.2 ? '#6e6e7a' : h(z, y, x) < 0.2 ? '#a4a4b0' : '#8e8e9a'), 3.4);
+  for (const [x, y, z] of [...m.each()]) if (y < 0) m.delete(x, y, z);
+  for (const ex of [4, 8]) { m.box(ex, 3, 11, ex + 2, 5, 12, C.white); m.set(ex + 1, 3, 12, C.black); }
+  // tiny red bow on top
+  m.box(5, 6, 7, 7, 7, 8, C.red); m.box(8, 6, 7, 10, 7, 8, C.red); m.set(7, 6, 7, C.redD);
+  return m;
+}
+function snotLamp() {
+  const m = grid('decor');
+  m.cone(7, 7, 3.6, 2.4, 0, 3, (x, y) => (y === 0 ? C.grayD : C.silver));
+  for (let y = 3; y < 13; y++) {
+    const r = 2.2 + 1.3 * Math.sin(Math.PI * (y - 3) / 10);
+    m.cyl(7, 7, r, y, y + 1, (x, yy, z) => {
+      const blob = Math.sin(x * 1.3 + yy * 0.9) + Math.cos(z * 1.1 - yy * 0.7) > 1.1;
+      return blob ? (h(x, yy, z) < 0.3 ? '#b6f04a' : C.slime) : '#6a3fb5';
+    });
+  }
+  m.cone(7, 7, 2.2, 1.2, 13, 16, (x, y) => (y === 15 ? C.grayD : C.silver));
+  return m;
+}
+function goldToilet() {
+  const m = grid('decor');
+  const gold = (x, y, z) => (h(x, y, z) < 0.15 ? C.yellow : C.gold);
+  m.box(5, 0, 6, 9, 3, 10, gold); // pedestal
+  m.cyl(7, 8.5, 4.2, 3, 6, gold); // bowl
+  m.ring(7, 8.5, 3.0, 4.4, 6, 7, C.goldD); // seat
+  m.cyl(7, 8.5, 3.0, 5, 6, C.cyan); // water
+  m.box(2, 5, 1, 12, 14, 4, gold); // tank
+  m.box(1, 14, 0, 13, 15, 5, C.goldD); // tank lid
+  m.box(10, 12, 4, 12, 13, 5, C.silver); // flush handle
+  m.set(7, 10, 4, C.red); m.set(6, 9, 4, C.blue); m.set(8, 9, 4, C.blue); // fancy jewels
+  return m;
+}
+function sockTrophy() {
+  const m = grid('decor');
+  m.box(3, 0, 3, 11, 2, 11, C.brownD);
+  m.box(4, 2, 4, 10, 3, 10, C.brown);
+  m.set(6, 1, 11, C.gold); m.set(7, 1, 11, C.gold); // plaque
+  m.cyl(7, 7, 1.2, 3, 6, C.goldD);
+  m.cone(7, 7, 2.2, 4.4, 6, 11, C.gold);
+  m.cyl(7, 7, 3.4, 10, 11, C.goldD);
+  m.box(1, 8, 6, 2, 11, 8, C.gold); m.box(12, 8, 6, 13, 11, 8, C.gold); // handles
+  // a stinky golden sock sticking out the top
+  m.box(6, 11, 6, 9, 16, 9, (x, y) => (y === 15 ? C.white : '#ffe14d'));
+  m.box(9, 11, 6, 11, 13, 9, '#ffe14d');
+  return m;
+}
+function moldyCake() {
+  const m = grid('decor');
+  m.cyl(7, 7, 6, 0, 1, '#e8e4f0'); // plate
+  m.cyl(7, 7, 5, 1, 4, (x, y, z) => (h(x, y, z) < 0.22 ? '#8db33a' : y === 2 ? C.white : C.pink));
+  m.cyl(7, 7, 3.6, 4, 7, (x, y, z) => (h(x, y, z) < 0.25 ? '#8db33a' : y === 5 ? C.white : C.pinkL));
+  // candles (one still lit)
+  for (const [x, z] of [[5, 6], [8, 6], [7, 9]]) m.box(x, 7, z, x + 1, 10, z + 1, x === 8 ? C.blue : C.yellow);
+  m.set(8, 10, 6, C.orange); m.set(8, 11, 6, C.yellow);
+  return m;
+}
+
 const W = (id, name, slot, price, desc, build) => ({ id, name, slot, price, desc, build, kind: 'wear' });
+// Decor: anim = idle animation in the den, poke = what happens when you click it.
+const D = (id, name, price, desc, build, extra = {}) => ({ id, name, slot: 'decor', price, desc, build, kind: 'decor', ...extra });
 const F = (id, name, price, desc, build, fx) => ({ id, name, slot: 'snack', price, desc, build, kind: fx.thirst > fx.hunger ? 'drink' : 'food', ...fx });
 
 export const BUILTIN = [
@@ -434,12 +557,47 @@ export const BUILTIN = [
   F('smoothie', 'Snot Smoothie', 6, 'Thick. Chunky. Nutritious-ish.', snotSmoothie, { hunger: 8, thirst: 40, gas: 0.25, burp: 0.6 }),
   F('pickle', 'Pickle Juice', 5, 'Sour enough to curl your toes.', pickleJuice, { hunger: 0, thirst: 35, gas: 0.2, burp: 0.5 }),
   F('soda', 'Slime Soda', 7, 'Guaranteed mega-burp.', slimeSoda, { hunger: 0, thirst: 45, gas: 0.2, burp: 1.0 }),
+
+  D('deadplant', 'Dead Plant', 15, 'It is not dead. It is just resting. Forever.', deadPlant, {
+    anim: 'sway', poke: 'leaf',
+    lines: ["Shhh! It's sleeping.", 'I water it with pickle juice every day!', "It's not brown. It's 'autumn colored'.", "Best plant ever. Never needs anything."],
+  }),
+  D('petrock', 'Pet Rock', 25, 'Very well behaved. Has never once run away.', petRock, {
+    poke: 'none',
+    lines: ['Rocky says hi! ...Rocky is shy.', "Good boy, Rocky! Who's a good rock?", 'Rocky did a trick! (He sat.)', 'Shh, Rocky is napping. Rocky is always napping.'],
+  }),
+  D('fartjar', 'Fart Jar', 40, 'A rare vintage. Do NOT open indoors. (Open it indoors.)', fartJar, {
+    anim: 'stink', poke: 'fart',
+    lines: ['Ahhh. A fine vintage.', "Smell that? That's from my birthday.", 'I collect the good ones.', 'Mmm, notes of egg and old cheese.'],
+  }),
+  D('squid', 'Pet Squid', 70, 'His name is Squidward Jr. He squishes when happy.', petSquid, {
+    anim: 'squish', poke: 'squish',
+    lines: ['Squish squish! He likes you!', 'He did a little ink. Sorry.', "Who's my squishy baby? YOU are!", 'He has 8 arms and still lost at thumb wrestling.'],
+  }),
+  D('moldycake', 'Moldy Birthday Cake', 35, 'Happy birthday! (It was three years ago.)', moldyCake, {
+    anim: 'stink', poke: 'stars',
+    lines: ['Still good!', 'The green part is extra frosting.', 'Make a wish! I wished for more cake.', "Don't blow out the last candle. It's my nightlight."],
+  }),
+  D('snotlamp', 'Snot Lava Lamp', 85, 'Groovy goo. Very relaxing. Do not lick.', snotLamp, {
+    anim: 'bob', poke: 'bubbles',
+    lines: ['So groovy...', 'I licked it. Do not lick it.', 'Ooooh. Blobby.', 'It goes up. It goes down. Amazing.'],
+  }),
+  D('trophy', 'Golden Sock Trophy', 120, 'For being the Smelliest Goblin Ever. Proudly won.', sockTrophy, {
+    poke: 'stars',
+    lines: ['I won that! Smelliest goblin THREE years in a row!', 'Champion of stink, baby!', 'I polish it with my tongue.'],
+  }),
+  D('toilet', 'Royal Golden Toilet', 200, 'A throne fit for a king. A very stinky king.', goldToilet, {
+    poke: 'flush',
+    lines: ['FLUSHHHH! Ahh, music.', 'Fancy! I only use it for special occasions.', "Don't drink from it. ...Okay, maybe a little sip."],
+  }),
 ];
 
 // ---------------- registry ----------------
 const registry = new Map();
 const modelCache = new Map();
 BUILTIN.forEach((it) => registry.set(it.id, it));
+
+const kindFor = (c) => (c.slot === 'snack' ? (c.drink ? 'drink' : 'food') : c.slot === 'decor' ? 'decor' : 'wear');
 
 export function allItems() { return [...registry.values()]; }
 export function getItem(id) { return registry.get(id); }
@@ -462,7 +620,7 @@ export function addShippedItems(list) {
     registry.set(c.id, {
       id: c.id, name: c.name, slot: c.slot, custom: false, shipped: true,
       model: c.model, build: () => VoxelModel.fromJSON(c.model),
-      kind: isFood ? (c.drink ? 'drink' : 'food') : 'wear',
+      kind: kindFor(c),
       price: c.price ?? (isFood ? 6 : 50),
       desc: c.desc || (c.by ? `Designed by ${c.by}!` : 'A goblin original.'),
       hunger: c.hunger ?? (isFood ? (c.drink ? 5 : 30) : 0),
@@ -481,7 +639,7 @@ export function setCustomItems(list) {
     registry.set(c.id, {
       ...c,
       custom: true,
-      kind: isFood ? (c.drink ? 'drink' : 'food') : 'wear',
+      kind: kindFor(c),
       price: isFood ? 5 : 0,
       desc: c.desc || (isFood ? 'A homemade snack. Made with love (and goo).' : 'Made by YOU in the Workshop!'),
       hunger: isFood ? (c.drink ? 5 : 30) : 0,

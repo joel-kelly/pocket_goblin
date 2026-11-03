@@ -1,6 +1,7 @@
 // Grown-ups corner: fact mastery heatmap, history, settings, save backup.
 import { h, button, modal, toast } from '../ui.js';
-import { setSoundEnabled } from '../audio.js';
+import { setSoundEnabled, sfx } from '../audio.js';
+import { SKINS } from '../goblinModel.js';
 import { MIN, TOP_MAX, START_MAX, factRecord, masterySummary, currentMax, unlockProgress } from '../math.js';
 
 // Color = how solid the fact is (its level goes up with fast right answers).
@@ -62,6 +63,25 @@ export function openParent(game) {
   const pixSel = h('select', {}, ...[2, 3, 4, 5].map((v) => h('option', { value: v, selected: v === s.settings.pixelScale }, `${v}x ${v === 3 ? '(default)' : v > 3 ? '(chunkier, faster)' : '(sharper)'}`)));
   pixSel.onchange = () => { s.settings.pixelScale = Number(pixSel.value); game.world.setPixelScale(s.settings.pixelScale); S.save(); };
 
+  // Goblin color: the starting swatches plus any color at all.
+  const setSkin = (hex) => {
+    s.skin = hex;
+    game.goblin.setSkin(hex);
+    game.goblin.act('hop');
+    S.save();
+    skins.querySelectorAll('.skin').forEach((el) => el.classList.toggle('on', el.dataset.hex === hex));
+    custom.value = hex;
+  };
+  const skins = h('div', { class: 'skins' });
+  for (const [name, hex] of Object.entries(SKINS)) {
+    const sw = h('div', { class: 'skin' + (hex === s.skin ? ' on' : ''), title: name, style: { background: hex }, onclick: () => { sfx.click(); setSkin(hex); } });
+    sw.dataset.hex = hex;
+    skins.append(sw);
+  }
+  const custom = h('input', { type: 'color', class: 'skin-custom', value: s.skin, title: 'Pick any color' });
+  custom.oninput = () => setSkin(custom.value);
+  skins.append(h('span', { class: 'skin-any' }, 'or any color:'), custom);
+
   const fileIn = h('input', { type: 'file', accept: '.json,application/json', style: { display: 'none' } });
   fileIn.onchange = async () => {
     const f = fileIn.files[0];
@@ -85,6 +105,7 @@ export function openParent(game) {
     h('label', {}, '"Fast" target time (facts answered faster level up)'), fastSel,
     h('label', {}, 'Biggest number in problems'), maxSel,
     h('label', {}, 'Pixel size'), pixSel,
+    h('label', {}, 'Goblin color'), skins,
     h('label', {}, 'Save file'),
     h('div', { class: 'row', style: { justifyContent: 'flex-start', marginTop: 0 } },
       button('Download backup', () => download(`pocket-goblin-save-${new Date().toISOString().slice(0, 10)}.json`, S.exportSave()), 'small blue'),

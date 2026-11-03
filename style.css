@@ -135,7 +135,7 @@ canvas#game { position: fixed; inset: 0; image-rendering: pixelated; image-rende
 .modal .x { position: absolute; top: 10px; right: 10px; }
 .modal input[type=text], .modal select { font-family: var(--body); font-size: 22px; padding: 8px 10px; border: 4px solid var(--ink); width: 100%; background: #fff; }
 .modal label { font-family: var(--title); font-size: 10px; display: block; margin: 14px 0 6px; }
-.skins { display: flex; gap: 8px; flex-wrap: wrap; }
+.skins { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .skin { width: 44px; height: 44px; border: 4px solid var(--ink); cursor: pointer; }
 .skin.on { outline: 4px solid var(--gold); transform: scale(1.1); }
 
@@ -324,3 +324,7 @@ table.hist td, table.hist th { border: 2px solid var(--ink); padding: 4px 6px; t
 .hit-flash { position: fixed; inset: 0; pointer-events: none !important; background: #ff2040; opacity: 0; }
 .hit-flash.on { animation: hitflash .35s; }
 @keyframes hitflash { 0% { opacity: .45; } 100% { opacity: 0; } }
+.card.equipped.placed::before { content: 'IN DEN'; }
+.card .pose-emo { font-size: 46px; line-height: 72px; height: 72px; margin-bottom: 4px; font-family: initial; }
+.skin-any { font-size: 16px; margin-left: 6px; }
+.skin-custom { width: 52px; height: 44px; padding: 0; border: 4px solid var(--ink); background: #fff; cursor: pointer; }

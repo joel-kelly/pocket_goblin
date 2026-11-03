@@ -8,6 +8,16 @@ const clamp01 = (v) => Math.max(0, Math.min(1, v));
 const easeOut = (p) => 1 - (1 - p) * (1 - p);
 const bump = (p) => Math.sin(Math.PI * clamp01(p)); // 0 -> 1 -> 0
 const window01 = (p, a, b) => clamp01((p - a) / (b - a));
+const smooth = (p) => p * p * (3 - 2 * p);
+const hold = (p, k = 6) => Math.min(1, p * k, (1 - p) * k); // ease in, hold, ease out
+
+// Turn the goblin around its belly instead of its feet (for flips).
+const MIDDLE = 14.5;
+function spinAroundMiddle(o, a) {
+  o.rz += a;
+  o.x += MIDDLE * Math.sin(a);
+  o.y += MIDDLE * (1 - Math.cos(a));
+}
 
 // Each action: duration (s), pose(p, pose, t) and optional events {at: p, name}
 const ACTIONS = {
@@ -133,6 +143,137 @@ const ACTIONS = {
     },
   },
   lookAround: { dur: 2.0, pose(p, o) { o.headRy += 0.5 * Math.sin(p * Math.PI * 2); } },
+
+  // ---- poses (Wardrobe → Poses) ----
+  flex: {
+    dur: 2.6,
+    pose(p, o) {
+      const e = hold(p);
+      const pump = Math.abs(Math.sin(p * Math.PI * 6));
+      o.armL -= (2.4 + 0.2 * pump) * e; o.armR += (2.4 + 0.2 * pump) * e;
+      o.armLx -= 0.6 * e; o.armRx -= 0.6 * e;
+      o.sx *= 1 + (0.05 + 0.04 * pump) * e; o.sy *= 1 - 0.05 * e;
+      o.rz += 0.025 * Math.sin(p * 90) * e; // straining!
+      o.earL -= 0.4 * e; o.earR += 0.4 * e;
+      o.headRx -= 0.1 * e;
+    },
+  },
+  superhero: {
+    dur: 3.0,
+    pose(p, o) {
+      const e = hold(p, 5);
+      o.y += (7 + Math.sin(p * Math.PI * 4)) * e;
+      o.armR += 2.95 * e; o.armL -= 0.5 * e;
+      o.rz -= 0.12 * e;
+      o.headRx -= 0.2 * e;
+      o.earL += 0.3 * e * Math.sin(p * 40); o.earR -= 0.3 * e * Math.sin(p * 40 + 1); // wind!
+    },
+  },
+  ballerina: {
+    dur: 3.2,
+    pose(p, o) {
+      const e = hold(p);
+      o.armL -= 2.75 * e; o.armR += 2.75 * e;
+      o.armLx -= 0.25 * e; o.armRx -= 0.25 * e;
+      o.y += 1.5 * e;
+      o.sy *= 1 + 0.05 * e;
+      o.ry += Math.PI * 4 * smooth(window01(p, 0.15, 0.85));
+      o.headRz += 0.2 * e;
+    },
+  },
+  robot: {
+    dur: 3.2,
+    pose(p, o) {
+      const e = hold(p, 10);
+      // Jerky: snap between key poses
+      const steps = [
+        [-1.57, 0, 0, 0], [-1.57, -1.57, 0.5, 0], [0, -1.57, -0.5, 0.3], [-1.57, -1.57, 0, -0.3],
+        [-3.0, 0, 0.5, 0], [0, -3.0, -0.5, 0], [-1.57, -1.57, 0, 0.6], [-1.57, -1.57, 0, 0],
+      ];
+      const [l, r, head, turn] = steps[Math.min(steps.length - 1, Math.floor(p * steps.length))];
+      o.armLx += l * e; o.armRx += r * e;
+      o.headRy += head * e; o.ry += turn * e;
+      o.sy *= 1 - 0.03 * e;
+    },
+  },
+  dab: {
+    dur: 2.2,
+    pose(p, o) {
+      const e = hold(p, 8);
+      o.armR += 2.3 * e;
+      o.armL += 0.9 * e; o.armLx -= 1.9 * e; // elbow across the face
+      o.headRx += 0.4 * e; o.headRy -= 0.4 * e; o.headRz += 0.15 * e;
+      o.rz -= 0.08 * e;
+    },
+  },
+  airplane: {
+    dur: 3.0,
+    pose(p, o) {
+      const e = hold(p);
+      o.armL -= 1.57 * e; o.armR += 1.57 * e;
+      o.rz += 0.3 * Math.sin(p * Math.PI * 3) * e; // bank left and right
+      o.ry += 0.6 * Math.sin(p * Math.PI * 2) * e;
+      o.torsoRx += 0.2 * e;
+      o.y += (1.5 + Math.abs(Math.sin(p * Math.PI * 6))) * e;
+      o.earL += 0.5 * e; o.earR -= 0.5 * e;
+    },
+  },
+  zen: {
+    dur: 3.6,
+    pose(p, o) {
+      const e = hold(p, 4);
+      o.y += (5 + Math.sin(p * Math.PI * 4)) * e;
+      o.armL -= 0.8 * e; o.armR += 0.8 * e;
+      o.armLx -= 0.6 * e; o.armRx -= 0.6 * e;
+      o.earL += 0.35 * e; o.earR -= 0.35 * e;
+      o.headRx -= 0.1 * e;
+    },
+  },
+  cartwheel: {
+    dur: 1.6,
+    pose(p, o) {
+      const turn = smooth(window01(p, 0.1, 0.9));
+      spinAroundMiddle(o, -Math.PI * 2 * turn);
+      o.y += 4 * bump(window01(p, 0.1, 0.9));
+      const e = hold(p, 8);
+      o.armL -= 2.4 * e; o.armR += 2.4 * e;
+    },
+  },
+  headstand: {
+    dur: 3.6,
+    pose(p, o) {
+      const flip = smooth(window01(p, 0, 0.2)) - smooth(window01(p, 0.8, 1));
+      const hop = bump(window01(p, 0, 0.2)) + bump(window01(p, 0.8, 1));
+      spinAroundMiddle(o, Math.PI * flip);
+      o.y += 6 * hop + o.hatHeight * flip; // balance on the hat, if wearing one
+      o.rz += 0.06 * Math.sin(p * 25) * flip; // wobble wobble
+      o.armL -= 1.3 * flip; o.armR += 1.3 * flip;
+      o.earL -= 0.5 * flip; o.earR += 0.5 * flip;
+    },
+  },
+  thinker: {
+    dur: 3.0,
+    pose(p, o) {
+      const e = hold(p, 5);
+      o.armRx -= 2.2 * e; o.armR -= 0.45 * e;
+      o.armL -= 0.15 * e;
+      o.headRz += 0.15 * e; o.headRx += 0.15 * e;
+      o.torsoRx += 0.12 * e;
+      o.headRy += 0.15 * Math.sin(p * Math.PI * 2) * e;
+    },
+  },
+  chicken: {
+    dur: 3.0,
+    pose(p, o) {
+      const e = hold(p, 8);
+      const flap = 0.5 + 0.5 * Math.sin(p * Math.PI * 16);
+      o.armL -= (0.3 + 0.7 * flap) * e; o.armR += (0.3 + 0.7 * flap) * e;
+      o.headRx += 0.4 * Math.max(0, Math.sin(p * Math.PI * 12)) * e; // peck peck
+      o.torsoRx += 0.15 * e;
+      o.y += 1.5 * Math.abs(Math.sin(p * Math.PI * 6)) * e;
+      o.ry += 0.3 * Math.sin(p * Math.PI * 3) * e;
+    },
+  },
 };
 
 export class Goblin {
@@ -263,6 +404,7 @@ export class Goblin {
     });
   }
   get busy() { return this.actions.length > 0; }
+  actionLength(name) { return ACTIONS[name]?.dur || 0; }
 
   worldPoint(part, x, y, z) {
     const pv = PARTS[part].pivot;
@@ -283,7 +425,7 @@ export class Goblin {
   update(dt) {
     this.time += dt;
     const t = this.time;
-    const o = { y: 0, rx: 0, ry: 0, rz: 0, sx: 1, sy: 1, headRx: 0, headRy: 0, headRz: 0, torsoRx: 0,
+    const o = { hatHeight: this.outfit.head ? 9 : 0, x: 0, y: 0, rx: 0, ry: 0, rz: 0, sx: 1, sy: 1, headRx: 0, headRy: 0, headRz: 0, torsoRx: 0,
       armL: 0, armR: 0, armLx: 0, armRx: 0, earL: 0, earR: 0 };
 
     // Idle life
@@ -316,6 +458,7 @@ export class Goblin {
     }
 
     const g = this.groups;
+    g.root.position.x = o.x;
     g.root.position.y = o.y;
     g.root.rotation.set(o.rx, o.ry, o.rz);
     g.root.scale.set(o.sx, o.sy, o.sx);

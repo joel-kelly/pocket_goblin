@@ -4,7 +4,7 @@ A vibe-coded math game to help my daughter learn her times tables. Rest of the r
 
 A silly, slightly gross virtual pet. You solve times-table problems to earn coins, then spend them on snacks, fancy outfits and vacations for your goblin. It burps, farts, faints when you get a problem wrong, and cheers when you're on a roll.
 
-Everything is made of blocks (voxels), so you can build new hats, shirts and snacks in the **Workshop**, a Minecraft-style block editor.
+Everything is made of blocks (voxels), so you can build new hats, shirts, snacks and den decorations in the **Workshop**, a Minecraft-style block editor.
 
 ## Running it
 
@@ -33,12 +33,13 @@ Progress is saved in the browser on that computer. **Grown-ups → Download back
 | ↳ **Squid Smackdown** | Box Big Inky, a giant squid. Every right answer is a punch (fast answers hit harder). When he winds up a tentacle, answer before the bar runs out to dodge and counterpunch for double damage. A wrong answer gets you slapped. Knock him down 3 times to win; he gets angrier and faster each time he gets up. |
 | ↳ **Goblin Café** | Ring up 10 customers per shift. Orders get harder: single items (times tables), then two-item orders, splitting the bill (division) and making change. Faster service earns bigger tips, and her Workshop snacks show up on the menu. |
 | 🍔 **Feed** | Toss snacks into the goblin's mouth. Some snacks cause burps. Most cause farts. |
-| 🛒 **Shop** | Snacks plus about 26 wearables across 7 slots: hats, face stuff, bling, shirts, back stuff, hand stuff and shoes. Click any item to try it on before buying. |
-| 👕 **Wardrobe** | Put on and take off owned items and anything built in the Workshop. |
+| 🛒 **Shop** | Snacks, about 26 wearables across 7 slots (hats, face stuff, bling, shirts, back stuff, hand stuff and shoes) and 8 decor items. Click any item to try it on (or see it in the den) before buying. |
+| 👕 **Wardrobe** | Put on and take off owned items and anything built in the Workshop. The **Poses** tab has 13 poses: flex, superhero, ballerina, robot, headstand, chicken dance and more. |
+| 🪴 **Decorate** | Put decor out in the den (5 spots, including a wall shelf) or put it away. Decor includes a pet squid, a fart jar, a dead plant (everyone starts with one), a pet rock and a golden toilet. Some of it moves on its own, and clicking it in the den makes it do something. |
 | 🛁 **Bath** | The goblin HATES this. |
 | ✈️ **Vacation** | Send the goblin away for 5–20 real minutes. A "Current status" line updates while it's gone, and it comes back with a postcard. |
 | 🔨 **Workshop** | Build or remix items block by block. |
-| Grown-ups | Press and hold the button. Shows a heatmap of which facts are fast or shaky, recent rounds, settings and save backups. |
+| Grown-ups | Press and hold the button. Shows a heatmap of which facts are fast or shaky, recent rounds, settings (including the goblin's color) and save backups. |
 
 Hunger, thirst, clean and fun slowly drop over real time, tuned so about 10–15 minutes a day keeps the goblin happy. The goblin never dies. It just gets dramatic.
 
@@ -88,14 +89,14 @@ src/
   goblinModel.js          the goblin's body and the item slots
   goblin.js               animations (hop, faint, fart, dance...) and emotes
   face.js                 pixel-art face expressions
-  items.js                built-in items and snacks (built in code from blocks)
+  items.js                built-in items, snacks and decor (built in code from blocks)
   lines.js                everything the goblin says + postcards  ← add jokes here!
   math.js                 times-table practice engine
   quiz.js                 the shared "type the answer" card used by all math games
   state.js                save data + stat decay
   audio.js                all sound effects, generated in code (farts included)
   fx.js                   particles: fart clouds, hearts, confetti, bubbles
-  world.js                3D scene, the goblin's den, pixelated renderer
+  world.js                3D scene, the goblin's den + decor spots, pixelated renderer
   screens/                home, shop, wardrobe, games (picker), gauntlet (Math Dash), rocket (Fart Rocket),
                           cafe (Goblin Café), race (Swamp Sprint), squid (Squid Smackdown),
                           workshop, vacation, parent
