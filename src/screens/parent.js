@@ -2,6 +2,7 @@
 import { h, button, modal, toast } from '../ui.js';
 import { setSoundEnabled, sfx } from '../audio.js';
 import { SKINS } from '../goblinModel.js';
+import { syncSection, linkedCode, unlink } from '../sync.js';
 import { MIN, TOP_MAX, START_MAX, factRecord, masterySummary, currentMax, unlockProgress } from '../math.js';
 
 // Color = how solid the fact is (its level goes up with fast right answers).
@@ -110,6 +111,8 @@ export function openParent(game) {
     h('label', {}, 'Pixel size'), pixSel,
     h('label', {}, 'On-screen number pad in math games'), padSel,
     h('label', {}, 'Goblin color'), skins,
+    h('label', {}, 'Sync between devices'),
+    syncSection(() => { m.close(); openParent(game); }),
     h('label', {}, 'Save file'),
     h('div', { class: 'row', style: { justifyContent: 'flex-start', marginTop: 0 } },
       button('Download backup', () => download(`pocket-goblin-save-${new Date().toISOString().slice(0, 10)}.json`, S.exportSave()), 'small blue'),
@@ -127,7 +130,8 @@ export function openParent(game) {
         S.save(); game.go('home');
       }, 'small'),
       button('Start over (erase!)', () => {
-        if (confirm('Erase EVERYTHING and start over? (Download a backup first if unsure.)')) { S.resetSave(); location.reload(); }
+        const note = linkedCode() ? ' This device will also stop syncing, so your other devices keep their goblin.' : '';
+        if (confirm(`Erase EVERYTHING and start over? (Download a backup first if unsure.)${note}`)) { unlink(); S.resetSave(); location.reload(); }
       }, 'small red')),
   ));
 }

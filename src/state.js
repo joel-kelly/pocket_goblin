@@ -71,7 +71,11 @@ function fromSaved(data) {
 export function get() { return state; }
 
 let saveTimer = null;
+let editHook = null;
+// Device sync listens here to learn that the goblin changed.
+export function onEdit(fn) { editHook = fn; }
 export function save() {
+  editHook?.();
   clearTimeout(saveTimer);
   saveTimer = setTimeout(saveNow, 300);
   listeners.forEach((fn) => fn(state));
@@ -126,6 +130,19 @@ export function importSave(json) {
   if (!data || typeof data !== 'object' || !data.stats) throw new Error('Not a Pocket Goblin save file');
   state = fromSaved(data);
   saveNow();
+  editHook?.();
+  return state;
+}
+// Swap in a save that came from another device (sync), without counting it as an edit here.
+// Sound and pixel size stay as they were on this device.
+export function adopt(data) {
+  const here = state?.settings || {};
+  state = fromSaved(data);
+  state.settings = { ...newState().settings, ...(state.settings || {}) };
+  if ('sound' in here) state.settings.sound = here.sound;
+  if ('pixelScale' in here) state.settings.pixelScale = here.pixelScale;
+  saveNow();
+  tick();
   return state;
 }
 export function resetSave() {

@@ -26,6 +26,10 @@ It works on phones and tablets turned sideways (holding a phone upright shows a 
 
 Progress is saved in the browser on that computer. **Grown-ups → Download backup** saves a copy you can load somewhere else.
 
+### Playing on more than one device
+
+Optional: a tiny free Cloudflare Worker keeps the same goblin on several devices (see [`sync-worker/README.md`](sync-worker/README.md) to set it up). Once it's running, **Grown-ups → Sync between devices → Turn on sync** gives a goblin code like `SWAMP-TOAD-BURP-SLIME-4821` and a link. Open the link on another device, or tap **I already have a goblin** when it first starts, and the same goblin shows up there. The game still saves in the browser first, so it works offline. If two devices both played while one was offline, it asks which goblin to keep.
+
 ## What's in the game
 
 | | |
@@ -87,6 +91,7 @@ index.html, style.css     page + pixel-style UI
 vendor/three.module.min.js   three.js r170 (3D engine, MIT)
 fonts/                    Press Start 2P + Pixelify Sans (OFL)
 items/                    extra items exported from the Workshop
+sync-worker/              optional Cloudflare Worker that syncs saves between devices
 src/
   main.js                 startup, game loop, first-time setup
   voxel.js                block models + mesh builder (with Minecraft-style shading)
@@ -98,6 +103,7 @@ src/
   math.js                 times-table practice engine
   quiz.js                 the shared "type the answer" card used by all math games
   state.js                save data + stat decay
+  sync.js                 optional device sync (talks to sync-worker/)
   audio.js                all sound effects, generated in code (farts included)
   fx.js                   particles: fart clouds, hearts, confetti, bubbles
   world.js                3D scene, the goblin's den + decor spots, pixelated renderer
