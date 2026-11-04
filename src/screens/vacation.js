@@ -2,6 +2,7 @@
 import { h, button, modal, toast, modalOpen, closePanel } from '../ui.js';
 import { sfx } from '../audio.js';
 import { DESTINATIONS, LINES, pick, writePostcard } from '../lines.js';
+import { track } from '../track.js';
 
 // ---------- pixel postcard scenes (160 x 100) ----------
 function rng(seed) {
@@ -101,6 +102,7 @@ async function leave(game, d) {
     return;
   }
   S.addCoins(-d.cost);
+  track('vacation', d.id, d.cost);
   game.line('vacationLeave', 2.5);
   goblin.emote('ecstatic', 3);
   goblin.act('wave');

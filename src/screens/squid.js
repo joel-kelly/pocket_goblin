@@ -13,6 +13,7 @@ import { currentMax, FactPicker } from '../math.js';
 import { SQUID_TAUNTS, pick } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
+import { track } from '../track.js';
 
 const SQUID_Z = -58;
 const GOB_Z = 10;
@@ -430,6 +431,7 @@ export class SquidScreen {
 
   startFight() {
     if (this.phase !== 'countdown') return;
+    track('game_start', 'squid');
     this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
     this.correct = 0; this.total = 0; this.combo = 0; this.bestCombo = 0; this.times = [];
@@ -703,6 +705,7 @@ export class SquidScreen {
     S.addCoins(coins);
     const avg = this.times.length ? this.times.reduce((a, b) => a + b, 0) / this.times.length : 0;
     s.history.push({ t: Date.now(), game: 'squid', correct: this.correct, total: this.total, avg, streak: this.bestCombo, score: this.knockdowns });
+    track('game_end', 'squid', this.correct);
     if (s.history.length > 200) s.history.shift();
     if (this.total > 0) S.addStat('fun', 12);
     S.save();

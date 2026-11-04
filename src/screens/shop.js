@@ -4,6 +4,7 @@ import { sfx } from '../audio.js';
 import { allItems, getItem, getModel } from '../items.js';
 import { SLOTS, WEAR_SLOTS } from '../goblinModel.js';
 import { thumbnail } from '../world.js';
+import { track } from '../track.js';
 
 export function openShop(game, startTab = 'snack') {
   const { world, goblin, S } = game;
@@ -35,6 +36,7 @@ export function openShop(game, startTab = 'snack') {
       return;
     }
     S.addCoins(-it.price);
+    track('buy', it.custom ? 'custom' : id, it.price);
     sfx.buy();
     world.fx.confetti(goblin.headTop(), 30);
     goblin.emote('love', 2.2);

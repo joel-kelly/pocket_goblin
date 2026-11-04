@@ -16,6 +16,7 @@ import { RaceScreen } from './screens/race.js';
 import { SquidScreen } from './screens/squid.js';
 import { checkVacation } from './screens/vacation.js';
 import * as Sync from './sync.js';
+import { track } from './track.js';
 
 // Loads the save, first pulling in newer progress from other devices if sync is on.
 const state = await Sync.startup();
@@ -165,6 +166,7 @@ function onboarding() {
       state.skin = skin;
       state.onboarded = true;
       S.save();
+      track('goblin_created');
       m.close();
       game.go('home');
       setTimeout(() => {
@@ -225,6 +227,7 @@ function step(now) {
 
 document.getElementById('loading').remove();
 Sync.startSync();
+track('app_open', state.onboarded ? '' : 'new');
 if (state.onboarded) game.go('home', { greet: true });
 else { game.screen = game.screens.home; onboarding(); }
 requestAnimationFrame(frame);

@@ -30,6 +30,10 @@ Progress is saved in the browser on that computer. **Grown-ups → Download back
 
 Optional: a tiny free Cloudflare Worker keeps the same goblin on several devices (see [`sync-worker/README.md`](sync-worker/README.md) to set it up). Once it's running, **Grown-ups → Sync between devices → Turn on sync** gives a goblin code like `SWAMP-TOAD-BURP-SLIME-4821` and a link. Open the link on another device, or tap **I already have a goblin** when it first starts, and the same goblin shows up there. The game still saves in the browser first, so it works offline. If two devices both played while one was offline, it asks which goblin to keep.
 
+### Seeing what's popular
+
+The sync Worker also keeps anonymous play counts: how many goblins have been made, which math games get played, and which activities (Shop, Vacation, Decorate...) get used. No names or answers are sent, and **Grown-ups → Share play counts** turns it off. See [Play counts](sync-worker/README.md#play-counts-whats-popular) for how to view them.
+
 ## What's in the game
 
 | | |
@@ -91,7 +95,7 @@ index.html, style.css     page + pixel-style UI
 vendor/three.module.min.js   three.js r170 (3D engine, MIT)
 fonts/                    Press Start 2P + Pixelify Sans (OFL)
 items/                    extra items exported from the Workshop
-sync-worker/              optional Cloudflare Worker that syncs saves between devices
+sync-worker/              optional Cloudflare Worker that syncs saves between devices and keeps play counts
 src/
   main.js                 startup, game loop, first-time setup
   voxel.js                block models + mesh builder (with Minecraft-style shading)
@@ -104,6 +108,7 @@ src/
   quiz.js                 the shared "type the answer" card used by all math games
   state.js                save data + stat decay
   sync.js                 optional device sync (talks to sync-worker/)
+  track.js                anonymous play counts (also sent to sync-worker/)
   audio.js                all sound effects, generated in code (farts included)
   fx.js                   particles: fart clouds, hearts, confetti, bubbles
   world.js                3D scene, the goblin's den + decor spots, pixelated renderer

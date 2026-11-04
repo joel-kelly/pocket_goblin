@@ -9,6 +9,7 @@ import { currentMax, FactPicker } from '../math.js';
 import { ROCKET_ZONES } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
+import { track } from '../track.js';
 
 const SKY = [
   [0, '#8fd3ff'], [300, '#5aa8f0'], [600, '#3a5fc0'], [850, '#1a1f5a'], [1200, '#0b0b24'], [99999, '#05050f'],
@@ -218,6 +219,7 @@ export class RocketScreen {
   }
 
   startRound() {
+    track('game_start', 'rocket');
     this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
     this.fuel = 100; this.alt = 0; this.maxAlt = 0; this.boost = 18;
@@ -391,6 +393,7 @@ export class RocketScreen {
     S.addCoins(coins);
     const avg = this.times.length ? this.times.reduce((a, b) => a + b, 0) / this.times.length : 0;
     s.history.push({ t: Date.now(), game: 'rocket', correct: this.correct, total: this.total, avg, streak: this.bestCombo, score: height });
+    track('game_end', 'rocket', this.correct);
     if (s.history.length > 200) s.history.shift();
     if (this.total > 0) S.addStat('fun', 12);
     S.save();
