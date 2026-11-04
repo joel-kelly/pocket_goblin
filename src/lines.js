@@ -16,6 +16,7 @@ export const LINES = {
   idle: [
     "*picks nose thoughtfully*",
     "Do you think worms have best friends?",
+    "If the moon was made of blue cheese, would you eat it?",
     "I can smell my own feet from here. Impressive, right?",
     "If I sneeze really hard, do my ears flap?",
     "*scratches butt* ...what? Everybody does it.",
@@ -33,7 +34,7 @@ export const LINES = {
   bored: ["I'm bored. Let's do some math! Or poke me!", "Entertain me, human!", "So... bored... gonna count my toes again."],
   happy: ["Life is GOOD.", "I feel like a million moldy bucks!", "Best. Day. EVER."],
 
-  poke: ["Hee hee! That tickles!", "HEY! Personal space!", "Boop!", "Ow. ...do it again.", "You found my ticklish spot! It's all of them!", "Stop poking me! (don't stop)"],
+  poke: ["Hee hee! That tickles!", "HEY! Personal space!", "Boop!", "RANDOM NOISES.", "You found my ticklish spot! It's all of them!"],
   pokeFart: ["Oops. You poked the fart out.", "That's what happens when you poke a goblin!", "...I blame the cheese."],
 
   eat: ["NOM NOM NOM.", "*chomps loudly with mouth open*", "Mmmmm! Crunchy!", "Delicious! 10 out of 10 goblins agree!", "Ooh it's still wiggling!"],
@@ -52,7 +53,7 @@ export const LINES = {
   denFull: ["My den is full! Put something away first.", "No more room! Not even for a sock."],
   decorPoke: ["I made that! ...Or you did. Either way, it's great.", "My favorite thing in the whole den!", "Don't touch it! ...Okay, you can touch it."],
 
-  mathStart: ["Let's GO! Math power, activate!", "You got this, {kid}! I believe in you! (I can't count.)", "Numbers, prepare to be CRUSHED!"],
+  mathStart: ["Let's GO! Math power, activate!", "You got this, {kid}! I believe in you! (However, I can't count.)", "Numbers, prepare to be CRUSHED!"],
   correct: ["YES!", "Nailed it!", "Big brain!", "Woo!", "Smart!", "Boom!", "Correct-o!", "Zoom!", "Ka-ching!"],
   combo5: ["5 in a row! You're on FIRE!", "Combo! My ears are tingling!"],
   combo10: ["10 IN A ROW?! Are you a calculator?!", "UNSTOPPABLE! I'm gonna faint from excitement!"],
