@@ -4,7 +4,7 @@
 // - Too slow and the tentacle lands. A wrong answer gets you slapped right away.
 // - Knock Big Inky down 3 times to win. He gets angrier (and faster) each time he gets up.
 import * as THREE from '../../vendor/three.module.min.js';
-import { h, button, floater, modalOpen, nums, kb } from '../ui.js';
+import { h, button, floater, modalOpen, nums, kb, IS_TOUCH, placeBubble } from '../ui.js';
 import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh } from '../voxel.js';
 import { FX } from '../fx.js';
@@ -787,8 +787,11 @@ export class SquidScreen {
     this.bubble.classList.toggle('hidden', !showB);
     if (showB) {
       const p = this.game.world.toScreen(this.squid.localToWorld(new THREE.Vector3(0, HY + 70, 0)));
-      this.bubble.style.left = Math.max(170, p.x) + 'px';
-      this.bubble.style.top = Math.max(this.bubble.offsetHeight + 78, p.y) + 'px';
+      if (IS_TOUCH) placeBubble(this.bubble, p.x, p.y);
+      else {
+        this.bubble.style.left = Math.max(170, p.x) + 'px';
+        this.bubble.style.top = Math.max(this.bubble.offsetHeight + 78, p.y) + 'px';
+      }
     }
   }
 
