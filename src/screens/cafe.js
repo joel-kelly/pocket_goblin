@@ -2,7 +2,7 @@
 // single orders (times tables) → two-item orders → splitting the bill (division)
 // → making change. Faster service = bigger tips.
 import * as THREE from '../../vendor/three.module.min.js';
-import { h, button, floater, modalOpen, nums, kb } from '../ui.js';
+import { h, button, floater, modalOpen, nums, kb, IS_TOUCH, placeBubble } from '../ui.js';
 import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh } from '../voxel.js';
 import { FX } from '../fx.js';
@@ -84,6 +84,7 @@ export class CafeScreen {
     for (const [x, y, z] of [[-53, 14, 4], [-51, 15, 4], [-52, 17, 4]]) { room.set(x, y, z, '#ffffff'); }
     room.set(-53, 14, 5, '#1b1020'); room.set(-51, 15, 5, '#1b1020'); room.set(-52, 17, 5, '#1b1020');
     S.add(buildMesh(room, { jitter: 0.06 }));
+    if (IS_TOUCH) this.addBackdrop();
 
     // Signs
     const sign = new THREE.Mesh(new THREE.PlaneGeometry(56, 9), new THREE.MeshBasicMaterial({
@@ -95,6 +96,51 @@ export class CafeScreen {
     // Tip jar (rebuilt as tips come in)
     this.jar = null;
     this.updateJar(0);
+  }
+
+  // Phones and tablets pull the camera further back (see frameCamera), which can
+  // show past the edges of the room. A big floor and back wall sit just behind the
+  // room's own blocks to fill that in.
+  addBackdrop() {
+    const S = this.scene;
+    const tex = (draw, w, h) => {
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      draw(c.getContext('2d'));
+      const t = new THREE.CanvasTexture(c);
+      t.magFilter = t.minFilter = THREE.NearestFilter;
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+    // Floor: the same 4-block pink/green checks, 1 px per block.
+    const SIZE = 1600;
+    const floorTex = tex((g) => {
+      for (let x = 0; x < 8; x++) for (let y = 0; y < 8; y++) {
+        g.fillStyle = (Math.floor(x / 4) + Math.floor(y / 4)) % 2 ? '#f4d3e0' : '#bfe8d0';
+        g.fillRect(x, y, 1, 1);
+      }
+    }, 8, 8);
+    floorTex.repeat.set(SIZE / 8, SIZE / 8);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(SIZE, SIZE), new THREE.MeshLambertMaterial({ map: floorTex }));
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -0.4;
+    S.add(floor);
+    // Back wall: dark green stripes up to 16, a trim line, then plain light green.
+    const wallTex = tex((g) => {
+      g.fillStyle = '#9fd6b0'; g.fillRect(0, 0, 6, 64);
+      for (let x = 0; x < 6; x++) { g.fillStyle = Math.floor(x / 3) % 2 ? '#5fae7a' : '#4f9a6a'; g.fillRect(x, 64 - 16, 1, 16); }
+      g.fillStyle = '#3a6a4a'; g.fillRect(0, 64 - 17, 6, 1);
+    }, 6, 64);
+    const W = 1596, H = 64 * 4;
+    const wallMat = new THREE.MeshLambertMaterial({ map: wallTex });
+    wallTex.repeat.set(W / 6, 1);
+    // Bottom 64 rows use the texture; above that is plain wall color.
+    const wall = new THREE.Mesh(new THREE.PlaneGeometry(W, 64), wallMat);
+    wall.position.set(0, 32, -32.4);
+    const upper = new THREE.Mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshLambertMaterial({ color: '#9fd6b0' }));
+    upper.position.set(0, 64 + H / 2, -32.4);
+    S.add(wall, upper);
   }
 
   updateJar(tips) {
@@ -125,6 +171,7 @@ export class CafeScreen {
     goblin.lookAt(1, 0);
     this.camera.position.set(10, 30, 142);
     this.camera.lookAt(10, 18, 0);
+    this.snapCam = true;
     this.phase = 'ready';
     this.token++;
     this.build();
@@ -441,7 +488,30 @@ export class CafeScreen {
     this.nextCustomer();
   }
 
+  // Phones and tablets: the order card sits mid-screen (the number pad takes the
+  // right side), so move the camera back and over until the cook, counter and
+  // customer all fit in the space left of the card.
+  frameCamera(dt) {
+    const card = this.root.querySelector('.g-box')?.getBoundingClientRect();
+    if (!card?.width) return;
+    const room = card.left / innerWidth - 0.03; // free space, as a share of screen width
+    const EDGE = 0.02;
+    const L = -50, LZ = GOB_POS.z; // cook's left side
+    const R = SPOT.x + 10, RZ = SPOT.z; // customer's right side
+    const T = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)) * this.camera.aspect;
+    // Solve for the camera distance/position that puts L at EDGE and R at room.
+    let z = ((R - L) / (2 * T) + LZ * (0.5 - EDGE) + RZ * (room - 0.5)) / (room - EDGE);
+    z = Math.max(142, Math.min(320, z));
+    const x = L + (0.5 - EDGE) * 2 * T * (z - LZ);
+    const k = this.snapCam ? 1 : Math.min(1, dt * 4);
+    this.snapCam = false;
+    const cam = this.camera.position;
+    cam.set(cam.x + (x - cam.x) * k, 30, cam.z + (z - cam.z) * k);
+    this.camera.lookAt(cam.x, 18, 0);
+  }
+
   update(dt) {
+    if (IS_TOUCH) this.frameCamera(dt);
     const c = this.customer;
     if (c) {
       c.update(dt);
@@ -463,8 +533,11 @@ export class CafeScreen {
       if (show) {
         const pos = this.game.world.toScreen(c.headTop());
         el.textContent = this.custText;
-        el.style.left = Math.max(170, pos.x) + 'px';
-        el.style.top = Math.max(el.offsetHeight + 78, pos.y) + 'px';
+        if (IS_TOUCH) placeBubble(el, pos.x, pos.y);
+        else {
+          el.style.left = Math.max(170, pos.x) + 'px';
+          el.style.top = Math.max(el.offsetHeight + 78, pos.y) + 'px';
+        }
       }
     }
   }

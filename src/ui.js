@@ -55,10 +55,25 @@ export function updateBubble(screenPos, babble) {
   bubble.shown = Math.min(bubble.full.length, bubble.shown + 1.5);
   el.textContent = bubble.full.slice(0, Math.ceil(bubble.shown));
   el.classList.remove('hidden');
+  if (IS_TOUCH) { placeBubble(el, screenPos.x, screenPos.y); return; }
   const x = Math.max(170, Math.min(window.innerWidth - 170, screenPos.x));
   const y = Math.max(el.offsetHeight + 78, screenPos.y);
   el.style.left = x + 'px';
   el.style.top = y + 'px';
+}
+
+// Touch screens: the question card sits mid-screen, so when the speaker is left
+// of it or behind it, keep the bubble in the space to the left of the card
+// (wrapping narrower if needed) instead of on top of the puzzle.
+export function placeBubble(el, x, y) {
+  let lo = 8, hi = window.innerWidth - 8;
+  const card = document.querySelector('#screen .g-box')?.getBoundingClientRect();
+  if (card?.width && x < card.right) hi = card.left - 8;
+  el.style.maxWidth = '';
+  if (el.offsetWidth > hi - lo) el.style.maxWidth = (hi - lo) + 'px';
+  const w = el.offsetWidth;
+  el.style.left = Math.max(lo + w / 2, Math.min(hi - w / 2, x)) + 'px';
+  el.style.top = Math.max(el.offsetHeight + 78, y) + 'px';
 }
 
 // ---------- toasts & floaters ----------
