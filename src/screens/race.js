@@ -13,6 +13,7 @@ import { currentMax, FactPicker } from '../math.js';
 import { LINES, pick } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
+import { track } from '../track.js';
 
 const U = 4;              // world units per meter
 const TRACK = 500;        // race length in meters
@@ -345,6 +346,7 @@ export class RaceScreen {
   }
 
   startRace() {
+    track('game_start', 'race');
     this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
     // If a grown-up made the target time longer, the rivals run a bit slower too.
@@ -603,6 +605,7 @@ export class RaceScreen {
     S.addCoins(coins);
     const avg = this.times.length ? this.times.reduce((a, b) => a + b, 0) / this.times.length : 0;
     s.history.push({ t: Date.now(), game: 'race', correct: this.correct, total: this.total, avg, streak: this.bestCombo, score: this.place });
+    track('game_end', 'race', this.correct);
     if (s.history.length > 200) s.history.shift();
     if (this.total > 0) S.addStat('fun', 12);
     S.save();

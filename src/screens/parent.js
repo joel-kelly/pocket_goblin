@@ -2,7 +2,7 @@
 import { h, button, modal, toast } from '../ui.js';
 import { setSoundEnabled, sfx } from '../audio.js';
 import { SKINS } from '../goblinModel.js';
-import { syncSection, linkedCode, unlink } from '../sync.js';
+import { syncSection, linkedCode, unlink, enabled as syncEnabled } from '../sync.js';
 import { MIN, TOP_MAX, START_MAX, factRecord, masterySummary, currentMax, unlockProgress } from '../math.js';
 
 // Color = how solid the fact is (its level goes up with fast right answers).
@@ -65,6 +65,9 @@ export function openParent(game) {
   const padSel = h('select', {}, ...[['auto', 'Auto: show on phones and tablets'], ['on', 'Always show'], ['off', 'Never show (use the keyboard)']]
     .map(([v, l]) => h('option', { value: v, selected: (s.settings.numpad || 'auto') === v }, l)));
   padSel.onchange = () => { s.settings.numpad = padSel.value; S.save(); toast('Saved!'); };
+  const statsSel = h('select', {}, ...[[true, 'On'], [false, 'Off']]
+    .map(([v, l]) => h('option', { value: String(v), selected: (s.settings.analytics !== false) === v }, l)));
+  statsSel.onchange = () => { s.settings.analytics = statsSel.value === 'true'; S.save(); toast('Saved!'); };
   pixSel.onchange = () => { s.settings.pixelScale = Number(pixSel.value); game.world.setPixelScale(s.settings.pixelScale); S.save(); };
 
   // Goblin color: the starting swatches plus any color at all.
@@ -113,6 +116,10 @@ export function openParent(game) {
     h('label', {}, 'Goblin color'), skins,
     h('label', {}, 'Sync between devices'),
     syncSection(() => { m.close(); openParent(game); }),
+    syncEnabled() ? h('label', {}, 'Anonymous play counts') : null,
+    syncEnabled() ? h('p', { style: { fontSize: '15px', margin: '0 0 6px' } },
+      'Counts like "a math game was played" or "the Shop was opened" go to the game\'s maker, to see what\'s popular. No names, answers or goblin codes are sent.') : null,
+    syncEnabled() ? statsSel : null,
     h('label', {}, 'Save file'),
     h('div', { class: 'row', style: { justifyContent: 'flex-start', marginTop: 0 } },
       button('Download backup', () => download(`pocket-goblin-save-${new Date().toISOString().slice(0, 10)}.json`, S.exportSave()), 'small blue'),

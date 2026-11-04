@@ -9,6 +9,7 @@ import { drawFace, FACE_W, FACE_H } from '../face.js';
 import { thumbnail, clearThumb } from '../world.js';
 import { h, button, toast, IS_TOUCH } from '../ui.js';
 import { sfx } from '../audio.js';
+import { track } from '../track.js';
 
 export const PALETTE = [
   '#22202a', '#5c5c68', '#8e8e9a', '#c9ced8', '#ffffff',
@@ -597,7 +598,7 @@ export class WorkshopScreen {
     const id = this.editId || 'c_' + Date.now().toString(36) + Math.floor(Math.random() * 1000);
     const rec = { id, name: (this.name || `My ${NOUN[this.slot]}`).trim(), slot: this.slot, model: this.model.toJSON(), drink: this.drink, created: Date.now() };
     const i = s.custom.findIndex((c) => c.id === id);
-    if (i >= 0) s.custom[i] = rec; else s.custom.push(rec);
+    if (i >= 0) s.custom[i] = rec; else { s.custom.push(rec); track('workshop_make', this.slot); }
     setCustomItems(s.custom);
     clearThumb(id);
     this.editId = id;

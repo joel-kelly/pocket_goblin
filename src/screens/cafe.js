@@ -14,6 +14,7 @@ import { thumbnail } from '../world.js';
 import { CUSTOMER_NAMES, CUSTOMER_HELLO, CUSTOMER_HAPPY, CUSTOMER_MAD } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard } from '../quiz.js';
+import { track } from '../track.js';
 
 const SHIFT = ['single', 'single', 'single', 'split', 'double', 'single', 'double', 'split', 'change', 'change'];
 const PRICES = [3, 4, 6, 7, 8, 9];
@@ -195,6 +196,7 @@ export class CafeScreen {
   startShift() {
     if (this.phase !== 'ready' && this.phase !== 'results') return;
     if (this.phase === 'results') { this.rollMenu(); }
+    track('game_start', 'cafe');
     this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
     this.idx = -1;
@@ -488,6 +490,7 @@ export class CafeScreen {
     const avg = this.times.length ? this.times.reduce((a, b) => a + b, 0) / this.times.length : 0;
     if (this.total > 0) {
       s.history.push({ t: Date.now(), game: 'cafe', correct: this.correct, total: this.total, avg, streak: 0, score: this.tips });
+      track('game_end', 'cafe', this.correct);
       if (s.history.length > 200) s.history.shift();
       S.addStat('fun', 12);
     }

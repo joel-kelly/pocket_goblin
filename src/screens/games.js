@@ -2,6 +2,7 @@
 import { h, modal, closePanel, button, nums } from '../ui.js';
 import { sfx } from '../audio.js';
 import { unlockProgress, checkUnlock, TOP_MAX } from '../math.js';
+import { track } from '../track.js';
 
 // Progress toward the next times table, shown in the games menu.
 function progressEl(state) {
@@ -22,6 +23,7 @@ function progressEl(state) {
 export function afterRound(game) {
   const n = checkUnlock(game.state);
   if (!n) return;
+  track('unlock', '', n);
   game.S.save();
   setTimeout(() => {
     sfx.fanfare();

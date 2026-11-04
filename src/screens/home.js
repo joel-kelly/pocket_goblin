@@ -13,6 +13,7 @@ import { openVacation, openPostcards } from './vacation.js';
 import { openParent } from './parent.js';
 import { openGames } from './games.js';
 import { VACATION_STATUS, VACATION_STATUS_ANY, pick, LINES } from '../lines.js';
+import { track } from '../track.js';
 
 export class HomeScreen {
   constructor(game) {
@@ -79,7 +80,8 @@ export class HomeScreen {
     }
 
     const act = (emo, label, fn, cls = '', disabled = false) => {
-      const b = h('button', { class: `btn ${cls}`, onclick: () => { sfx.click(); fn(); } }, h('span', { class: 'emo' }, emo), label);
+      const id = label.toLowerCase().replace(/[^a-z]/g, '');
+      const b = h('button', { class: `btn ${cls}`, onclick: () => { sfx.click(); track('home_button', id); fn(); } }, h('span', { class: 'emo' }, emo), label);
       if (disabled) b.disabled = true;
       return b;
     };
@@ -288,6 +290,7 @@ export class HomeScreen {
     s.pantry[id]--;
     if (s.pantry[id] <= 0) delete s.pantry[id];
     this.game.S.save();
+    track('feed', it.custom ? 'custom' : id);
     after?.();
     this.busy = true;
     const wasFull = it.kind === 'food' && s.stats.hunger > 90;

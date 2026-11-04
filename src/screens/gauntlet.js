@@ -7,6 +7,7 @@ import { currentMax, FactPicker, coinsFor, masterySummary } from '../math.js';
 import { LINES, pick } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
+import { track } from '../track.js';
 
 const ROUND_SECONDS = 60;
 
@@ -84,6 +85,7 @@ export class GauntletScreen {
   }
 
   startRound() {
+    track('game_start', 'dash');
     this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
     this.timeLeft = ROUND_SECONDS;
@@ -202,6 +204,7 @@ export class GauntletScreen {
     if (newBest) { bonus = 10; S.addCoins(bonus); s.best.score = this.correct; }
     s.best.streak = Math.max(s.best.streak, this.bestCombo);
     s.history.push({ t: Date.now(), game: 'dash', correct: this.correct, total: this.total, avg, streak: this.bestCombo });
+    track('game_end', 'dash', this.correct);
     if (s.history.length > 200) s.history.shift();
     if (this.total > 0) S.addStat('fun', 12);
     S.save();

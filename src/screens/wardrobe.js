@@ -4,6 +4,7 @@ import { sfx } from '../audio.js';
 import { allItems, getModel } from '../items.js';
 import { SLOTS, WEAR_SLOTS } from '../goblinModel.js';
 import { thumbnail } from '../world.js';
+import { track } from '../track.js';
 
 // Poses the goblin can strike. act = animation name in goblin.js.
 const ticks = (n, gap) => { for (let i = 0; i < n; i++) setTimeout(() => sfx.tick(), i * gap); };
@@ -25,6 +26,7 @@ export const POSES = [
 
 export function strikePose(game, pose) {
   const { goblin } = game;
+  track('pose', pose.act);
   goblin.act(pose.act);
   goblin.emote(pose.face, goblin.actionLength(pose.act));
   pose.sound?.();
@@ -81,6 +83,7 @@ export function openWardrobe(game) {
             goblin.act('shiver');
           } else {
             s.equipped[tab] = it.id;
+            track('wear', it.custom ? 'custom' : it.id);
             goblin.act(Math.random() < 0.5 ? 'model' : 'spin');
             goblin.emote('love', 1.8);
             world.fx.hearts(goblin.headTop(), 4);
