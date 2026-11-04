@@ -23,13 +23,14 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: #2b1d33; color: var(--ink); font-family: var(--body); font-size: 18px; user-select: none; }
 canvas#game { position: fixed; inset: 0; image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
-#ui { position: fixed; inset: 0; pointer-events: none; }
+/* Above #loading, so a dialog shown during startup (like the sync "Two different goblins!" choice) is visible. */
+#ui { position: fixed; inset: 0; pointer-events: none; z-index: 2; }
 #ui > * { pointer-events: auto; }
 #ui > #bubble, #ui > #toasts, #ui > #screen { pointer-events: none; }
 #screen > * { pointer-events: none; }
 #screen > * > * { pointer-events: auto; }
 .hidden { display: none !important; }
-#loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--slime); font-family: var(--title); font-size: 16px; background: #2b1d33; }
+#loading { position: fixed; inset: 0; z-index: 1; display: grid; place-items: center; color: var(--slime); font-family: var(--title); font-size: 16px; background: #2b1d33; }
 
 /* ---------- buttons ---------- */
 .btn {
