@@ -32,7 +32,7 @@ Optional: a tiny free Cloudflare Worker keeps the same goblin on several devices
 
 ### Seeing what's popular
 
-The sync Worker also keeps anonymous play counts: how many goblins have been made, which math games get played, and which activities (Shop, Vacation, Decorate...) get used. No names or answers are sent, and **Grown-ups → Anonymous play counts** turns it off. See [Play counts](sync-worker/README.md#play-counts-whats-popular) for how to view them.
+The sync Worker also keeps anonymous play counts: how many goblins have been made, which math games get played, and which activities (Shop, Vacation, Decorate...) get used. No names or answers are sent, and **Grown-ups → Share play counts** turns it off. See [Play counts](sync-worker/README.md#play-counts-whats-popular) for how to view them.
 
 ## What's in the game
 

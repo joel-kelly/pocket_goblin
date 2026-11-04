@@ -62,7 +62,7 @@ have been made and which games and activities get used. The game sends small
 events like `game_start rocket` or `home_button shop`. Each one has a random ID
 for that browser, and never a name, answer or goblin code. Nothing about the
 request (IP address, browser) is stored. Grown-ups can switch it off under
-**Anonymous play counts**. When the game runs on `localhost`, events are only
+**Share play counts**. When the game runs on `localhost`, events are only
 logged to the browser console, so testing doesn't pollute the numbers.
 
 After pulling this change, redeploy once (the new table is created automatically):
