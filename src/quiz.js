@@ -32,6 +32,9 @@ export class QuizCard {
     this.input = '';
     this.fixing = false;
     this.locked = false;
+    // Re-fit the problem when the screen turns or the pixel fonts finish loading.
+    window.addEventListener('resize', () => this.fit());
+    document.fonts?.ready.then(() => this.fit());
   }
 
   show(problem) {
@@ -57,6 +60,20 @@ export class QuizCard {
     this.speedEl = h('div', { class: 'g-speed' }, this.fixing ? '' : this.speedText || '');
     kids.push(this.speedEl);
     this.card.replaceChildren(...kids);
+    this.fit();
+  }
+
+  // Problems never wrap, so on narrow screens (phones, or next to the number pad)
+  // something like "225 ÷ 15 =" can be wider than the card. Shrink just those to fit.
+  fit() {
+    if (!this.card.isConnected) return;
+    for (const el of this.card.querySelectorAll('.g-prob')) {
+      el.style.removeProperty('font-size');
+      const over = el.scrollWidth / el.clientWidth;
+      if (!(over > 1)) continue;
+      const size = parseFloat(getComputedStyle(el).fontSize);
+      el.style.setProperty('font-size', `${Math.floor((size / over) * 0.97)}px`, 'important');
+    }
   }
 
   setSpeed(text) { this.speedText = text; if (this.speedEl) this.speedEl.textContent = text; }
