@@ -3,10 +3,10 @@
 // from 0 (shaky) to 5 (lightning fast). Low boxes and slow facts come up more.
 // A correct answer under the target time moves a fact up; mistakes move it down.
 //
-// Numbers start at 10 and grow one times table at a time (11s, 12s ... 15s)
+// Numbers start at 8 and grow one times table at a time (9s, 10s ... 15s)
 // once most of the current facts are solid.
 
-export const MIN = 2, START_MAX = 10, TOP_MAX = 15;
+export const MIN = 2, START_MAX = 8, TOP_MAX = 15;
 export const SOLID_BOX = 3;        // a fact is "solid" at this level or above
 export const UNLOCK_SHARE = 0.7;   // share of solid facts needed to unlock the next table
 const BOX_WEIGHT = [7, 5, 3, 2, 1.2, 0.6];
@@ -39,7 +39,7 @@ export function unlockProgress(state) {
   const needed = Math.ceil(fams.length * UNLOCK_SHARE);
   const newestNeeded = Math.ceil(newest.length * UNLOCK_SHARE);
   const auto = !state.settings?.maxFactor || state.settings.maxFactor === 'auto';
-  // The starting 2-10 range only needs the overall goal.
+  // The starting range only needs the overall goal.
   const checkNewest = max > START_MAX;
   const ready = solid >= needed && (!checkNewest || newestSolid >= newestNeeded);
   // 0..1, limited by whichever goal is further away
@@ -57,6 +57,28 @@ export function checkUnlock(state) {
   if (!p.next || !p.ready) return null;
   state.mathLevel = p.next;
   return p.next;
+}
+
+// How urgent the action games feel (1 = the original speed, smaller = more time to think).
+// "auto" starts at the original speed and quietly slows a game down after rounds where she
+// clearly struggled, then creeps back toward it as she does well.
+// The other settings pin one speed for every game.
+export const PACES = { relaxed: 0.7, moderate: 1, aggressive: 1.2, normal: 1 }; // "normal" = older saves
+export const PACE_MIN = PACES.relaxed;
+export function pace(state, game) {
+  const p = state.settings?.pace || 'auto';
+  if (p in PACES) return PACES[p];
+  return state.autoPace?.[game] ?? 1;
+}
+
+// Call at the end of a round with 'struggled', 'ok' or 'great'. Only matters on auto.
+export function tunePace(state, game, result) {
+  if ((state.settings?.pace || 'auto') !== 'auto') return;
+  const cur = state.autoPace?.[game] ?? 1;
+  let next = cur;
+  if (result === 'struggled') next = Math.max(PACE_MIN, cur - 0.1);
+  else if (result === 'great') next = Math.min(1, cur + 0.05);
+  (state.autoPace ||= {})[game] = Math.round(next * 100) / 100;
 }
 
 export function factRecord(facts, a, b) {

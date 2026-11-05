@@ -9,7 +9,7 @@ import { FX } from '../fx.js';
 import { Goblin } from '../goblin.js';
 import { SKINS } from '../goblinModel.js';
 import { getModel } from '../items.js';
-import { currentMax, FactPicker } from '../math.js';
+import { currentMax, pace, tunePace, FactPicker } from '../math.js';
 import { LINES, pick } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
@@ -350,7 +350,7 @@ export class RaceScreen {
     this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
     // If a grown-up made the target time longer, the rivals run a bit slower too.
-    this.speedScale = Math.max(0.75, Math.min(1.2, Math.sqrt(3 / this.fast)));
+    this.speedScale = Math.max(0.75, Math.min(1.2, Math.sqrt(3 / this.fast))) * Math.sqrt(pace(this.state, 'race'));
     this.correct = 0; this.total = 0; this.combo = 0; this.bestCombo = 0; this.times = [];
     this.wrongRow = 0; this.trips = 0;
     this.player.v = JOG + 2;
@@ -602,6 +602,7 @@ export class RaceScreen {
     let coins = this.correct + (finished ? [15, 10, 6, 3][this.place - 1] : 0);
     if (newBest) { coins += 10; s.raceBest = Math.round(this.raceTime * 10) / 10; }
     if (this.place === 1) s.raceWins = (s.raceWins || 0) + 1;
+    if (finished && this.total >= 3) tunePace(s, 'race', this.place === 4 ? 'struggled' : this.place === 1 ? 'great' : 'ok');
     S.addCoins(coins);
     const avg = this.times.length ? this.times.reduce((a, b) => a + b, 0) / this.times.length : 0;
     s.history.push({ t: Date.now(), game: 'race', correct: this.correct, total: this.total, avg, streak: this.bestCombo, score: this.place });

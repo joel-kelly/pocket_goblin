@@ -49,7 +49,7 @@ export function openParent(game) {
 
   const maxSel = h('select', {},
     h('option', { value: 'auto', selected: !s.settings.maxFactor || s.settings.maxFactor === 'auto' }, `Auto: grow as she masters facts (now up to ${s.mathLevel || START_MAX})`),
-    ...[10, 11, 12, 13, 14, 15].map((v) => h('option', { value: v, selected: String(s.settings.maxFactor) === String(v) }, `Always up to ${v}`)));
+    ...[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((v) => h('option', { value: v, selected: String(s.settings.maxFactor) === String(v) }, `Always up to ${v}`)));
   maxSel.onchange = () => { s.settings.maxFactor = maxSel.value === 'auto' ? 'auto' : Number(maxSel.value); S.save(); toast('Saved!'); m.close(); openParent(game); };
 
   const hist = h('table', { class: 'hist' }, h('tr', {}, h('th', {}, 'When'), h('th', {}, 'Game'), h('th', {}, 'Right'), h('th', {}, 'Accuracy'), h('th', {}, 'Avg time'), h('th', {}, 'Best streak')));
@@ -61,6 +61,15 @@ export function openParent(game) {
 
   const fastSel = h('select', {}, ...[2, 2.5, 3, 4, 5].map((v) => h('option', { value: v, selected: v === fast }, `${v} seconds`)));
   fastSel.onchange = () => { s.settings.fastSeconds = Number(fastSel.value); S.save(); toast('Saved!'); };
+  const ap = s.autoPace || {};
+  const pct = (g) => `${Math.round((ap[g] ?? 1) * 100)}%`;
+  const paceSel = h('select', {}, ...[
+    ['auto', `Auto: moderate, quietly slows down if she's struggling (now Rocket ${pct('rocket')}, Squid ${pct('squid')}, Sprint ${pct('race')})`],
+    ['relaxed', 'Relaxed: lots of time to think (70% speed)'],
+    ['moderate', 'Moderate: the original speed'],
+    ['aggressive', 'Aggressive: a real challenge (120% speed)']]
+    .map(([v, l]) => h('option', { value: v, selected: (s.settings.pace === 'normal' ? 'moderate' : s.settings.pace || 'auto') === v }, l)));
+  paceSel.onchange = () => { s.settings.pace = paceSel.value; S.save(); toast('Saved!'); };
   const pixSel = h('select', {}, ...[2, 3, 4, 5].map((v) => h('option', { value: v, selected: v === s.settings.pixelScale }, `${v}x ${v === 3 ? '(default)' : v > 3 ? '(chunkier, faster)' : '(sharper)'}`)));
   const padSel = h('select', {}, ...[['auto', 'Auto: show on phones and tablets'], ['on', 'Always show'], ['off', 'Never show (use the keyboard)']]
     .map(([v, l]) => h('option', { value: v, selected: (s.settings.numpad || 'auto') === v }, l)));
@@ -111,6 +120,7 @@ export function openParent(game) {
     s.history.length ? hist : h('p', {}, 'No rounds played yet.'),
     h('label', {}, '"Fast" target time (facts answered faster level up)'), fastSel,
     h('label', {}, 'Biggest number in problems'), maxSel,
+    h('label', {}, 'Game pace (Fart Rocket, Squid Smackdown, Swamp Sprint)'), paceSel,
     h('label', {}, 'Pixel size'), pixSel,
     h('label', {}, 'On-screen number pad in math games'), padSel,
     h('label', {}, 'Goblin color'), skins,

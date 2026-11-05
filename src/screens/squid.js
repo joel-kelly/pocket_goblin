@@ -9,7 +9,7 @@ import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh } from '../voxel.js';
 import { FX } from '../fx.js';
 import { PARTS } from '../goblinModel.js';
-import { currentMax, FactPicker } from '../math.js';
+import { currentMax, FactPicker, pace, tunePace } from '../math.js';
 import { SQUID_TAUNTS, pick } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
@@ -434,6 +434,8 @@ export class SquidScreen {
     track('game_start', 'squid');
     this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
+    this.pace = pace(this.state, 'squid');
+    this.quitted = false;
     this.correct = 0; this.total = 0; this.combo = 0; this.bestCombo = 0; this.times = [];
     this.counters = 0; this.hitsTaken = 0;
     this.phase = 'play';
@@ -473,7 +475,7 @@ export class SquidScreen {
   }
 
   windupTime() {
-    return Math.max(2.5, this.fast * 1.4 + 1.2) * ROUNDS[this.round].wind;
+    return Math.max(2.5, this.fast * 1.4 + 1.2) * ROUNDS[this.round].wind / (this.pace || 1);
   }
 
   onAnswer(ok, secs, p) {
@@ -585,7 +587,7 @@ export class SquidScreen {
       a.t += dt;
       if (a.t >= a.dur) {
         this.atk = null;
-        this.nextAtk = rand(2.5, 5) * ROUNDS[this.round].wind;
+        this.nextAtk = rand(2.5, 5) * ROUNDS[this.round].wind / (this.pace || 1);
       }
     }
   }
@@ -680,6 +682,7 @@ export class SquidScreen {
       this.timers = [];
       this.phase = 'lost';
       this.quiz.problem = null;
+      this.quitted = true;
       this.showResults(false);
     } else if (this.phase !== 'lost' && this.phase !== 'won') this.game.go('home');
   }
@@ -702,6 +705,7 @@ export class SquidScreen {
     let coins = this.correct + this.knockdowns * 8 + (won ? 20 : 0);
     if (newBest) { coins += 10; s.squidBest = time; }
     if (won) s.squidWins = (s.squidWins || 0) + 1;
+    if (!this.quitted && this.total >= 3) tunePace(s, 'squid', won ? 'great' : this.knockdowns === 0 ? 'struggled' : 'ok');
     S.addCoins(coins);
     const avg = this.times.length ? this.times.reduce((a, b) => a + b, 0) / this.times.length : 0;
     s.history.push({ t: Date.now(), game: 'squid', correct: this.correct, total: this.total, avg, streak: this.bestCombo, score: this.knockdowns });
