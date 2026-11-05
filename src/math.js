@@ -59,9 +59,9 @@ export function checkUnlock(state) {
   return p.next;
 }
 
-// How urgent the action games feel (1 = normal speed, smaller = more time to think).
-// "auto" starts at normal and quietly slows a game down after rounds where she
-// clearly struggled, then creeps back toward normal as she does well.
+// How urgent the action games feel (1 = full speed, smaller = more time to think).
+// "auto" starts at full speed and quietly slows a game down after rounds where she
+// clearly struggled, then creeps back toward full speed as she does well.
 export const PACE_MIN = 0.6;
 export function pace(state, game) {
   const p = state.settings?.pace || 'auto';
