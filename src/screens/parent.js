@@ -65,9 +65,10 @@ export function openParent(game) {
   const pct = (g) => `${Math.round((ap[g] ?? 1) * 100)}%`;
   const paceSel = h('select', {}, ...[
     ['auto', `Auto: full speed, quietly slows down if she's struggling (now Rocket ${pct('rocket')}, Squid ${pct('squid')}, Sprint ${pct('race')})`],
-    ['normal', 'Always full speed'],
-    ['relaxed', 'Always relaxed: more time to think']]
-    .map(([v, l]) => h('option', { value: v, selected: (s.settings.pace || 'auto') === v }, l)));
+    ['relaxed', 'Relaxed: lots of time to think (60% speed)'],
+    ['moderate', 'Moderate (80% speed)'],
+    ['aggressive', 'Aggressive: full speed']]
+    .map(([v, l]) => h('option', { value: v, selected: (s.settings.pace === 'normal' ? 'aggressive' : s.settings.pace || 'auto') === v }, l)));
   paceSel.onchange = () => { s.settings.pace = paceSel.value; S.save(); toast('Saved!'); };
   const pixSel = h('select', {}, ...[2, 3, 4, 5].map((v) => h('option', { value: v, selected: v === s.settings.pixelScale }, `${v}x ${v === 3 ? '(default)' : v > 3 ? '(chunkier, faster)' : '(sharper)'}`)));
   const padSel = h('select', {}, ...[['auto', 'Auto: show on phones and tablets'], ['on', 'Always show'], ['off', 'Never show (use the keyboard)']]

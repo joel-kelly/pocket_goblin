@@ -62,11 +62,12 @@ export function checkUnlock(state) {
 // How urgent the action games feel (1 = full speed, smaller = more time to think).
 // "auto" starts at full speed and quietly slows a game down after rounds where she
 // clearly struggled, then creeps back toward full speed as she does well.
-export const PACE_MIN = 0.6;
+// The other settings pin one speed for every game.
+export const PACES = { relaxed: 0.6, moderate: 0.8, aggressive: 1, normal: 1 }; // "normal" = older saves
+export const PACE_MIN = PACES.relaxed;
 export function pace(state, game) {
   const p = state.settings?.pace || 'auto';
-  if (p === 'relaxed') return PACE_MIN;
-  if (p === 'normal') return 1;
+  if (p in PACES) return PACES[p];
   return state.autoPace?.[game] ?? 1;
 }
 
