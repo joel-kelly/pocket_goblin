@@ -108,16 +108,26 @@ export class WorkshopScreen {
       slots.append(h('button', { class: 'btn', onclick: () => { sfx.click(); this.startEdit({ slot }); } },
         h('span', { class: 'emo' }, SLOTS[slot].icon), `New ${NOUN[slot]}`));
     }
+    // Remix list: her own things first, then things she can remix, then locked ones.
+    // Hats, shirts and decor must be bought before they can be remixed (otherwise a
+    // remix is a free copy). Snacks get eaten, so they're always open.
+    const owned = this.state.owned;
+    const locked = (it) => !it.custom && it.slot !== 'snack' && !owned.includes(it.id);
+    const rank = (it) => (it.custom ? 0 : locked(it) ? 2 : 1);
     const remix = h('div', { class: 'grid', style: { marginTop: '10px' } });
-    const items = allItems().sort((a, b) => (b.custom ? 1 : 0) - (a.custom ? 1 : 0));
+    const items = allItems().sort((a, b) => rank(a) - rank(b));
     for (const it of items) {
-      remix.append(h('div', { class: 'card', onclick: () => {
+      const isLocked = locked(it);
+      remix.append(h('div', { class: 'card' + (isLocked ? ' locked' : ''), onclick: () => {
         sfx.click();
+        if (isLocked) { toast(`Buy the ${it.name} in the Shop to remix it! (${it.price}¢)`); return; }
         this.startEdit({ slot: it.slot, model: getModel(it.id).clone(), name: it.custom ? it.name : `My ${it.name}`, editId: it.custom ? it.id : null, drink: it.kind === 'drink' });
       } },
         it.custom ? h('span', { class: 'mine' }, '⭐') : null,
+        isLocked ? h('span', { class: 'lock' }, '🔒') : null,
         h('img', { src: thumbnail(getModel(it.id), it.id) }),
-        h('div', { class: 'nm' }, it.name)));
+        h('div', { class: 'nm' }, it.name),
+        isLocked ? h('div', { class: 'pr' }, `${it.price} ¢`) : null));
     }
     const fileIn = h('input', { type: 'file', accept: '.json,application/json', style: { display: 'none' } });
     fileIn.onchange = async () => {
@@ -130,14 +140,15 @@ export class WorkshopScreen {
     };
     this.root.innerHTML = '';
     this.root.append(h('div', { class: 'ws' }, h('div', { class: 'ws-pick' }, h('div', { class: 'modal' },
+      // Exit and Import live at the top (and stay put while scrolling) so they're easy to find.
+      h('div', { class: 'ws-top' }, button('← Back home', () => this.game.go('home'), 'small red'), button('Import a file', () => fileIn.click(), 'small'), fileIn),
       h('h2', {}, '🔨 The Workshop'),
       // Building needs right-click and the scroll wheel, so it only really works on a computer.
       IS_TOUCH ? h('div', { class: 'ws-warn' }, '🖱️ The Workshop only works on a computer with a mouse. On a phone or tablet, building blocks is really tricky!') : null,
       h('p', {}, 'Build stuff out of blocks, just like Minecraft! What do you want to make?'),
       slots,
-      h('h2', { style: { marginTop: '22px', fontSize: '12px' } }, 'Or remix something (⭐ = made by you):'),
-      remix,
-      h('div', { class: 'row' }, button('Import a file', () => fileIn.click(), 'small'), fileIn, button('← Back home', () => this.game.go('home'), 'small red'))))));
+      h('h2', { style: { marginTop: '22px', fontSize: '12px' } }, 'Or remix something (⭐ = made by you, 🔒 = buy it first):'),
+      remix))));
   }
 
   // ---------------- editor ----------------

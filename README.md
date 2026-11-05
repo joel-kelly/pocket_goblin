@@ -51,7 +51,7 @@ The sync Worker also keeps anonymous play counts: how many goblins have been mad
 | 🪴 **Decorate** | Put decor out in the den (5 spots, including a wall shelf) or put it away. Decor includes a pet squid, a fart jar, a dead plant (everyone starts with one), a pet rock and a golden toilet. Some of it moves on its own, and clicking it in the den makes it do something. |
 | 🛁 **Bath** | The goblin HATES this. |
 | ✈️ **Vacation** | Send the goblin away for 5–20 real minutes. A "Current status" line updates while it's gone, and it comes back with a postcard. |
-| 🔨 **Workshop** | Build or remix items block by block. |
+| 🔨 **Workshop** | Build or remix items block by block. Hats, clothes and decor have to be bought in the Shop before they can be remixed (they show a 🔒 until then). Snacks and her own creations can always be remixed. |
 | Grown-ups | Press and hold the button. Shows a heatmap of which facts are fast or shaky, recent rounds, settings (including the goblin's color) and save backups. |
 
 Hunger, thirst, clean and fun slowly drop over real time, tuned so about 10–15 minutes a day keeps the goblin happy. The goblin never dies. It just gets dramatic.
