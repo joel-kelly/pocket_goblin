@@ -84,7 +84,7 @@ Add `&days=30` to see only the last 30 days. Without the key, `/stats` answers "
 |---|---|---|
 | `app_open` | `new` the first time, otherwise blank | |
 | `goblin_created` | | |
-| `game_start` | `dash`, `rocket`, `cafe`, `race`, `squid` | |
+| `game_start` | `dash`, `rocket`, `cafe`, `race`, `squid`, `homework` | |
 | `game_end` | same as above (a round played to the end, or quit after answering something) | problems right |
 | `home_button` | `mathgames`, `feed`, `shop`, `wardrobe`, `decorate`, `bath`, `vacation`, `postcards`, `workshop` | |
 | `buy` | item id (`custom` for Workshop items) | price |

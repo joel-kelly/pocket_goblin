@@ -201,6 +201,32 @@ canvas#game { position: fixed; inset: 0; image-rendering: pixelated; image-rende
 .tricky { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 6px; }
 .tricky span { font-family: var(--title); font-size: 10px; background: #ffe0e6; border: 3px solid var(--ink); padding: 6px 8px; }
 
+/* ---------- goblin's homework ---------- */
+.hw-card { padding: 18px 18px 16px; }
+/* lined school paper with a red margin */
+.hw-sheet {
+  font-family: var(--title); font-size: clamp(14px, 1.7vw, 24px); text-align: left; padding: 4px 10px 6px 44px; position: relative;
+  background: #fffdf4 repeating-linear-gradient(transparent 0 calc(2em - 2px), #a9c8f0 calc(2em - 2px) 2em);
+  border: 3px solid var(--ink);
+}
+.hw-sheet::before { content: ''; position: absolute; top: 0; bottom: 0; left: 34px; width: 2px; background: #f08a96; }
+.hw-head { display: flex; justify-content: space-between; height: 2em; align-items: center; font-family: var(--body); font-weight: 700; font-size: .8em; color: #555; }
+.hw-line { display: flex; align-items: center; height: 2em; white-space: nowrap; word-spacing: -0.35em; }
+.hw-line.on { background: rgba(255, 210, 63, .45); margin: 0 -10px 0 -44px; padding: 0 10px 0 44px; }
+.hw-line.later { opacity: .45; }
+.hw-n { width: 2.4em; margin-left: -2.6em; font-size: .6em; color: #888; text-align: right; padding-right: .5em; }
+.hw-expr { flex: 1; }
+.hw-gob { color: #3d8a1c; display: inline-block; transform: rotate(-3deg); }
+.hw-gob.struck { text-decoration: line-through 3px var(--red); color: #9a8f98; }
+.hw-red, .hw-input { color: var(--red); margin-left: .5em; word-spacing: normal; display: inline-block; }
+.hw-input { min-width: 1.6em; border-bottom: 4px solid var(--red); }
+.hw-input.blink::after { content: '_'; animation: blink 1s infinite; opacity: .5; }
+.hw-mark { color: var(--red); min-width: 2.6em; text-align: right; font-family: initial; font-weight: 900; font-size: 1.15em; }
+.hw-star { font-size: .7em; margin-left: .15em; }
+.hw-ctl .g-hint { margin-top: 10px; }
+.hw-btns { display: flex; gap: 14px; justify-content: center; margin-top: 10px; min-height: 52px; }
+@media (max-height: 700px) { .hw-card.done .hw-sheet { display: none; } } /* results need the room; the tricky ones are listed anyway */
+
 /* ---------- workshop ---------- */
 .ws { position: fixed; inset: 0; pointer-events: none; }
 .ws > * { pointer-events: auto; }
@@ -251,6 +277,7 @@ table.hist td, table.hist th { border: 2px solid var(--ink); padding: 4px 6px; t
 .game-card:nth-child(3) { background: var(--pink); }
 .game-card:nth-child(4) { background: var(--blue); }
 .game-card:nth-child(5) { background: #c4a0ff; }
+.game-card:nth-child(6) { background: var(--orange); }
 
 /* fart rocket */
 .g-timer.fuel .fill { background: linear-gradient(90deg, #7fbf3f, #c9e27a); }
@@ -433,7 +460,7 @@ html.numpad-on body .g-box { right: calc(var(--np-w) + 24px); width: min(560px, 
   html.touch .modal .row { margin-top: 10px; }
   html.touch .modal.onboard { width: min(560px, 62vw); margin-left: 34vw; }
   html.touch .skin { width: 36px; height: 36px; }
-  html.touch .game-pick { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  html.touch .game-pick { grid-template-columns: repeat(6, 1fr); gap: 8px; }
   html.touch .game-card { padding: 10px 4px !important; gap: 6px; }
   html.touch .game-card .emo { font-size: 30px; }
   html.touch .game-card .gname { font-size: 9px; line-height: 1.4; }
@@ -477,6 +504,11 @@ html.numpad-on body .g-box { right: calc(var(--np-w) + 24px); width: min(560px, 
   html.touch .menu-list { grid-template-columns: repeat(3, 1fr); gap: 4px; }
   html.touch .modal.onboard p { font-size: 14px; margin: 2px 0; }
   html.touch .modal.onboard label { margin: 6px 0 3px; }
+  html.touch .hw-card { padding: 10px 10px 8px; }
+  html.touch .hw-sheet { font-size: 14px; padding-left: 36px; border-width: 2px; }
+  html.touch .hw-sheet::before { left: 28px; }
+  html.touch .hw-line.on { margin-left: -36px; padding-left: 36px; }
+  html.touch .hw-btns { margin-top: 6px; min-height: 40px; }
   html.touch .race-box { top: auto; bottom: 8px; }
   html.touch .race-bar { height: 34px; border-width: 3px; }
   html.touch .race-dot.you { top: 18px !important; }

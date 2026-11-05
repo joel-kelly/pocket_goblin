@@ -14,6 +14,7 @@ import { RocketScreen } from './screens/rocket.js';
 import { CafeScreen } from './screens/cafe.js';
 import { RaceScreen } from './screens/race.js';
 import { SquidScreen } from './screens/squid.js';
+import { HomeworkScreen } from './screens/homework.js';
 import { checkVacation } from './screens/vacation.js';
 import * as Sync from './sync.js';
 import { track } from './track.js';
@@ -120,6 +121,7 @@ game.screens.rocket = new RocketScreen(game);
 game.screens.cafe = new CafeScreen(game);
 game.screens.race = new RaceScreen(game);
 game.screens.squid = new SquidScreen(game);
+game.screens.homework = new HomeworkScreen(game);
 
 game.applyOutfit();
 game.applyMood();
@@ -210,7 +212,9 @@ function step(now) {
   }
   game.screen?.update?.(dt);
   const sc = game.screen;
-  showNumpad(!!sc?.quiz && NUMPAD_PHASES.has(sc.phase) && !modalOpen() && numpadWanted(S.get().settings));
+  // A screen can say when it wants the pad; otherwise it shows while a quiz card takes answers.
+  const padPhase = sc?.wantsNumpad ? sc.wantsNumpad() : !!sc?.quiz && NUMPAD_PHASES.has(sc.phase);
+  showNumpad(padPhase && !modalOpen() && numpadWanted(S.get().settings));
   world.update(dt);
   const top = goblin.object.visible ? world.toScreen(goblin.headTop()) : null;
   updateBubble(top && game.screen?.bubbleOK !== false ? top : null, (t) => sfx.babble(t, 1));
