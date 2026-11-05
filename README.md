@@ -38,12 +38,13 @@ The sync Worker also keeps anonymous play counts: how many goblins have been mad
 
 | | |
 |---|---|
-| 🧮 **Math Games** | Five games. Type answers on the keyboard (or the on-screen number pad on phones and tablets). In all of them, a wrong answer means typing the right one to keep going. |
+| 🧮 **Math Games** | Six games. Type answers on the keyboard (or the on-screen number pad on phones and tablets). In all of them, a wrong answer means typing the right one to keep going. |
 | ↳ **Math Dash** | 60 seconds of ×/÷ facts (up to 10×10 at first, growing to 15×15). Faster answers earn more coins, and every 5 in a row earns a combo bonus. |
 | ↳ **Fart Rocket** | Fart fuel drains all the time. Right answers refuel it, and faster answers add more. Fly past clouds, birds and airplanes to the Moon and beyond. The score is the best height. |
 | ↳ **Swamp Sprint** | Race 500 m against three rival goblins. Every right answer is a speed boost, and faster answers boost more. A wrong answer makes you stumble, and two in a row makes you trip on a banana peel. Rivals ease off a little when far ahead, so races stay close. |
 | ↳ **Squid Smackdown** | Box Big Inky, a giant squid. Every right answer is a punch (fast answers hit harder). When he winds up a tentacle, answer before the bar runs out to dodge and counterpunch for double damage. A wrong answer gets you slapped. Knock him down 3 times to win; he gets angrier and faster each time he gets up. |
 | ↳ **Goblin Café** | Ring up 10 customers per shift. Orders get harder: single items (times tables), then two-item orders, splitting the bill (division) and making change. Faster service earns bigger tips, and her Workshop snacks show up on the menu. |
+| ↳ **Goblin's Homework** | The goblin did its homework "all by itself", and some answers are wrong. Check each of the 6 lines: ✓ if it's right, ✗ if it's wrong, then write the right answer (corrections show up in red pen). There's no timer. A page with no slips earns a gold star. Only answers she works out herself count toward fact levels, plus any time she gets fooled; tapping ✓ on a right answer doesn't move a fact's level. |
 | 🍔 **Feed** | Toss snacks into the goblin's mouth. Some snacks cause burps. Most cause farts. |
 | 🛒 **Shop** | Snacks, about 26 wearables across 7 slots (hats, face stuff, bling, shirts, back stuff, hand stuff and shoes) and 8 decor items. Click any item to try it on (or see it in the den) before buying. |
 | 👕 **Wardrobe** | Put on and take off owned items and anything built in the Workshop. The **Poses** tab has 13 poses: flex, superhero, ballerina, robot, headstand, chicken dance and more. |

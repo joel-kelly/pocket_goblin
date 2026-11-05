@@ -37,6 +37,7 @@ export function newState() {
     raceWins: 0,
     squidBest: 0, // fastest Squid Smackdown K.O., in seconds
     squidWins: 0,
+    homeworkStars: 0, // Goblin's Homework pages checked with no slips
     history: [],
     vacation: null,
     postcards: [],

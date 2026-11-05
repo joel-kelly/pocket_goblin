@@ -61,6 +61,16 @@ export const LINES = {
   combo20: ["TWENTY?! I need to sit down. I'm so proud.", "You're a MATH WIZARD. I'm crying slime tears!"],
   wrong: ["NOOOOOO!", "Ack! So close!", "My ears! MY EARS!", "Oof. That one bit me.", "*faints dramatically*", "Nooo! The numbers tricked us!", "Wahhh! It's okay, we'll get the next one!"],
   timeUp: ["TIME! How'd we do?!", "Phew! My brain is sweaty!"],
+  // Goblin's Homework
+  hwStart: ["I did ALL my homework by myself! Can you check it? It's probably perfect.", "Homework done! I only ate PART of the paper.", "I did my times tables, {kid}! Check them. I bet you'll be amazed."],
+  hwRight: ["See? GENIUS!", "I knew that one!", "Told you I'm smart!", "Yesss! Big goblin brain!"],
+  hwCaught: ["WHAT?! ...Oh. Oops.", "Nooo! I counted on my toes and lost one!", "That's not a mistake. It's a... surprise answer.", "Maybe I shouldn't do math while eating worms.", "You're right! My pencil tricked me!"],
+  hwMissed: ["Wait... the answer key says that one's WRONG!", "Uh oh. We BOTH got tricked!", "Hmm, that one smells funny. Let's fix it!"],
+  hwDoubted: ["HA! That's what I wrote! I was right!", "Same answer as me! So I was RIGHT!", "You doubted me?! I'm hurt. And correct."],
+  hwDoubtedWrong: ["Nope! I had that one right!", "Hey! Mine was right all along!"],
+  hwBadFix: ["Not that either! We're BOTH wrong on this one!", "Hmm, nope! Let's look it up."],
+  hwPerfect: ["PERFECT! The teacher's gonna think I'm a genius!", "A gold star! I'm gonna stick it on my forehead!"],
+  hwDone: ["Phew! Homework done. Snack time?", "Thanks for checking, {kid}! I'll try harder next time. Probably."],
   newBest: ["NEW RECORD! I'm telling EVERYONE!", "A NEW HIGH SCORE! *happy fart*"],
 
   buy: ["Ooooh! For ME?!", "Shiny! I love it!", "You're the best human EVER!", "Gimme gimme gimme!"],
