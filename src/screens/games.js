@@ -1,7 +1,7 @@
 // "Math Games" picker shown from the home screen.
 import { h, modal, closePanel, button, nums } from '../ui.js';
 import { sfx } from '../audio.js';
-import { unlockProgress, checkUnlock, TOP_MAX } from '../math.js';
+import { unlockProgress, checkUnlock, TOP_MAX, START_MAX } from '../math.js';
 import { track } from '../track.js';
 
 // Progress toward the next times table, shown in the games menu.
@@ -9,7 +9,7 @@ function progressEl(state) {
   const p = unlockProgress(state);
   const label = !p.next
     ? (p.max >= TOP_MAX ? `All numbers unlocked, up to ${TOP_MAX}! 🏆` : `Numbers up to ${p.max} (set by a grown-up)`)
-    : p.lagging === 'newest' && p.max > 10
+    : p.lagging === 'newest' && p.max > START_MAX
       ? `Unlock the ${p.next}s: master the ${p.max}s (${Math.min(p.newestSolid, p.newestNeeded)} / ${p.newestNeeded})`
       : `Unlock the ${p.next}s: ${Math.min(p.solid, p.needed)} / ${p.needed} facts solid`;
   const pct = p.next ? p.pct * 100 : 100;

@@ -9,7 +9,7 @@ import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh } from '../voxel.js';
 import { FX } from '../fx.js';
 import { PARTS } from '../goblinModel.js';
-import { currentMax, FactPicker } from '../math.js';
+import { currentMax, FactPicker, pace } from '../math.js';
 import { SQUID_TAUNTS, pick } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
@@ -434,6 +434,7 @@ export class SquidScreen {
     track('game_start', 'squid');
     this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
+    this.pace = pace(this.state);
     this.correct = 0; this.total = 0; this.combo = 0; this.bestCombo = 0; this.times = [];
     this.counters = 0; this.hitsTaken = 0;
     this.phase = 'play';
@@ -473,7 +474,7 @@ export class SquidScreen {
   }
 
   windupTime() {
-    return Math.max(2.5, this.fast * 1.4 + 1.2) * ROUNDS[this.round].wind;
+    return Math.max(2.5, this.fast * 1.4 + 1.2) * ROUNDS[this.round].wind / (this.pace || 1);
   }
 
   onAnswer(ok, secs, p) {
@@ -585,7 +586,7 @@ export class SquidScreen {
       a.t += dt;
       if (a.t >= a.dur) {
         this.atk = null;
-        this.nextAtk = rand(2.5, 5) * ROUNDS[this.round].wind;
+        this.nextAtk = rand(2.5, 5) * ROUNDS[this.round].wind / (this.pace || 1);
       }
     }
   }

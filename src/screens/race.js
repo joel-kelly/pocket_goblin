@@ -9,7 +9,7 @@ import { FX } from '../fx.js';
 import { Goblin } from '../goblin.js';
 import { SKINS } from '../goblinModel.js';
 import { getModel } from '../items.js';
-import { currentMax, FactPicker } from '../math.js';
+import { currentMax, pace, FactPicker } from '../math.js';
 import { LINES, pick } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
@@ -350,7 +350,7 @@ export class RaceScreen {
     this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
     // If a grown-up made the target time longer, the rivals run a bit slower too.
-    this.speedScale = Math.max(0.75, Math.min(1.2, Math.sqrt(3 / this.fast)));
+    this.speedScale = Math.max(0.75, Math.min(1.2, Math.sqrt(3 / this.fast))) * Math.sqrt(pace(this.state));
     this.correct = 0; this.total = 0; this.combo = 0; this.bestCombo = 0; this.times = [];
     this.wrongRow = 0; this.trips = 0;
     this.player.v = JOG + 2;

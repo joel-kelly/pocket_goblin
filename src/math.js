@@ -3,10 +3,10 @@
 // from 0 (shaky) to 5 (lightning fast). Low boxes and slow facts come up more.
 // A correct answer under the target time moves a fact up; mistakes move it down.
 //
-// Numbers start at 10 and grow one times table at a time (11s, 12s ... 15s)
+// Numbers start at 8 and grow one times table at a time (9s, 10s ... 15s)
 // once most of the current facts are solid.
 
-export const MIN = 2, START_MAX = 10, TOP_MAX = 15;
+export const MIN = 2, START_MAX = 8, TOP_MAX = 15;
 export const SOLID_BOX = 3;        // a fact is "solid" at this level or above
 export const UNLOCK_SHARE = 0.7;   // share of solid facts needed to unlock the next table
 const BOX_WEIGHT = [7, 5, 3, 2, 1.2, 0.6];
@@ -39,7 +39,7 @@ export function unlockProgress(state) {
   const needed = Math.ceil(fams.length * UNLOCK_SHARE);
   const newestNeeded = Math.ceil(newest.length * UNLOCK_SHARE);
   const auto = !state.settings?.maxFactor || state.settings.maxFactor === 'auto';
-  // The starting 2-10 range only needs the overall goal.
+  // The starting range only needs the overall goal.
   const checkNewest = max > START_MAX;
   const ready = solid >= needed && (!checkNewest || newestSolid >= newestNeeded);
   // 0..1, limited by whichever goal is further away
@@ -58,6 +58,11 @@ export function checkUnlock(state) {
   state.mathLevel = p.next;
   return p.next;
 }
+
+// How urgent the action games feel. "Relaxed" gives more time before fuel runs out
+// or a tentacle lands; "normal" is the original speed.
+export const PACES = { relaxed: 0.6, normal: 1 };
+export function pace(state) { return PACES[state.settings?.pace] || 1; }
 
 export function factRecord(facts, a, b) {
   const k = familyKey(a, b);

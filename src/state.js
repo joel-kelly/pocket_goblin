@@ -1,4 +1,6 @@
 // Game state + saving (in the browser's localStorage).
+import { START_MAX } from './math.js';
+
 const KEY = 'pocketGoblin.save.v1';
 
 // How fast stats drop, in points per hour (stats go 0..100).
@@ -13,7 +15,7 @@ export const STAT_INFO = {
 
 export function newState() {
   return {
-    version: 1,
+    version: 2,
     created: Date.now(),
     lastTick: Date.now(),
     onboarded: false,
@@ -31,7 +33,7 @@ export function newState() {
     facts: {},
     best: { score: 0, streak: 0 },
     rocketBest: 0,
-    mathLevel: 10, // biggest times table unlocked so far
+    mathLevel: START_MAX, // biggest times table unlocked so far
     cafeBest: 0,
     raceBest: 0, // fastest Swamp Sprint, in seconds
     raceWins: 0,
@@ -41,7 +43,7 @@ export function newState() {
     history: [],
     vacation: null,
     postcards: [],
-    settings: { sound: true, fastSeconds: 3, pixelScale: 3, maxFactor: 'auto', numpad: 'auto', analytics: true },
+    settings: { sound: true, fastSeconds: 3, pixelScale: 3, maxFactor: 'auto', numpad: 'auto', analytics: true, pace: 'relaxed' },
   };
 }
 
@@ -66,6 +68,12 @@ function fromSaved(data) {
   const s = { ...newState(), ...data };
   // Saves from before decor existed get the starter Dead Plant, already in the den.
   if (!data.decor && !s.owned.includes('deadplant')) s.owned.push('deadplant');
+  // Numbers used to start at 10. Saves still on that starting level drop back to 8;
+  // the 9s and 10s unlock again quickly if they're already solid.
+  if ((data.version || 1) < 2) {
+    if ((s.mathLevel || 10) <= 10) s.mathLevel = START_MAX;
+    s.version = 2;
+  }
   return s;
 }
 

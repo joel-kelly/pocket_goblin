@@ -5,7 +5,7 @@ import { h, button, floater, toast, modalOpen, kb } from '../ui.js';
 import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh, voxelMaterial } from '../voxel.js';
 import { FX } from '../fx.js';
-import { currentMax, FactPicker } from '../math.js';
+import { currentMax, FactPicker, pace } from '../math.js';
 import { ROCKET_ZONES } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
@@ -222,6 +222,7 @@ export class RocketScreen {
     track('game_start', 'rocket');
     this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
+    this.pace = pace(this.state);
     this.fuel = 100; this.alt = 0; this.maxAlt = 0; this.boost = 18;
     this.correct = 0; this.total = 0; this.combo = 0; this.bestCombo = 0; this.times = [];
     this.zone = 0; this.lowWarned = false; this.trailT = 0;
@@ -291,7 +292,7 @@ export class RocketScreen {
     const t = performance.now() / 1000;
     if (this.phase === 'play') {
       const fixing = this.quiz.fixing;
-      if (!fixing) this.fuel -= (5 + this.alt / 150) * dt;
+      if (!fixing) this.fuel -= (5 + this.alt / 150) * this.pace * dt;
       const climb = fixing ? 0 : 3 + Math.max(0, this.fuel) * 0.22;
       this.boost *= Math.pow(0.9, dt * 60);
       this.alt += (climb + this.boost) * dt;

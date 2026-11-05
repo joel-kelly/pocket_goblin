@@ -39,7 +39,7 @@ The sync Worker also keeps anonymous play counts: how many goblins have been mad
 | | |
 |---|---|
 | 🧮 **Math Games** | Six games. Type answers on the keyboard (or the on-screen number pad on phones and tablets). In all of them, a wrong answer means typing the right one to keep going. |
-| ↳ **Math Dash** | 60 seconds of ×/÷ facts (up to 10×10 at first, growing to 15×15). Faster answers earn more coins, and every 5 in a row earns a combo bonus. |
+| ↳ **Math Dash** | 60 seconds of ×/÷ facts (up to 8×8 at first, growing to 15×15). Faster answers earn more coins, and every 5 in a row earns a combo bonus. |
 | ↳ **Fart Rocket** | Fart fuel drains all the time. Right answers refuel it, and faster answers add more. Fly past clouds, birds and airplanes to the Moon and beyond. The score is the best height. |
 | ↳ **Swamp Sprint** | Race 500 m against three rival goblins. Every right answer is a speed boost, and faster answers boost more. A wrong answer makes you stumble, and two in a row makes you trip on a banana peel. Rivals ease off a little when far ahead, so races stay close. |
 | ↳ **Squid Smackdown** | Box Big Inky, a giant squid. Every right answer is a punch (fast answers hit harder). When he winds up a tentacle, answer before the bar runs out to dodge and counterpunch for double damage. A wrong answer gets you slapped. Knock him down 3 times to win; he gets angrier and faster each time he gets up. |
@@ -66,7 +66,7 @@ Each *fact family* (like 7×8, which also covers 8×7, 56÷7 and 56÷8) has a le
 
 Low-level and slow facts come up much more often; mastered ones still appear occasionally.
 
-**Numbers grow with her.** Problems start with facts up to 10×10. When 70% of the facts in play are *solid* (level 3+) **and** 70% of the newest times table is solid, the next table unlocks with a celebration: 11s, then 12s, and so on up to 15×15. The Math Games menu shows progress toward the next unlock. In **Grown-ups → Biggest number in problems** you can leave this on Auto or pin it anywhere from 10 to 15. Problems are mixed between `a × b`, `c ÷ a` and `a × ? = c`. The engine is in `src/math.js`.
+**Numbers grow with her.** Problems start with facts up to 8×8. When 70% of the facts in play are *solid* (level 3+) **and** 70% of the newest times table is solid, the next table unlocks with a celebration: 9s, then 10s, and so on up to 15×15. The Math Games menu shows progress toward the next unlock. In **Grown-ups → Biggest number in problems** you can leave this on Auto or pin it anywhere from 5 to 15. **Game pace** (Relaxed by default) slows Fart Rocket's fuel drain, Big Inky's tentacles and the Swamp Sprint rivals. Problems are mixed between `a × b`, `c ÷ a` and `a × ? = c`. The engine is in `src/math.js`.
 
 ## Workshop controls
 
