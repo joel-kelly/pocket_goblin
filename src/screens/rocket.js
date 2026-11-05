@@ -5,7 +5,7 @@ import { h, button, floater, toast, modalOpen, kb } from '../ui.js';
 import { sfx } from '../audio.js';
 import { VoxelModel, buildMesh, voxelMaterial } from '../voxel.js';
 import { FX } from '../fx.js';
-import { currentMax, FactPicker, pace } from '../math.js';
+import { currentMax, FactPicker, pace, tunePace } from '../math.js';
 import { ROCKET_ZONES } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
@@ -222,7 +222,8 @@ export class RocketScreen {
     track('game_start', 'rocket');
     this.picker = new FactPicker(this.state.facts, this.state.settings, currentMax(this.state));
     this.fast = this.state.settings.fastSeconds;
-    this.pace = pace(this.state);
+    this.pace = pace(this.state, 'rocket');
+    this.flightT = 0; this.quitted = false;
     this.fuel = 100; this.alt = 0; this.maxAlt = 0; this.boost = 18;
     this.correct = 0; this.total = 0; this.combo = 0; this.bestCombo = 0; this.times = [];
     this.zone = 0; this.lowWarned = false; this.trailT = 0;
@@ -251,7 +252,7 @@ export class RocketScreen {
       return;
     }
     if (this.phase !== 'play') return;
-    if (e.key === 'Escape') { this.crash(); return; }
+    if (e.key === 'Escape') { this.quit(); return; }
     this.quiz.key(e);
   }
 
@@ -291,6 +292,7 @@ export class RocketScreen {
     const { goblin } = this.game;
     const t = performance.now() / 1000;
     if (this.phase === 'play') {
+      this.flightT += dt;
       const fixing = this.quiz.fixing;
       if (!fixing) this.fuel -= (5 + this.alt / 150) * this.pace * dt;
       const climb = fixing ? 0 : 3 + Math.max(0, this.fuel) * 0.22;
@@ -377,7 +379,7 @@ export class RocketScreen {
   }
 
   quit() {
-    if (this.phase === 'play') this.crash();
+    if (this.phase === 'play') { this.quitted = true; this.crash(); }
     else this.game.go('home');
   }
 
@@ -396,6 +398,7 @@ export class RocketScreen {
     s.history.push({ t: Date.now(), game: 'rocket', correct: this.correct, total: this.total, avg, streak: this.bestCombo, score: height });
     track('game_end', 'rocket', this.correct);
     if (s.history.length > 200) s.history.shift();
+    if (!this.quitted && this.total >= 3) tunePace(s, 'rocket', this.flightT < 40 ? 'struggled' : this.flightT >= 90 ? 'great' : 'ok');
     if (this.total > 0) S.addStat('fun', 12);
     S.save();
     afterRound(this.game);

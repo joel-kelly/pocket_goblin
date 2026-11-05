@@ -66,7 +66,7 @@ Each *fact family* (like 7×8, which also covers 8×7, 56÷7 and 56÷8) has a le
 
 Low-level and slow facts come up much more often; mastered ones still appear occasionally.
 
-**Numbers grow with her.** Problems start with facts up to 8×8. When 70% of the facts in play are *solid* (level 3+) **and** 70% of the newest times table is solid, the next table unlocks with a celebration: 9s, then 10s, and so on up to 15×15. The Math Games menu shows progress toward the next unlock. In **Grown-ups → Biggest number in problems** you can leave this on Auto or pin it anywhere from 5 to 15. **Game pace** (Relaxed by default) slows Fart Rocket's fuel drain, Big Inky's tentacles and the Swamp Sprint rivals. Problems are mixed between `a × b`, `c ÷ a` and `a × ? = c`. The engine is in `src/math.js`.
+**Numbers grow with her.** Problems start with facts up to 8×8. When 70% of the facts in play are *solid* (level 3+) **and** 70% of the newest times table is solid, the next table unlocks with a celebration: 9s, then 10s, and so on up to 15×15. The Math Games menu shows progress toward the next unlock. In **Grown-ups → Biggest number in problems** you can leave this on Auto or pin it anywhere from 5 to 15. **Game pace** controls how much time Fart Rocket's fuel, Big Inky's tentacles and the Swamp Sprint rivals give her. On Auto (the default) each game starts at normal speed and quietly slows down a step (down to 60%) after a round where she clearly struggled (rocket out of gas in under 40 s, no knockdowns on Big Inky, last in the race), then creeps back up as she does well. It can also be pinned to Always normal or Always relaxed. Problems are mixed between `a × b`, `c ÷ a` and `a × ? = c`. The engine is in `src/math.js`.
 
 ## Workshop controls
 

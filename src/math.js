@@ -59,10 +59,26 @@ export function checkUnlock(state) {
   return p.next;
 }
 
-// How urgent the action games feel. "Relaxed" gives more time before fuel runs out
-// or a tentacle lands; "normal" is the original speed.
-export const PACES = { relaxed: 0.6, normal: 1 };
-export function pace(state) { return PACES[state.settings?.pace] || 1; }
+// How urgent the action games feel (1 = normal speed, smaller = more time to think).
+// "auto" starts at normal and quietly slows a game down after rounds where she
+// clearly struggled, then creeps back toward normal as she does well.
+export const PACE_MIN = 0.6;
+export function pace(state, game) {
+  const p = state.settings?.pace || 'auto';
+  if (p === 'relaxed') return PACE_MIN;
+  if (p === 'normal') return 1;
+  return state.autoPace?.[game] ?? 1;
+}
+
+// Call at the end of a round with 'struggled', 'ok' or 'great'. Only matters on auto.
+export function tunePace(state, game, result) {
+  if ((state.settings?.pace || 'auto') !== 'auto') return;
+  const cur = state.autoPace?.[game] ?? 1;
+  let next = cur;
+  if (result === 'struggled') next = Math.max(PACE_MIN, cur - 0.1);
+  else if (result === 'great') next = Math.min(1, cur + 0.05);
+  (state.autoPace ||= {})[game] = Math.round(next * 100) / 100;
+}
 
 export function factRecord(facts, a, b) {
   const k = familyKey(a, b);

@@ -40,10 +40,11 @@ export function newState() {
     squidBest: 0, // fastest Squid Smackdown K.O., in seconds
     squidWins: 0,
     homeworkStars: 0, // Goblin's Homework pages checked with no slips
+    autoPace: {}, // per-game pace when Game pace is on auto (1 = normal)
     history: [],
     vacation: null,
     postcards: [],
-    settings: { sound: true, fastSeconds: 3, pixelScale: 3, maxFactor: 'auto', numpad: 'auto', analytics: true, pace: 'relaxed' },
+    settings: { sound: true, fastSeconds: 3, pixelScale: 3, maxFactor: 'auto', numpad: 'auto', analytics: true, pace: 'auto' },
   };
 }
 

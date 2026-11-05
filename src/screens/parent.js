@@ -61,8 +61,13 @@ export function openParent(game) {
 
   const fastSel = h('select', {}, ...[2, 2.5, 3, 4, 5].map((v) => h('option', { value: v, selected: v === fast }, `${v} seconds`)));
   fastSel.onchange = () => { s.settings.fastSeconds = Number(fastSel.value); S.save(); toast('Saved!'); };
-  const paceSel = h('select', {}, ...[['relaxed', 'Relaxed: more time to think'], ['normal', 'Normal']]
-    .map(([v, l]) => h('option', { value: v, selected: (s.settings.pace || 'normal') === v }, l)));
+  const ap = s.autoPace || {};
+  const pct = (g) => `${Math.round((ap[g] ?? 1) * 100)}%`;
+  const paceSel = h('select', {}, ...[
+    ['auto', `Auto: normal, quietly slows down if she's struggling (now Rocket ${pct('rocket')}, Squid ${pct('squid')}, Sprint ${pct('race')})`],
+    ['normal', 'Always normal'],
+    ['relaxed', 'Always relaxed: more time to think']]
+    .map(([v, l]) => h('option', { value: v, selected: (s.settings.pace || 'auto') === v }, l)));
   paceSel.onchange = () => { s.settings.pace = paceSel.value; S.save(); toast('Saved!'); };
   const pixSel = h('select', {}, ...[2, 3, 4, 5].map((v) => h('option', { value: v, selected: v === s.settings.pixelScale }, `${v}x ${v === 3 ? '(default)' : v > 3 ? '(chunkier, faster)' : '(sharper)'}`)));
   const padSel = h('select', {}, ...[['auto', 'Auto: show on phones and tablets'], ['on', 'Always show'], ['off', 'Never show (use the keyboard)']]
