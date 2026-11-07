@@ -8,6 +8,16 @@ export const hash = (x, y) => {
   return ((n ^ (n >>> 15)) >>> 0) % 1000 / 1000;
 };
 
+// Seeded random numbers, so the scenery is the same every flight.
+export function seeded(seed) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 // A canvas plus a pixel setter.
 export function paint(w, h, fn) {
   const c = document.createElement('canvas');

@@ -3,22 +3,12 @@
 // Planet Pickle, the space dump and the Butt Nebula). Each landmark sits at its
 // zone's altitude (1 meter = 1 world unit). Far-away layers scroll slower.
 import * as THREE from '../../vendor/three.module.min.js';
-import { hash, paint, blob, strip, sprite, texture } from '../pixelArt.js';
+import { hash, paint, blob, strip, sprite, texture, seeded } from '../pixelArt.js';
 
 export const CAM_DIST = 150; // zoom: a bit wider than the 3D look, to show more sky
 
 // Sky color by altitude: EGA blues getting darker into space (dithering blends the steps).
 export const RETRO_SKY = [[0, '#55aaff'], [300, '#5555ff'], [600, '#0000aa'], [850, '#000055'], [1200, '#000000'], [99999, '#000000']];
-
-// Seeded random numbers, so the scenery is the same every flight.
-function seeded(seed) {
-  return () => {
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 // ---------- painted pieces ----------
 const ground = () => paint(128, 44, (px) => {
