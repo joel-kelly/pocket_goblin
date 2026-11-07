@@ -58,7 +58,7 @@ Hunger, thirst, clean and fun slowly drop over real time, tuned so about 10–15
 
 ### Classic 90s look
 
-**Grown-ups → Game look → Classic 90s** redraws the game like an early-90s PC game: a flat, straight-on camera, 32 colors (the 16 classic EGA colors plus 16 picked for the goblin's world) with a little checkerboard dithering, thick black outlines and choppier, sprite-like animation. Everything still works the same, including items built in the Workshop. The Workshop itself stays 3D so it can still be spun around. The look is in `src/retro.js`.
+**Grown-ups → Game look → Classic 90s** redraws the game like an early-90s PC game: a flat, straight-on camera, 32 colors (the 16 classic EGA colors plus 16 picked for the goblin's world) with a little checkerboard dithering, thick black outlines and choppier, sprite-like animation. Everything still works the same, including items built in the Workshop. Swamp Sprint turns into a side-scrolling level: the lanes become stacked grassy ledges, and painted clouds, mountains and hills scroll by behind (slower the farther away they are). The Workshop itself stays 3D so it can still be spun around. The look is in `src/retro.js`, and the Swamp Sprint level in `src/screens/raceRetro.js`.
 
 ### How the math practice works
 
@@ -121,6 +121,7 @@ src/
   screens/                home, shop, wardrobe, games (picker), gauntlet (Math Dash), rocket (Fart Rocket),
                           cafe (Goblin Café), race (Swamp Sprint), squid (Squid Smackdown),
                           workshop, vacation, parent
+    raceRetro.js          Swamp Sprint's side-scrolling level for the Classic 90s look
 ```
 
 Open the browser console and type `pocketGoblin` to poke at the game while it's running.

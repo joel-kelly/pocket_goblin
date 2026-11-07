@@ -14,6 +14,7 @@ import { LINES, pick } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
 import { track } from '../track.js';
+import { buildRetroScenery, LANE_STEP, CAM_Y, CAM_DIST, SKY } from './raceRetro.js';
 
 const U = 4;              // world units per meter
 const TRACK = 500;        // race length in meters
@@ -61,10 +62,11 @@ export class RaceScreen {
     this.game = game;
     this.root = document.getElementById('screen');
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color('#8fd3ff');
-    this.scene.fog = new THREE.Fog('#8fd3ff', 350, 1000);
+    this.sky = new THREE.Color('#8fd3ff');
+    this.scene.background = this.sky;
+    this.fog = new THREE.Fog('#8fd3ff', 350, 1000);
+    this.scene.fog = this.fog;
     this.camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 1100);
-    this.camera.userData.retroPitch = 34; // retro look: steeper view so the lanes don't pile up
     this.scene.add(new THREE.HemisphereLight('#ffffff', '#6a7a50', 1.8));
     const sun = new THREE.DirectionalLight('#fff3dd', 2.0);
     sun.position.set(40, 80, 60);
@@ -113,7 +115,9 @@ export class RaceScreen {
 
   buildWorld() {
     this.built = true;
-    const S = this.scene;
+    // Scenery for the normal 3D look goes in one group, so the retro look can swap it out.
+    const S = this.normal = new THREE.Group();
+    this.scene.add(S);
     const geos = [0, 1, 2].map((v) => buildMesh(this.chunkModel(v), { jitter: 0.1 }).geometry);
     for (let i = -2; i * CHUNK < TRACK * U + 600; i++) {
       const m = new THREE.Mesh(geos[(i + 3) % 3], voxelMaterial);
@@ -166,6 +170,10 @@ export class RaceScreen {
       S.add(sign);
     }
 
+    const R = this.retroScenery = buildRetroScenery(TRACK * U, LANES);
+    this.scene.add(R.group);
+    for (let d = 100; d < TRACK; d += 100) R.addSign(d * U, `${d} m`);
+
     // banana peel (for tripping)
     const peel = new VoxelModel(null);
     peel.box(0, 0, 0, 4, 1, 2, '#ffe14d');
@@ -179,7 +187,7 @@ export class RaceScreen {
       const gob = new Goblin();
       gob.object.traverse((o) => { if (o.isMesh) o.castShadow = false; });
       gob.shadow.visible = true;
-      S.add(gob.object);
+      this.scene.add(gob.object);
       return { ...def, gob };
     });
   }
@@ -190,10 +198,11 @@ export class RaceScreen {
     if (!this.built) this.buildWorld();
     world.active = { scene: this.scene, camera: this.camera };
     world.resize();
+    this.setLook(world.retroActive);
     this.scene.add(goblin.object);
     goblin.object.visible = true;
     goblin.object.rotation.set(0, FACING, 0);
-    goblin.shadow.visible = true;
+    goblin.shadow.visible = !this.retro;
     goblin.lookAt(1, 0);
 
     // Rival skins never match the player's goblin.
@@ -204,6 +213,7 @@ export class RaceScreen {
       for (const [slot, id] of Object.entries(r.outfit)) outfit[slot] = getModel(id);
       r.gob.setOutfit(outfit);
       r.gob.object.rotation.set(0, FACING, 0);
+      r.gob.shadow.visible = !this.retro;
     });
     this.racers = [
       { gob: goblin, name: 'YOU', you: true, lane: 0, color: this.state.skin },
@@ -231,13 +241,26 @@ export class RaceScreen {
     clearTimeout(this.resultTimer);
   }
 
+  // Classic 90s look: a flat side-scroller with stacked lanes. Otherwise the 3D track.
+  setLook(retro) {
+    this.retro = retro;
+    this.normal.visible = !retro;
+    this.retroScenery.group.visible = retro;
+    this.scene.fog = retro ? null : this.fog; // painted backdrops shouldn't fade out
+    this.scene.background = retro ? new THREE.Color(SKY) : this.sky;
+    const ud = this.camera.userData;
+    if (retro) { ud.retroPitch = 0; ud.focusDist = CAM_DIST; } else { delete ud.retroPitch; delete ud.focusDist; }
+  }
+  // Height of a lane's ground: lanes further back sit higher in the side-scroller.
+  laneY(lane) { return this.retro ? lane * LANE_STEP : 0; }
+
   resetRacers() {
     for (const r of this.racers) {
       Object.assign(r, { x: 0, v: 0, stride: Math.random() * 6, tripT: 0, tripDur: 1, wobbleT: 0, finishT: null, dustT: 0 });
       r.wob = Math.random() * 6;
       // Rivals sometimes trip too (it's a muddy track)
       r.slipAt = !r.you && Math.random() < 0.6 ? rand(80, TRACK - 60) : null;
-      r.gob.object.position.set(0, 0, LANES[r.lane]);
+      r.gob.object.position.set(0, this.laneY(r.lane), LANES[r.lane]);
     }
     for (const p of this.peels) this.scene.remove(p);
     this.peels = [];
@@ -430,7 +453,7 @@ export class RaceScreen {
       this.game.goblin.emote('dizzy', 2);
       this.game.line('raceTrip', 2);
       const peel = new THREE.Mesh(this.peelGeo, voxelMaterial);
-      peel.position.set(r.x * U - 4, 0.05, LANES[r.lane] + 2);
+      peel.position.set(r.x * U - 4, this.laneY(r.lane) + 0.05, LANES[r.lane] + 2);
       peel.rotation.y = rand(-0.5, 0.5);
       this.scene.add(peel);
       this.peels.push(peel);
@@ -447,7 +470,7 @@ export class RaceScreen {
   dust(r, n) {
     const pos = r.gob.object.position;
     for (let i = 0; i < n; i++) {
-      this.fx.cube(new THREE.Vector3(pos.x + rand(-4, 4), 1, pos.z + rand(-3, 3)), i % 2 ? '#b0814f' : '#d8b48a', {
+      this.fx.cube(new THREE.Vector3(pos.x + rand(-4, 4), pos.y + 1, pos.z + rand(-3, 3)), i % 2 ? '#b0814f' : '#d8b48a', {
         vel: new THREE.Vector3(rand(-10, 4), rand(4, 12), rand(-4, 4)), gravity: -20, life: 0.8, s0: 1.5, s1: 0.3, drag: 0.94, spin: 3,
       });
     }
@@ -506,7 +529,7 @@ export class RaceScreen {
         if (r.v > 7 && r.dustT <= 0 && r.tripT <= 0) {
           r.dustT = r.you ? 0.06 : 0.12;
           const p = r.gob.object.position;
-          this.fx.cube(new THREE.Vector3(p.x - 3, 0.5, p.z + rand(-2, 2)), Math.random() < 0.5 ? '#b0814f' : '#c9a070', {
+          this.fx.cube(new THREE.Vector3(p.x - 3, p.y + 0.5, p.z + rand(-2, 2)), Math.random() < 0.5 ? '#b0814f' : '#c9a070', {
             vel: new THREE.Vector3(-r.v * 0.8, rand(3, 8), rand(-2, 2)), gravity: -15, life: 0.6, s0: 1.4, s1: 0, drag: 0.95, spin: 4,
           });
         }
@@ -514,15 +537,22 @@ export class RaceScreen {
     }
 
     for (const r of this.racers) {
-      r.gob.object.position.set(r.x * U, 0, LANES[r.lane]);
+      r.gob.object.position.set(r.x * U, this.laneY(r.lane), LANES[r.lane]);
       if (!r.you) r.gob.update(dt);
     }
 
     // camera follows the player, who stays on the left side of the screen
     const target = this.player.x * U + 46;
     this.camX = this.camX == null ? target : this.camX + (target - this.camX) * Math.min(1, dt * 5);
-    this.camera.position.set(this.camX, 100, 255);
-    this.camera.lookAt(this.camX, 6, -12);
+    if (this.retro) {
+      // straight-on side view; backdrops scroll slower than the track
+      this.camera.position.set(this.camX, CAM_Y, 255);
+      this.camera.lookAt(this.camX, CAM_Y, -12);
+      this.retroScenery.update(this.camX);
+    } else {
+      this.camera.position.set(this.camX, 100, 255);
+      this.camera.lookAt(this.camX, 6, -12);
+    }
     this.sun.position.set(this.camX + 40, 80, 60);
     this.sun.target.position.set(this.camX, 0, 0);
     this.fx.update(dt);
