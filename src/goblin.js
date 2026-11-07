@@ -277,6 +277,7 @@ const ACTIONS = {
 };
 
 export class Goblin {
+  static stepRate = 0; // 0 = smooth; set by World.setRetro
   constructor(skin = SKINS['Swamp Green']) {
     this.object = new THREE.Group(); // container (shadow + body)
     this.groups = {};
@@ -423,6 +424,13 @@ export class Goblin {
   }
 
   update(dt) {
+    // Retro look: only move to a new pose a few times a second, like sprite frames.
+    if (Goblin.stepRate) {
+      this.stepAcc = (this.stepAcc || 0) + dt;
+      if (this.stepAcc < 1 / Goblin.stepRate) return;
+      dt = this.stepAcc;
+      this.stepAcc = 0;
+    }
     this.time += dt;
     const t = this.time;
     const o = { hatHeight: this.outfit.head ? 9 : 0, x: 0, y: 0, rx: 0, ry: 0, rz: 0, sx: 1, sy: 1, headRx: 0, headRy: 0, headRz: 0, torsoRx: 0,

@@ -44,7 +44,7 @@ export function newState() {
     history: [],
     vacation: null,
     postcards: [],
-    settings: { sound: true, fastSeconds: 3, pixelScale: 3, maxFactor: 'auto', numpad: 'auto', analytics: true, pace: 'auto' },
+    settings: { sound: true, fastSeconds: 3, pixelScale: 3, maxFactor: 'auto', numpad: 'auto', analytics: true, pace: 'auto', retro: false },
   };
 }
 

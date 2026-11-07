@@ -26,6 +26,7 @@ setCustomItems(state.custom);
 
 const world = new World(document.getElementById('game'));
 world.setPixelScale(state.settings.pixelScale);
+world.setRetro(state.settings.retro);
 const goblin = world.goblin;
 goblin.setSkin(state.skin);
 

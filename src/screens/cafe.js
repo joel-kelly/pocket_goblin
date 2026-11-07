@@ -15,6 +15,7 @@ import { CUSTOMER_NAMES, CUSTOMER_HELLO, CUSTOMER_HAPPY, CUSTOMER_MAD } from '..
 import { afterRound } from './games.js';
 import { QuizCard } from '../quiz.js';
 import { track } from '../track.js';
+import { buildCafeRetro } from './cafeRetro.js';
 
 const SHIFT = ['single', 'single', 'single', 'split', 'double', 'single', 'double', 'split', 'change', 'change'];
 const PRICES = [3, 4, 6, 7, 8, 9];
@@ -55,6 +56,9 @@ export class CafeScreen {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color('#3b2a3a');
     this.camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 600);
+    // Retro look: frame on the cook, tilt down to show the floor, and pull back to show
+    // more of the diner. (Phones and tablets already pull back; see frameCamera.)
+    Object.assign(this.camera.userData, { focusZ: GOB_POS.z, retroPitch: 12, retroZoom: IS_TOUCH ? 1 : 1.45, retroLift: IS_TOUCH ? 10 : 26 });
     this.scene.add(new THREE.HemisphereLight('#fff2e0', '#5a4050', 1.7));
     const sun = new THREE.DirectionalLight('#fff3dd', 1.9);
     sun.position.set(30, 70, 60);
@@ -92,6 +96,9 @@ export class CafeScreen {
     }));
     sign.position.set(-28, 46, -31.8);
     S.add(sign);
+    this.sign = sign;
+    this.retroScenery = buildCafeRetro(sign.position, DOOR_X);
+    S.add(this.retroScenery.group);
 
     // Tip jar (rebuilt as tips come in)
     this.jar = null;
@@ -102,6 +109,7 @@ export class CafeScreen {
   // show past the edges of the room. A big floor and back wall sit just behind the
   // room's own blocks to fill that in.
   addBackdrop() {
+    this.backdrop = true;
     const S = this.scene;
     const tex = (draw, w, h) => {
       const c = document.createElement('canvas');
@@ -143,6 +151,16 @@ export class CafeScreen {
     S.add(wall, upper);
   }
 
+  // Classic 90s look: a painted diner wall in front of the 3D one.
+  setLook(retro) {
+    this.retro = retro;
+    this.retroScenery.group.visible = retro;
+    this.sign.visible = !retro;
+    if (retro) this.retroScenery.setSkin(this.state.skin);
+    // The wider retro view can see past the room's floor, so add the big backdrop floor.
+    if (retro && !this.backdrop) this.addBackdrop();
+  }
+
   updateJar(tips) {
     if (this.jar) { this.scene.remove(this.jar); this.jar.geometry.dispose(); }
     // A short jar; coins pile up above the rim as tips come in.
@@ -163,6 +181,7 @@ export class CafeScreen {
     if (!this.built) this.buildCafe();
     world.active = { scene: this.scene, camera: this.camera };
     world.resize();
+    this.setLook(world.retroActive);
     this.scene.add(goblin.object);
     goblin.object.visible = true;
     goblin.object.position.copy(GOB_POS);
@@ -512,6 +531,7 @@ export class CafeScreen {
 
   update(dt) {
     if (IS_TOUCH) this.frameCamera(dt);
+    if (this.retro) this.retroScenery.update(performance.now() / 1000);
     const c = this.customer;
     if (c) {
       c.update(dt);

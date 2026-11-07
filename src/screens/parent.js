@@ -77,6 +77,9 @@ export function openParent(game) {
   const statsSel = h('select', {}, ...[[true, 'On'], [false, 'Off']]
     .map(([v, l]) => h('option', { value: String(v), selected: (s.settings.analytics !== false) === v }, l)));
   statsSel.onchange = () => { s.settings.analytics = statsSel.value === 'true'; S.save(); toast('Saved!'); };
+  const lookSel = h('select', {}, ...[[false, '3D blocks (default)'], [true, 'Classic 90s: flat, old-PC colors, black outlines']]
+    .map(([v, l]) => h('option', { value: String(v), selected: !!s.settings.retro === v }, l)));
+  lookSel.onchange = () => { s.settings.retro = lookSel.value === 'true'; game.world.setRetro(s.settings.retro); S.save(); toast('Saved!'); };
   pixSel.onchange = () => { s.settings.pixelScale = Number(pixSel.value); game.world.setPixelScale(s.settings.pixelScale); S.save(); };
 
   // Goblin color: the starting swatches plus any color at all.
@@ -121,6 +124,7 @@ export function openParent(game) {
     h('label', {}, '"Fast" target time (facts answered faster level up)'), fastSel,
     h('label', {}, 'Biggest number in problems'), maxSel,
     h('label', {}, 'Game pace (Fart Rocket, Squid Smackdown, Swamp Sprint)'), paceSel,
+    h('label', {}, 'Game look (the Workshop always stays 3D)'), lookSel,
     h('label', {}, 'Pixel size'), pixSel,
     h('label', {}, 'On-screen number pad in math games'), padSel,
     h('label', {}, 'Goblin color'), skins,

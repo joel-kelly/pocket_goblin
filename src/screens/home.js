@@ -198,7 +198,7 @@ export class HomeScreen {
     if (this.game.screen !== this || modalOpen()) return;
     const { world, goblin } = this.game;
     const ndc = new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
-    this.raycaster.setFromCamera(ndc, world.camera);
+    this.raycaster.setFromCamera(ndc, world.viewCamera());
     const gob = goblin.object.visible ? this.raycaster.intersectObject(goblin.object, true)[0] : null;
     const decor = world.decorHit(this.raycaster);
     if (decor && (!gob || decor.distance < gob.distance)) this.pokeDecor(decor.spot);

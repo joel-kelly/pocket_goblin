@@ -14,6 +14,7 @@ import { SQUID_TAUNTS, pick } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
 import { track } from '../track.js';
+import { buildSquidRetro, SKY as RETRO_SKY } from './squidRetro.js';
 
 const SQUID_Z = -58;
 const GOB_Z = 10;
@@ -55,9 +56,13 @@ export class SquidScreen {
     this.game = game;
     this.root = document.getElementById('screen');
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color('#1f2a66');
-    this.scene.fog = new THREE.Fog('#1f2a66', 260, 520);
+    this.sky = new THREE.Color('#1f2a66');
+    this.scene.background = this.sky;
+    this.fog = new THREE.Fog('#1f2a66', 260, 520);
+    this.scene.fog = this.fog;
     this.camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 1, 900);
+    // Retro look: frame on a point between the goblin and Big Inky so neither looks oversized.
+    this.camera.userData.focusZ = -30;
     this.scene.add(new THREE.HemisphereLight('#c8d8ff', '#3a3050', 1.7));
     const sun = new THREE.DirectionalLight('#fff3dd', 1.9);
     sun.position.set(30, 90, 90);
@@ -67,10 +72,24 @@ export class SquidScreen {
   }
   get state() { return this.game.state; }
 
+  // Classic 90s look: a painted arena around the ring. Otherwise the 3D sea and sky.
+  setLook(retro) {
+    this.retro = retro;
+    this.normal.visible = !retro;
+    this.retroScenery.group.visible = retro;
+    this.scene.fog = retro ? null : this.fog; // painted backdrops shouldn't fade out
+    this.scene.background = retro ? new THREE.Color(RETRO_SKY) : this.sky;
+    if (retro) this.retroScenery.setName(this.state.gobName);
+  }
+
   // ---------- the ring + Big Inky (built once) ----------
   buildWorld() {
     this.built = true;
-    const S = this.scene;
+    // The sea, sky, spotlights and fans go in one group, so the retro look can swap them out.
+    const S = this.normal = new THREE.Group();
+    this.scene.add(S);
+    this.retroScenery = buildSquidRetro();
+    this.scene.add(this.retroScenery.group);
 
     // sea
     const sea = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshLambertMaterial({ color: '#2a5fb0' }));
@@ -114,18 +133,18 @@ export class SquidScreen {
       ring.box(x, 0, z, x + 4, 22, z + 4, c);
       ring.box(x, 22, z, x + 4, 24, z + 4, '#f4f1e6');
     }
-    S.add(buildMesh(ring, { jitter: 0.06 }));
+    this.scene.add(buildMesh(ring, { jitter: 0.06 }));
     // ropes on the back and sides (none in front, so they don't block the view)
     const ropeCols = ['#f4f1e6', '#e2353f', '#4fb3ff'];
     [8, 14, 20].forEach((y, i) => {
       const mat = new THREE.MeshLambertMaterial({ color: ropeCols[i] });
       const back = new THREE.Mesh(new THREE.BoxGeometry(X1 - X0 - 4, 1.2, 1.2), mat);
       back.position.set(0, y, Z0 + 2);
-      S.add(back);
+      this.scene.add(back);
       for (const x of [X0 + 2, X1 - 2]) {
         const side = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, Z1 - Z0 - 4), mat);
         side.position.set(x, y, (Z0 + Z1) / 2);
-        S.add(side);
+        this.scene.add(side);
       }
     });
     // spotlight beams
@@ -278,6 +297,7 @@ export class SquidScreen {
     if (!this.built) this.buildWorld();
     world.active = { scene: this.scene, camera: this.camera };
     world.resize();
+    this.setLook(world.retroActive);
     this.scene.add(goblin.object);
     goblin.object.visible = true;
     goblin.object.position.set(0, 0, GOB_Z);
@@ -782,6 +802,7 @@ export class SquidScreen {
     this.camera.lookAt(0, 56, -58);
 
     for (const f2 of this.foam) f2.position.y = -8.6 + 0.4 * Math.sin(t * 2 + f2.userData.ph);
+    if (this.retro) this.retroScenery.update(t, this.phase === 'down' || this.phase === 'won');
     for (const fan of this.fans) fan.position.y = -8 + 2 * Math.abs(Math.sin(t * (this.phase === 'down' || this.phase === 'won' ? 9 : 3) + fan.userData.ph));
     this.fx.update(dt);
 

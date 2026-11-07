@@ -86,7 +86,8 @@ export class WorkshopScreen {
   active() { return this.game.screen === this && this.mode === 'edit'; }
 
   enter() {
-    this.game.world.active = { scene: this.scene, camera: this.camera };
+    // noRetro: building needs a 3D view you can spin, so the Workshop keeps its normal look.
+    this.game.world.active = { scene: this.scene, camera: this.camera, noRetro: true };
     this.game.world.resize();
     this.showPicker();
   }

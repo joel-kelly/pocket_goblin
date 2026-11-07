@@ -52,9 +52,13 @@ The sync Worker also keeps anonymous play counts: how many goblins have been mad
 | 🛁 **Bath** | The goblin HATES this. |
 | ✈️ **Vacation** | Send the goblin away for 5–20 real minutes. A "Current status" line updates while it's gone, and it comes back with a postcard. |
 | 🔨 **Workshop** | Build or remix items block by block. Hats, clothes and decor have to be bought in the Shop before they can be remixed (they show a 🔒 until then). Snacks and her own creations can always be remixed. |
-| Grown-ups | Press and hold the button. Shows a heatmap of which facts are fast or shaky, recent rounds, settings (including the goblin's color) and save backups. |
+| Grown-ups | Press and hold the button. Shows a heatmap of which facts are fast or shaky, recent rounds, settings (including the goblin's color and the game's look) and save backups. |
 
 Hunger, thirst, clean and fun slowly drop over real time, tuned so about 10–15 minutes a day keeps the goblin happy. The goblin never dies. It just gets dramatic.
+
+### Classic 90s look
+
+**Grown-ups → Game look → Classic 90s** redraws the game like an early-90s PC game: a flat, straight-on camera, 32 colors (the 16 classic EGA colors plus 16 picked for the goblin's world) with a little checkerboard dithering, thick black outlines and choppier, sprite-like animation. Everything still works the same, including items built in the Workshop. The den gets a painted stone wall with moss and dangling roots, a flickering torch, a round window that shows day or night, a "HOME SWEET SWAMP" sampler and a crayon drawing of your goblin taped up. Swamp Sprint turns into a side-scrolling level: the lanes become stacked grassy ledges, and painted clouds, mountains and hills scroll by behind (slower the farther away they are). Fart Rocket becomes a vertical scroller through painted zones: lollipop treetops, outlined clouds, flapping birds, airplanes, a starfield, the Moon, Planet Pickle, floating space junk and the Butt Nebula. Squid Smackdown gets a painted arena: stands packed with cheering fish (they go wild when Big Inky goes down), crowd signs (one cheers for your goblin by name), searchlights sweeping a starry sky, and waves with fish poking out. Goblin Café gets a painted diner wall: wood paneling and teal wallpaper, a flickering neon sign, a clock showing the real time, a window onto the swamp (day or night), a shelf of gross jars, a chalkboard menu and an "Employee of the Month" portrait of your goblin in its own color. The Workshop itself stays 3D so it can still be spun around. The look is in `src/retro.js`, the painted levels in `src/screens/raceRetro.js`, `src/screens/rocketRetro.js`, `src/screens/squidRetro.js` and `src/screens/cafeRetro.js`, and the shared pixel-painting helpers in `src/pixelArt.js`.
 
 ### How the math practice works
 
@@ -112,10 +116,17 @@ src/
   track.js                anonymous play counts (also sent to sync-worker/)
   audio.js                all sound effects, generated in code (farts included)
   fx.js                   particles: fart clouds, hearts, confetti, bubbles
+  retro.js                the "Classic 90s" look: flat camera, EGA colors, outlines
+  pixelArt.js             helpers for painting pixel-art scenery in code
+  denRetro.js             the den's painted wall for the Classic 90s look
   world.js                3D scene, the goblin's den + decor spots, pixelated renderer
   screens/                home, shop, wardrobe, games (picker), gauntlet (Math Dash), rocket (Fart Rocket),
                           cafe (Goblin Café), race (Swamp Sprint), squid (Squid Smackdown),
                           workshop, vacation, parent
+    raceRetro.js          Swamp Sprint's side-scrolling level for the Classic 90s look
+    rocketRetro.js        Fart Rocket's painted sky zones for the Classic 90s look
+    squidRetro.js         Squid Smackdown's painted arena for the Classic 90s look
+    cafeRetro.js          Goblin Café's painted diner wall for the Classic 90s look
 ```
 
 Open the browser console and type `pocketGoblin` to poke at the game while it's running.
