@@ -106,6 +106,7 @@ export class RetroRenderer {
   // action in every scene happens.
   // camera.userData.retroPitch (degrees) tilts the view down at least that much,
   // since a flat camera looking straight ahead hides the floor.
+  // camera.userData.retroZoom (> 1 shows more) and retroLift (moves the view up) adjust framing.
   sync(src) {
     const cam = this.camera;
     src.updateMatrixWorld();
@@ -127,7 +128,8 @@ export class RetroRenderer {
       cam.up.set(0, 1, 0);
       cam.lookAt(focus);
     }
-    const hh = Math.max(1, dist) * Math.tan(THREE.MathUtils.degToRad(src.fov / 2)) / src.zoom;
+    cam.position.y += src.userData.retroLift || 0;
+    const hh = Math.max(1, dist) * (src.userData.retroZoom || 1) * Math.tan(THREE.MathUtils.degToRad(src.fov / 2)) / src.zoom;
     cam.left = -hh * src.aspect; cam.right = hh * src.aspect;
     cam.top = hh; cam.bottom = -hh;
     cam.near = src.near; cam.far = src.far;

@@ -25,7 +25,7 @@ export function paint(w, h, fn) {
   const g = c.getContext('2d');
   const px = (x, y, color) => {
     x = ((Math.round(x) % w) + w) % w; // wrap sideways so the texture tiles
-    if (y < 0 || y >= h) return;
+    if (!color || y < 0 || y >= h) return; // no color = leave it see-through
     g.fillStyle = color; g.fillRect(x, Math.round(y), 1, 1);
   };
   fn(px, g);
