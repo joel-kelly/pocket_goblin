@@ -4,6 +4,7 @@ import { VoxelModel, buildMesh } from './voxel.js';
 import { Goblin } from './goblin.js';
 import { FX } from './fx.js';
 import { RetroRenderer, retroImage } from './retro.js';
+import { buildDenRetro } from './denRetro.js';
 
 // Classic 90s look on or off (see retro.js). Thumbnails read this too.
 let retroOn = false;
@@ -128,11 +129,13 @@ export class World {
     const wallMesh = buildMesh(wall, { jitter: 0.08 });
     wallMesh.receiveShadow = true;
     den.add(wallMesh);
+    this.wallMesh = wallMesh;
     // Sky behind window
     const skyMat = new THREE.MeshBasicMaterial({ color: '#7fc8ff' });
     const sky = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), skyMat);
     sky.position.set(26.5, 30.5, -31);
     den.add(sky);
+    this.windowSky = sky;
     this.skyMat = skyMat;
     const moon = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 0.5), new THREE.MeshBasicMaterial({ color: '#fff6c0' }));
     moon.position.set(29, 33, -30.8);
@@ -197,7 +200,8 @@ export class World {
     const torch = new VoxelModel(null);
     torch.box(-14, 22, -28, -12, 30, -26, '#5a3a1a');
     torch.box(-15, 30, -28, -11, 32, -25, '#7a5a3a');
-    den.add(buildMesh(torch));
+    this.torchMesh = buildMesh(torch);
+    den.add(this.torchMesh);
     this.flame = new THREE.Group();
     const fl = [['#ff3b1f', 2.6], ['#ff8a1f', 1.8], ['#ffe14d', 1]];
     fl.forEach(([c, s], i) => {
@@ -279,6 +283,10 @@ export class World {
     if (on && !this.retro) this.retro = new RetroRenderer();
     retroOn = on;
     Goblin.stepRate = on ? RETRO_FPS : 0;
+    // The den swaps its 3D wall, window and torch for a painted one.
+    if (on && !this.denRetro) { this.denRetro = buildDenRetro(); this.den.add(this.denRetro.group); }
+    if (this.denRetro) this.denRetro.group.visible = on;
+    for (const o of [this.wallMesh, this.windowSky, this.moon, this.stars, this.torchMesh, this.flame]) o.visible = !on;
     this.resize();
   }
   get retroActive() { return retroOn && !this.active?.noRetro; }
@@ -326,9 +334,14 @@ export class World {
     // Real-world day/night in the window
     const hr = new Date().getHours() + new Date().getMinutes() / 60;
     const day = hr > 7 && hr < 19;
-    this.skyMat.color.set(day ? '#7fc8ff' : '#1a1f4a');
-    this.moon.material.color.set(day ? '#fff2a0' : '#f4f4ff');
-    this.stars.visible = !day;
+    if (retroOn) {
+      this.denRetro.setSkin(this.goblin.skin); // for the crayon drawing on the wall
+      this.denRetro.update(t, day);
+    } else {
+      this.skyMat.color.set(day ? '#7fc8ff' : '#1a1f4a');
+      this.moon.material.color.set(day ? '#fff2a0' : '#f4f4ff');
+      this.stars.visible = !day;
+    }
   }
 
   render() {
