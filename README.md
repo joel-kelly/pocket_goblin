@@ -58,7 +58,7 @@ Hunger, thirst, clean and fun slowly drop over real time, tuned so about 10–15
 
 ### Classic 90s look
 
-**Grown-ups → Game look → Classic 90s** redraws the game like an early-90s PC game: a flat, straight-on camera, old EGA colors (64 of them) with checkerboard dithering, thick black outlines and choppier, sprite-like animation. Everything still works the same, including items built in the Workshop. The Workshop itself stays 3D so it can still be spun around. The look is in `src/retro.js`.
+**Grown-ups → Game look → Classic 90s** redraws the game like an early-90s PC game: a flat, straight-on camera, 32 colors (the 16 classic EGA colors plus 16 picked for the goblin's world) with a little checkerboard dithering, thick black outlines and choppier, sprite-like animation. Everything still works the same, including items built in the Workshop. The Workshop itself stays 3D so it can still be spun around. The look is in `src/retro.js`.
 
 ### How the math practice works
 

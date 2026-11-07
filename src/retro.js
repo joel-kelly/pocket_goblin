@@ -1,19 +1,33 @@
 // "Classic 90s look": draws the same block world like an early-90s PC game.
 // - flat camera (no perspective), so block models read like sprites
-// - EGA colors (each of red, green and blue has just 4 levels: 64 colors), with
-//   checkerboard-style (ordered) dithering where a color falls between two levels
+// - a 32-color palette (the 16 EGA colors plus 16 picked for the goblin's world),
+//   with checkerboard-style (ordered) dithering between nearby colors
 // - thick black outlines around everything
 // The game itself doesn't change; this only changes how a frame is drawn.
 import * as THREE from '../vendor/three.module.min.js';
 
 // 4x4 Bayer matrix, values 0..15.
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-const LEVELS = 3; // steps per channel (0, 1/3, 2/3, 1)
-// How much of a step dithering covers. 1 = every in-between color gets a pattern;
-// less keeps big areas flat, like hand-drawn sprites.
-const DITHER = 0.3;
-const SATURATE = 1.35; // old games used bold colors
+const hexList = (s) => s.trim().split(/\s+/);
+// The 16 classic EGA colors, as in Commander Keen.
+const EGA_16 = hexList(`
+  000000 0000aa 00aa00 00aaaa aa0000 aa00aa aa5500 aaaaaa
+  555555 5555ff 55ff55 55ffff ff5555 ff55ff ffff55 ffffff`);
+// 16 more for things EGA does badly: goblin greens, wood and dirt, purples,
+// torch orange, skin pinks, sky blue.
+const EXTRA_16 = hexList(`
+  005500 55aa00 aaff55 552a00 885533 aa7744 ffaa55 ff8822
+  ffdd99 2a1a3a 5522aa 7755aa 000055 550000 ffaaaa 55aaff`);
+const PALETTE = [...EGA_16, ...EXTRA_16].map((hex) => [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255));
+// How far dithering nudges a color before picking the nearest palette color.
+// Bigger = more checkerboard patterns; smaller keeps areas flat, like hand-drawn sprites.
+const DITHER = 0.1;
+const SATURATE = 1.3; // old games used bold colors
 const BRIGHTEN = 1.12;
+// Color distance weights: eyes notice green most. Blue counts a bit more than
+// brightness alone would say, so purples and navies don't turn brown or gray.
+const W = [0.3, 0.45, 0.25];
+const f3 = (v) => v.map((x) => x.toFixed(4)).join(', ');
 
 const vert = /* glsl */`
   varying vec2 vUv;
@@ -25,6 +39,7 @@ const frag = /* glsl */`
   uniform vec2 texel;
   uniform float near, far, edge;
   varying vec2 vUv;
+  const vec3 pal[${PALETTE.length}] = vec3[${PALETTE.length}](${PALETTE.map((c) => `vec3(${f3(c)})`).join(', ')});
 
   float depthAt(vec2 uv) { return near + texture2D(tDepth, uv).x * (far - near); }
   vec3 toSRGB(vec3 c) {
@@ -48,8 +63,15 @@ const frag = /* glsl */`
     vec3 c = toSRGB(texture2D(tColor, vUv).rgb * ${BRIGHTEN.toFixed(3)});
     float grey = dot(c, vec3(0.3, 0.59, 0.11));
     c = clamp(mix(vec3(grey), c, ${SATURATE.toFixed(3)}), 0.0, 1.0);
-    c = floor(c * ${LEVELS.toFixed(1)} + 0.5 + (bayer(gl_FragCoord.xy) - 0.5) * ${DITHER.toFixed(3)}) / ${LEVELS.toFixed(1)};
-    gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);
+    c += (bayer(gl_FragCoord.xy) - 0.5) * ${DITHER.toFixed(3)};
+    vec3 best = pal[0];
+    float bestD = 1e9;
+    for (int i = 0; i < ${PALETTE.length}; i++) {
+      vec3 e = (c - pal[i]) * vec3(${f3(W)});
+      float dd = dot(e, e);
+      if (dd < bestD) { bestD = dd; best = pal[i]; }
+    }
+    gl_FragColor = vec4(best, 1.0);
   }
 `;
 
@@ -150,10 +172,13 @@ export function retroImage(canvas) {
     const n = ((BAYER[(x % 4) + 4 * (y % 4)] + 0.5) / 16 - 0.5) * DITHER;
     const c = [px[i], px[i + 1], px[i + 2]].map((v) => Math.min(1, (v / 255) * BRIGHTEN));
     const grey = c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11;
-    for (let k = 0; k < 3; k++) {
-      const v = Math.min(1, Math.max(0, grey + (c[k] - grey) * SATURATE));
-      out[i + k] = (Math.min(LEVELS, Math.max(0, Math.floor(v * LEVELS + 0.5 + n))) / LEVELS) * 255;
+    for (let k = 0; k < 3; k++) c[k] = Math.min(1, Math.max(0, grey + (c[k] - grey) * SATURATE)) + n;
+    let best = PALETTE[0], bestD = Infinity;
+    for (const p of PALETTE) {
+      const d = ((c[0] - p[0]) * W[0]) ** 2 + ((c[1] - p[1]) * W[1]) ** 2 + ((c[2] - p[2]) * W[2]) ** 2;
+      if (d < bestD) { bestD = d; best = p; }
     }
+    for (let k = 0; k < 3; k++) out[i + k] = best[k] * 255;
     out[i + 3] = 255;
   }
   ctx.putImageData(new ImageData(out, w, hgt), 0, 0);
