@@ -10,6 +10,7 @@ import { ROCKET_ZONES } from '../lines.js';
 import { afterRound } from './games.js';
 import { QuizCard, factProblem } from '../quiz.js';
 import { track } from '../track.js';
+import { buildRocketRetro, RETRO_SKY, CAM_DIST } from './rocketRetro.js';
 
 const SKY = [
   [0, '#8fd3ff'], [300, '#5aa8f0'], [600, '#3a5fc0'], [850, '#1a1f5a'], [1200, '#0b0b24'], [99999, '#05050f'],
@@ -42,7 +43,11 @@ export class RocketScreen {
   // ---------- the sky world (built once) ----------
   buildWorld() {
     this.built = true;
-    const S = this.scene;
+    // Scenery for the normal 3D look goes in one group, so the retro look can swap it out.
+    const S = this.normal = new THREE.Group();
+    this.scene.add(S);
+    this.retroScenery = buildRocketRetro();
+    this.scene.add(this.retroScenery.group);
     // Launch pad: swamp ground + trees
     const ground = new VoxelModel(null);
     ground.box(-120, -2, -90, 150, 0, 30, (x, y, z) => (hash(x, 0, z) < 0.2 ? '#4f8a2a' : hash(x, 1, z) < 0.6 ? '#5e9a32' : '#6aa83a'));
@@ -113,7 +118,7 @@ export class RocketScreen {
     for (const sx of [-10, 10]) for (let y = -16; y < 0; y += 2) chute.set(Math.round(sx * (1 + y / 20)), y, 0, '#8e8e9a');
     this.chute = buildMesh(chute);
     this.chute.visible = false;
-    S.add(this.chute);
+    this.scene.add(this.chute);
   }
 
   // ---------- screen lifecycle ----------
@@ -122,6 +127,7 @@ export class RocketScreen {
     if (!this.built) this.buildWorld();
     world.active = { scene: this.scene, camera: this.camera };
     world.resize();
+    this.setLook(world.retroActive);
     this.scene.add(goblin.object);
     goblin.object.visible = true;
     goblin.object.position.set(0, 0, 0);
@@ -147,6 +153,14 @@ export class RocketScreen {
     this.root.innerHTML = '';
     clearInterval(this.cdTimer);
     this.chute.visible = false;
+  }
+
+  // Classic 90s look: painted pixel-art zones. Otherwise the 3D sky world.
+  setLook(retro) {
+    this.retro = retro;
+    this.normal.visible = !retro;
+    this.retroScenery.group.visible = retro;
+    if (retro) this.camera.userData.focusDist = CAM_DIST; else delete this.camera.userData.focusDist;
   }
 
   // Flying pose (added on top of the goblin's normal idle wiggles)
@@ -337,8 +351,9 @@ export class RocketScreen {
     this.camera.lookAt(30, this.camY + 10, 0);
     this.sun.position.set(40, this.alt + 80, 60);
     this.sun.target.position.set(0, this.alt, 0);
-    this.scene.background.copy(this.skyColor(this.alt));
+    this.scene.background.copy(this.skyColor(this.alt, this.retro ? RETRO_SKY : SKY));
     this.starMat.opacity = Math.min(1, Math.max(0, (this.alt - 600) / 300));
+    if (this.retro) this.retroScenery.update(this.camY, this.alt, t, dt);
     for (const m of this.movers || []) {
       m.obj.position.x += m.speed * dt;
       if (m.obj.position.x > 200) m.obj.position.x = -140;
@@ -355,12 +370,12 @@ export class RocketScreen {
     if (this.altPill) this.altPill.textContent = `${Math.floor(this.alt)} m`;
   }
 
-  skyColor(alt) {
-    for (let i = 0; i < SKY.length - 1; i++) {
-      const [a0, c0] = SKY[i], [a1, c1] = SKY[i + 1];
+  skyColor(alt, stops = SKY) {
+    for (let i = 0; i < stops.length - 1; i++) {
+      const [a0, c0] = stops[i], [a1, c1] = stops[i + 1];
       if (alt <= a1) return new THREE.Color(c0).lerp(new THREE.Color(c1), (alt - a0) / (a1 - a0));
     }
-    return new THREE.Color(SKY[SKY.length - 1][1]);
+    return new THREE.Color(stops[stops.length - 1][1]);
   }
 
   crash() {

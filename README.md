@@ -58,7 +58,7 @@ Hunger, thirst, clean and fun slowly drop over real time, tuned so about 10–15
 
 ### Classic 90s look
 
-**Grown-ups → Game look → Classic 90s** redraws the game like an early-90s PC game: a flat, straight-on camera, 32 colors (the 16 classic EGA colors plus 16 picked for the goblin's world) with a little checkerboard dithering, thick black outlines and choppier, sprite-like animation. Everything still works the same, including items built in the Workshop. Swamp Sprint turns into a side-scrolling level: the lanes become stacked grassy ledges, and painted clouds, mountains and hills scroll by behind (slower the farther away they are). The Workshop itself stays 3D so it can still be spun around. The look is in `src/retro.js`, and the Swamp Sprint level in `src/screens/raceRetro.js`.
+**Grown-ups → Game look → Classic 90s** redraws the game like an early-90s PC game: a flat, straight-on camera, 32 colors (the 16 classic EGA colors plus 16 picked for the goblin's world) with a little checkerboard dithering, thick black outlines and choppier, sprite-like animation. Everything still works the same, including items built in the Workshop. Swamp Sprint turns into a side-scrolling level: the lanes become stacked grassy ledges, and painted clouds, mountains and hills scroll by behind (slower the farther away they are). Fart Rocket becomes a vertical scroller through painted zones: lollipop treetops, outlined clouds, flapping birds, airplanes, a starfield, the Moon, Planet Pickle, floating space junk and the Butt Nebula. The Workshop itself stays 3D so it can still be spun around. The look is in `src/retro.js`, the painted levels in `src/screens/raceRetro.js` and `src/screens/rocketRetro.js`, and the shared pixel-painting helpers in `src/pixelArt.js`.
 
 ### How the math practice works
 
@@ -117,11 +117,13 @@ src/
   audio.js                all sound effects, generated in code (farts included)
   fx.js                   particles: fart clouds, hearts, confetti, bubbles
   retro.js                the "Classic 90s" look: flat camera, EGA colors, outlines
+  pixelArt.js             helpers for painting pixel-art scenery in code
   world.js                3D scene, the goblin's den + decor spots, pixelated renderer
   screens/                home, shop, wardrobe, games (picker), gauntlet (Math Dash), rocket (Fart Rocket),
                           cafe (Goblin Café), race (Swamp Sprint), squid (Squid Smackdown),
                           workshop, vacation, parent
     raceRetro.js          Swamp Sprint's side-scrolling level for the Classic 90s look
+    rocketRetro.js        Fart Rocket's painted sky zones for the Classic 90s look
 ```
 
 Open the browser console and type `pocketGoblin` to poke at the game while it's running.
