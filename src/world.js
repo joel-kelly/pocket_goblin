@@ -3,6 +3,10 @@ import * as THREE from '../vendor/three.module.min.js';
 import { VoxelModel, buildMesh } from './voxel.js';
 import { Goblin } from './goblin.js';
 import { FX } from './fx.js';
+import { RetroRenderer, retroImage } from './retro.js';
+
+// Classic 90s look on or off (see retro.js). Thumbnails read this too.
+let retroOn = false;
 
 const hash = (x, y, z) => {
   let n = (x * 73856093) ^ (y * 19349663) ^ (z * 83492791);
@@ -31,6 +35,10 @@ export const DECOR_SPOTS = [
 ];
 // Decor is drawn a bit smaller than the goblin's blocks so it doesn't crowd the den.
 export const DECOR_SCALE = 0.75;
+// Retro look: the goblins' poses update this many times a second, like hand-drawn sprite frames.
+const RETRO_FPS = 12;
+// Retro look: smallest pixel size (the old screens were 320x200).
+const RETRO_MIN_PIXEL = 4;
 
 export class World {
   constructor(canvas) {
@@ -49,6 +57,7 @@ export class World {
     this.camPos = new THREE.Vector3(...VIEWS.home.pos);
     this.camTarget = new THREE.Vector3(...VIEWS.home.target);
     this.camera.position.copy(this.camPos);
+    this.camera.userData.retroPitch = 11; // retro look: show more of the den floor
 
     this.addLights(this.scene);
     this.buildDen();
@@ -264,9 +273,27 @@ export class World {
 
   setPixelScale(s) { this.pixelScale = s; this.resize(); }
 
+  // Classic 90s look: flat camera, 16 colors, black outlines, choppier animation.
+  setRetro(on) {
+    on = !!on;
+    if (on && !this.retro) this.retro = new RetroRenderer();
+    retroOn = on;
+    Goblin.stepRate = on ? RETRO_FPS : 0;
+    this.resize();
+  }
+  get retroActive() { return retroOn && !this.active?.noRetro; }
+
+  // The camera a frame is actually drawn with (use this for clicks and screen positions).
+  viewCamera() {
+    const cam = this.active?.camera || this.camera;
+    return this.retroActive ? this.retro.sync(cam) : cam;
+  }
+
   resize() {
     const w = window.innerWidth, h = window.innerHeight;
-    this.renderer.setSize(Math.max(1, Math.ceil(w / this.pixelScale)), Math.max(1, Math.ceil(h / this.pixelScale)), false);
+    // The 90s look uses bigger pixels, closer to the old 320x200 screens.
+    const px = this.retroActive ? Math.max(this.pixelScale, RETRO_MIN_PIXEL) : this.pixelScale;
+    this.renderer.setSize(Math.max(1, Math.ceil(w / px)), Math.max(1, Math.ceil(h / px)), false);
     this.canvas.style.width = w + 'px';
     this.canvas.style.height = h + 'px';
     this.camera.aspect = w / h;
@@ -289,6 +316,7 @@ export class World {
     this.camTarget.lerp(new THREE.Vector3(...v.target), k);
     this.camera.position.copy(this.camPos);
     this.camera.lookAt(this.camTarget);
+    this.camera.userData.focusZ = this.camTarget.z;
     this.goblin.update(dt);
     this.updateDecor(dt);
     this.fx.update(dt);
@@ -304,22 +332,26 @@ export class World {
   }
 
   render() {
-    if (this.active) this.renderer.render(this.active.scene, this.active.camera);
-    else this.renderer.render(this.scene, this.camera);
+    const scene = this.active?.scene || this.scene;
+    // Screens can switch between the retro and normal look (Workshop), so keep the size in step.
+    if (this.retroActive !== this.lastRetroActive) { this.lastRetroActive = this.retroActive; this.resize(); }
+    if (this.retroActive) this.retro.render(this.renderer, scene, this.viewCamera());
+    else this.renderer.render(scene, this.active?.camera || this.camera);
   }
 
   // CSS pixel position of a world point (for speech bubbles, popups).
-  toScreen(v3, camera = this.active?.camera || this.camera) {
+  toScreen(v3, camera = this.viewCamera()) {
     const p = v3.clone().project(camera);
     return { x: (p.x * 0.5 + 0.5) * window.innerWidth, y: (-p.y * 0.5 + 0.5) * window.innerHeight, behind: p.z > 1 };
   }
 }
 
 // ---------- Thumbnails ----------
-let thumbRenderer = null, thumbScene = null, thumbCam = null;
+let thumbRenderer = null, thumbScene = null, thumbCam = null, thumbFlat = null, thumbOut = null;
 const thumbCache = new Map();
 
 export function thumbnail(model, cacheKey) {
+  if (cacheKey && retroOn) cacheKey = 'retro:' + cacheKey;
   if (cacheKey && thumbCache.has(cacheKey)) return thumbCache.get(cacheKey);
   if (!thumbRenderer) {
     const c = document.createElement('canvas');
@@ -333,20 +365,39 @@ export function thumbnail(model, cacheKey) {
     d.position.set(1, 2, 3);
     thumbScene.add(d);
     thumbCam = new THREE.PerspectiveCamera(30, 1, 0.1, 500);
+    thumbFlat = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 500);
+    thumbOut = document.createElement('canvas');
+    thumbOut.width = thumbOut.height = 72;
   }
   const mesh = buildMesh(model);
   const bb = mesh.geometry.boundingBox;
   const center = new THREE.Vector3(); bb.getCenter(center);
   const size = new THREE.Vector3(); bb.getSize(size);
   const r = Math.max(size.x, size.y, size.z, 1);
-  const dir = new THREE.Vector3(0.55, 0.45, 1).normalize();
-  thumbCam.position.copy(center).addScaledVector(dir, r * 2.4);
-  thumbCam.lookAt(center);
+  let cam = thumbCam;
+  if (retroOn) {
+    // Nearly straight on, like a sprite, with a peek at the top.
+    cam = thumbFlat;
+    const half = r * 0.62;
+    cam.left = cam.bottom = -half; cam.right = cam.top = half;
+    cam.updateProjectionMatrix();
+    cam.position.copy(center).addScaledVector(new THREE.Vector3(0.12, 0.3, 1).normalize(), r * 3);
+  } else cam.position.copy(center).addScaledVector(new THREE.Vector3(0.55, 0.45, 1).normalize(), r * 2.4);
+  cam.lookAt(center);
   thumbScene.add(mesh);
-  thumbRenderer.render(thumbScene, thumbCam);
+  thumbRenderer.render(thumbScene, cam);
   thumbScene.remove(mesh);
   mesh.geometry.dispose();
-  const url = thumbRenderer.domElement.toDataURL();
+  let url;
+  if (retroOn) {
+    // Shrink to half size first so the pixels match the chunkier game view.
+    const ctx = thumbOut.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingEnabled = false;
+    thumbOut.width = thumbOut.height = 36;
+    ctx.drawImage(thumbRenderer.domElement, 0, 0, 36, 36);
+    retroImage(thumbOut);
+    url = thumbOut.toDataURL();
+  } else url = thumbRenderer.domElement.toDataURL();
   if (cacheKey) thumbCache.set(cacheKey, url);
   return url;
 }

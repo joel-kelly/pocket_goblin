@@ -64,6 +64,7 @@ export class RaceScreen {
     this.scene.background = new THREE.Color('#8fd3ff');
     this.scene.fog = new THREE.Fog('#8fd3ff', 350, 1000);
     this.camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 1100);
+    this.camera.userData.retroPitch = 34; // retro look: steeper view so the lanes don't pile up
     this.scene.add(new THREE.HemisphereLight('#ffffff', '#6a7a50', 1.8));
     const sun = new THREE.DirectionalLight('#fff3dd', 2.0);
     sun.position.set(40, 80, 60);

@@ -58,6 +58,8 @@ export class SquidScreen {
     this.scene.background = new THREE.Color('#1f2a66');
     this.scene.fog = new THREE.Fog('#1f2a66', 260, 520);
     this.camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 1, 900);
+    // Retro look: frame on a point between the goblin and Big Inky so neither looks oversized.
+    this.camera.userData.focusZ = -30;
     this.scene.add(new THREE.HemisphereLight('#c8d8ff', '#3a3050', 1.7));
     const sun = new THREE.DirectionalLight('#fff3dd', 1.9);
     sun.position.set(30, 90, 90);

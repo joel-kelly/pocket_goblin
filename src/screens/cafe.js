@@ -55,6 +55,8 @@ export class CafeScreen {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color('#3b2a3a');
     this.camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 600);
+    this.camera.userData.focusZ = GOB_POS.z; // retro look: frame on the cook
+    this.camera.userData.retroPitch = 12; // retro look: show the floor
     this.scene.add(new THREE.HemisphereLight('#fff2e0', '#5a4050', 1.7));
     const sun = new THREE.DirectionalLight('#fff3dd', 1.9);
     sun.position.set(30, 70, 60);

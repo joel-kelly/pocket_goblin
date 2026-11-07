@@ -52,9 +52,13 @@ The sync Worker also keeps anonymous play counts: how many goblins have been mad
 | 🛁 **Bath** | The goblin HATES this. |
 | ✈️ **Vacation** | Send the goblin away for 5–20 real minutes. A "Current status" line updates while it's gone, and it comes back with a postcard. |
 | 🔨 **Workshop** | Build or remix items block by block. Hats, clothes and decor have to be bought in the Shop before they can be remixed (they show a 🔒 until then). Snacks and her own creations can always be remixed. |
-| Grown-ups | Press and hold the button. Shows a heatmap of which facts are fast or shaky, recent rounds, settings (including the goblin's color) and save backups. |
+| Grown-ups | Press and hold the button. Shows a heatmap of which facts are fast or shaky, recent rounds, settings (including the goblin's color and the game's look) and save backups. |
 
 Hunger, thirst, clean and fun slowly drop over real time, tuned so about 10–15 minutes a day keeps the goblin happy. The goblin never dies. It just gets dramatic.
+
+### Classic 90s look
+
+**Grown-ups → Game look → Classic 90s** redraws the game like an early-90s PC game: a flat, straight-on camera, old EGA colors (64 of them) with checkerboard dithering, thick black outlines and choppier, sprite-like animation. Everything still works the same, including items built in the Workshop. The Workshop itself stays 3D so it can still be spun around. The look is in `src/retro.js`.
 
 ### How the math practice works
 
@@ -112,6 +116,7 @@ src/
   track.js                anonymous play counts (also sent to sync-worker/)
   audio.js                all sound effects, generated in code (farts included)
   fx.js                   particles: fart clouds, hearts, confetti, bubbles
+  retro.js                the "Classic 90s" look: flat camera, EGA colors, outlines
   world.js                3D scene, the goblin's den + decor spots, pixelated renderer
   screens/                home, shop, wardrobe, games (picker), gauntlet (Math Dash), rocket (Fart Rocket),
                           cafe (Goblin Café), race (Swamp Sprint), squid (Squid Smackdown),
